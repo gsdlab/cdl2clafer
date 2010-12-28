@@ -1,0 +1,149 @@
+package CYGPKG_IO{
+  display "I/O sub-system"
+  implements [CYGINT_HAL_DEBUG_GDB_STUBS ]
+  requires [CYGPKG_ERROR ]
+
+  package CYGPKG_IO_SERIAL{
+    display "Serial device drivers"
+    active_if [CYGPKG_IO ]
+    requires [CYGPKG_ERROR ]
+
+    component CYGDBG_HAL_DIAG_TO_DEBUG_CHAN{
+      display "Route diagnostic output to debug channel"
+      default_value [(CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS || CYG_HAL_STARTUP == "RAM") ? 1 : 0 ]
+      active_if [!CYGSEM_HAL_VIRTUAL_VECTOR_INHERIT_CONSOLE ]
+      active_if [CYGPKG_HAL_ARM || CYGPKG_HAL_POWERPC_MPC8xx || CYGPKG_HAL_V85X_V850 || CYGSEM_HAL_VIRTUAL_VECTOR_DIAG ]
+
+      option CYGSEM_HAL_DIAG_MANGLER{
+        display "Mangler used on diag output"
+        legal_values ["GDB" "None" ]
+        default_value ["GDB" ]
+        flavor data
+      }
+    }
+
+    option CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE{
+      display "Interrupt stack size"
+      default_value [CYGPKG_KERNEL ? 4096 : 32768 ]
+      legal_values [128 to 1048576 ]
+      flavor data
+    }
+
+    component CYGHWR_MEMORY_LAYOUT{
+        display "Memory layout"
+        calculated [CYG_HAL_STARTUP == "RAM" ? (CYGHWR_HAL_I386_PC_LOAD_HIGH ? "i386_pc_ram_hi" : "i386_pc_ram") : CYG_HAL_STARTUP == "ROM" ? "i386_pc_rom" : CYG_HAL_STARTUP == "GRUB" ? (CYGHWR_HAL_I386_PC_LOAD_HIGH ? "i386_pc_grub_hi" : "i386_pc_grub") : "i386_pc_floppy" ]
+        flavor data
+    }
+
+    interface CYGINT_IO_SERIAL_BLOCK_TRANSFER{
+      display "Driver requires block transfer callback functions"
+    }
+    component CYGDBG_USE_ASSERTS {
+        display       "Use asserts"
+        default_value [1]
+        description   "conditions."
+    }
+  }
+}
+
+package CYGPKG_HAL_I386_PC{
+  display "i386 PC Target"
+  implements [CYGINT_HAL_DEBUG_GDB_STUBS ]
+  implements [CYGINT_HAL_DEBUG_GDB_STUBS_BREAK ]
+  implements [CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT ]
+  implements [CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT_GUARANTEED ]
+
+  component CYGPKG_HAL_I386_PC_MEMSIZE{
+    display "How to discover the size of available RAM."
+    legal_values ["BIOS" "HARDCODE" ]
+    default_value ["BIOS" ]
+    flavor data
+
+    option CYGNUM_HAL_I386_PC_MEMSIZE_BASE{
+      display "Amount of Base RAM available."
+      default_value [0x000F0000 ]
+      active_if [CYGPKG_HAL_I386_PC_MEMSIZE == "HARDCODE" ]
+      flavor data
+    }
+
+    option CYGPKG_NET_MEM_USAGE{
+      display "Memory designated for networking buffers."
+      default_value [(256*1024)+(CYGPKG_NET_MAXSOCKETS*1024) ]
+      flavor data
+    }
+  }
+
+  component CYGPKG_HAL_DEBUG{
+    display "Source-level debugging support"
+    flavor none
+
+    interface CYGINT_HAL_DEBUG_GDB_STUBS{
+      display "Support for GDB stubs"
+    }
+
+    option CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS{
+      display "Include GDB stubs in HAL"
+      active_if [CYGINT_HAL_DEBUG_GDB_STUBS ]
+      default_value [0 ]
+      requires [! CYGSEM_HAL_USE_ROM_MONITOR ]
+      requires [! CYGDBG_HAL_COMMON_INTERRUPTS_SAVE_MINIMUM_CONTEXT ]
+      requires [! CYGDBG_HAL_COMMON_CONTEXT_SAVE_MINIMUM ]
+      requires [!CYGSEM_HAL_VIRTUAL_VECTOR_DIAG || CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS ]
+    }
+
+    interface CYGINT_HAL_DEBUG_GDB_STUBS_BREAK{
+      display "Support for external break support in GDB stubs"
+    }
+
+    option CYGDBG_HAL_DEBUG_GDB_BREAK_SUPPORT{
+      display "Include GDB external break support for stubs"
+      active_if [CYGINT_HAL_DEBUG_GDB_STUBS_BREAK ]
+      requires [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+      default_value [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+    }
+
+    interface CYGINT_HAL_DEBUG_GDB_CTRLC_UNSUPPORTED{
+      display "Platform does not support CTRLC"
+    }
+
+    option CYGDBG_HAL_DEBUG_GDB_CTRLC_SUPPORT{
+      display "Include GDB external break support when no stubs"
+      requires [!CYGDBG_HAL_DEBUG_GDB_BREAK_SUPPORT ]
+      active_if [CYGSEM_HAL_USE_ROM_MONITOR || CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+      active_if [CYGINT_HAL_DEBUG_GDB_CTRLC_UNSUPPORTED == 0 ]
+      default_value [!CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+    }
+
+    option CYGDBG_HAL_DEBUG_GDB_THREAD_SUPPORT{
+      display "Include GDB multi-threading debug support"
+      active_if [CYGSEM_HAL_ROM_MONITOR || CYGDBG_KERNEL_DEBUG_GDB_THREAD_SUPPORT ]
+      default_value [1 ]
+    }
+
+    option CYGNUM_HAL_DEBUG_GDB_PROTOCOL_RETRIES{
+      display "Number of times to retry sending a $O packet"
+      default_value [0 ]
+      flavor data
+    }
+
+    option CYGNUM_HAL_DEBUG_GDB_PROTOCOL_TIMEOUT{
+      display "Timeout period for GDB packets"
+      default_value [500 ]
+      flavor data
+    }
+
+    option CYGDBG_HAL_CRCTABLE_LOCATION{
+      display "Location of CRC32 table"
+      legal_values ["ROM" "RAM" ]
+      default_value ["RAM" ]
+      flavor data
+    }
+
+    option CYGDBG_HAL_DEBUG_GDB_INITIAL_BREAK{
+      display "Enable initial breakpoint"
+      active_if [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
+      default_value [!CYGPKG_REDBOOT ]
+    }
+  }
+
+}

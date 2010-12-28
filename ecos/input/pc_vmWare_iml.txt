@@ -1,0 +1,19 @@
+package CYGPKG_IO{
+  display "I/O sub-system"
+  requires [CYGPKG_ERROR ]
+
+  package CYGPKG_IO_SERIAL{
+    display "Serial device drivers"
+    active_if [CYGPKG_IO ]
+    requires [CYGPKG_ERROR ]
+
+    option CYGOPT_IO_SERIAL_SUPPORT_NONBLOCKING{
+      display "Support non-blocking read and write calls"
+      default_value [0 ]
+    }
+
+    interface CYGINT_IO_SERIAL_BLOCK_TRANSFER{
+      display "Driver requires block transfer callback functions"
+    }
+  }
+}
