@@ -36,17 +36,25 @@ object CDLToClafer extends IMLParser with Rewriter {
   var childParentMap = Map[String,String]()
 
   def main( args: Array[String] ){
-    parseAll(cdl, new PagedSeqReader(PagedSeq fromFile getBaseInputDir + "test.iml.txt")) match{
-      case Success(res,_) => printCDLAsClafer( res, "pc_vmWare" )
+    processInputFile("calculated.iml.txt", "")
+  }
+
+  def processInputFile (inputFile: String, outputFile: String) {
+    parseAll(cdl, new PagedSeqReader(PagedSeq fromFile getBaseInputDir + inputFile)) match{
+      case Success(res,_) => {
+        val claferString = asClaferString( res )
+        println(claferString)
+        printToFile(claferString)
+      }
       case x => println( "failure: " + x )
     }
   }
 
-  def getBaseInputDir = {
+  private def getBaseInputDir = {
       System.getProperty("user.dir") + "/ecos/input/"
   }
 
-  def getBaseOutputDir = {
+  private def getBaseOutputDir = {
       System.getProperty("user.dir") + "/ecos/output/"
   }
 
@@ -292,12 +300,11 @@ object CDLToClafer extends IMLParser with Rewriter {
     }
   }
 
-  def printCDLAsClafer( topLevelNodes:List[Node], target : String ) = {
+  def asClaferString( topLevelNodes:List[Node] ) : String = {
     val builder = new StringBuilder
     topLevelNodes.foreach(node => builder.append(cdlNodeToClaferString(node, 0)))
 
-    printToFile(builder.toString)
-    println(builder.toString)
+    builder.toString
   }
 
 }
