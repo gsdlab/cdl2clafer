@@ -19,32 +19,28 @@
 package gsd.cdl
 
 import model._
-import statistics.{Feature, Features, CDLModel}
 import util.parsing.input.PagedSeqReader
 import collection.immutable.PagedSeq
 import kiama.rewriting.Rewriter
-import scala.collection.mutable
-import java.io._
-import javax.xml.bind.{Unmarshaller, Marshaller, JAXBContext}
 import scala.collection.jcl.Conversions._
-import gsd.cdl.statistics._
 import scala.Option
+import java.io.FileWriter
 
 object CDLToClafer extends IMLParser with Rewriter {
 
-  var nodesById = Map[String,Node]()
+  var nodesById = Map[String, Node]()
   var childParentMap = Map[String,String]()
 
   def main( args: Array[String] ){
-    processInputFile("calculated.iml.txt", "")
+    processCDLFile("calculated.iml.txt", "clafer.txt")
   }
 
-  def processInputFile (inputFile: String, outputFile: String) {
+  def processCDLFile (inputFile: String, outputFile: String) {
     parseAll(cdl, new PagedSeqReader(PagedSeq fromFile getBaseInputDir + inputFile)) match{
       case Success(res,_) => {
         val claferString = asClaferString( res )
         println(claferString)
-        printToFile(claferString)
+        printToFile(claferString, outputFile)
       }
       case x => println( "failure: " + x )
     }
@@ -144,7 +140,28 @@ object CDLToClafer extends IMLParser with Rewriter {
       case Identifier(s) => {s}
       case Not(s) => {"!" + s}
       case Or(left, right) => {getCDLExpressionAsString(left) + " || " + getCDLExpressionAsString(right) }
-      case Conditional(cond, pass, fail) => {"[" + getCDLExpressionAsString(cond) + " ? " + getCDLExpressionAsString(pass) + " : " + getCDLExpressionAsString(fail) + "]"}
+//      case Conditional(cond, pass, fail) => {"[" + getCDLExpressionAsString(cond) + " ? " + getCDLExpressionAsString(pass) + " : " + getCDLExpressionAsString(fail) + "]"}
+      case Conditional(cond, pass, fail: CDLExpression) => {
+        val builder = new StringBuilder
+//        builder.append(newLine).append(cond.getClass).append(newLine)
+        println("cond: " + cond.getClass)
+        getCDLExpressionAsString(cond)
+        println("pass: " + pass.getClass)
+        getCDLExpressionAsString(pass)
+        println("fail: " + fail.getClass)
+        getCDLExpressionAsString(fail)
+//        builder.append(newLine).append(fail.getClass).append(newLine)
+//        getCDLExpressionAsString(fail)
+
+//        builder.append(" ").append(getCDLExpressionAsString(cond)).append(" ").append(getCDLExpressionAsString(pass))
+//        if (pass.isInstanceOf[Conditional]) {
+//          builder.append(newLine).append("else").append(newLine)
+//        } else {
+//          builder.append(" else ")
+//        }
+//        builder.append(getCDLExpressionAsString(fail))
+        builder.toString
+      }
       case _ => {e.toString}
     }
   }
@@ -287,8 +304,8 @@ object CDLToClafer extends IMLParser with Rewriter {
     builder.toString
   }
 
-  private def printToFile(text: String): Unit = {
-    val file = getBaseOutputDir + "clafer.txt"
+  private def printToFile(text: String, outputFile: String): Unit = {
+    val file = getBaseOutputDir + outputFile
     val fw = new FileWriter(file)
     try {
       fw.write(text)
