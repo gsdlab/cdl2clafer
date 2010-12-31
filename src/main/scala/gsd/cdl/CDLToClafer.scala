@@ -118,6 +118,63 @@ object CDLToClafer extends IMLParser with Rewriter {
     }
   }
 
+  private def getCalculatedxpressionAsString (e : CDLExpression, level: Int, depth: Int) : String = {
+    e match {
+      case StringLiteral(value) => {
+        if (value.substring(0, 1) == "\"" && value.substring(value.length - 1, value.length) == "\"") {
+          value.substring(1, value.length - 1)
+        }  else {
+          value
+        }
+      }
+      case IntLiteral(value) => {String.valueOf(value)}
+      case Eq(left, right) => {
+        if (left.isInstanceOf[Identifier]) {
+          "" + getCDLExpressionAsString(left) + " = " + getCDLExpressionAsString(right)
+        } else if (right.isInstanceOf[Identifier]) {
+          getCDLExpressionAsString(left) + " = " + getCDLExpressionAsString(right)
+        } else {
+          getCDLExpressionAsString(left) + " = " + getCDLExpressionAsString(right)
+        }
+      }
+      case Conditional(cond, pass, fail) => {
+        val builder = new StringBuilder
+//        builder.append(indent(depth + 0))
+        if (!fail.isInstanceOf[Conditional] && !pass.isInstanceOf[Conditional]) {
+          if (level != 0) {
+            builder.append("(")
+          }
+          builder.
+          append(getCalculatedxpressionAsString(cond, level + 1, depth)).
+          append(" => ").
+          append(getCalculatedxpressionAsString(pass, level + 1, depth)).
+          append(" else ").
+          append(getCalculatedxpressionAsString(fail, level + 1, depth))
+          if (level != 0) {
+            builder.append(")")
+          }
+        } else {
+          builder.append(indent(depth + 1)).
+          append(getCalculatedxpressionAsString(cond, level + 1, depth)).
+          append(" => ").append(getCalculatedxpressionAsString(pass, level + 1, depth)).
+          append(newLineAndIndent(depth + level + 2)).
+          append("else ").
+          append(newLineAndIndent(depth + level)).
+          append(getCalculatedxpressionAsString(fail, level + 1, depth))
+        }
+        builder.append("")
+
+        builder.toString
+      }
+      case _ => {getCDLExpressionAsString(e)}
+    }
+
+  }
+
+  private def getCalculatedxpressionAsString (e : CDLExpression, depth: Int) : String = {
+    getCalculatedxpressionAsString(e, 0, depth)
+  }
+
   private def getCDLExpressionAsString (e : CDLExpression) : String = {
     e match {
       case StringLiteral(value) => {
@@ -143,23 +200,6 @@ object CDLToClafer extends IMLParser with Rewriter {
 //      case Conditional(cond, pass, fail) => {"[" + getCDLExpressionAsString(cond) + " ? " + getCDLExpressionAsString(pass) + " : " + getCDLExpressionAsString(fail) + "]"}
       case Conditional(cond, pass, fail: CDLExpression) => {
         val builder = new StringBuilder
-//        builder.append(newLine).append(cond.getClass).append(newLine)
-        println("cond: " + cond.getClass)
-        getCDLExpressionAsString(cond)
-        println("pass: " + pass.getClass)
-        getCDLExpressionAsString(pass)
-        println("fail: " + fail.getClass)
-        getCDLExpressionAsString(fail)
-//        builder.append(newLine).append(fail.getClass).append(newLine)
-//        getCDLExpressionAsString(fail)
-
-//        builder.append(" ").append(getCDLExpressionAsString(cond)).append(" ").append(getCDLExpressionAsString(pass))
-//        if (pass.isInstanceOf[Conditional]) {
-//          builder.append(newLine).append("else").append(newLine)
-//        } else {
-//          builder.append(" else ")
-//        }
-//        builder.append(getCDLExpressionAsString(fail))
         builder.toString
       }
       case _ => {e.toString}
@@ -254,7 +294,12 @@ object CDLToClafer extends IMLParser with Rewriter {
   private def appendCalculated(n: Node, builder: StringBuilder, depth: Int): Unit = {
     n.calculated match {
       case Some(expr) => {
-        builder.append(newLineAndIndent(depth)).append("calculated: ").append(getCDLExpressionAsString(expr))
+        builder.
+          append(newLineAndIndent(depth)).
+          append("calculated: [this = ").
+          append(newLineAndIndent(depth - 1)).
+          append(getCalculatedxpressionAsString(expr, depth)).
+          append("]")
       }
       case None =>
     }
