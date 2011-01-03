@@ -26,11 +26,11 @@ import scala.collection.jcl.Conversions._
 import scala.Option
 import java.io.FileWriter
 
-object CDLToClafer extends IMLParser with Rewriter {
+object CDLToClaferConversion extends IMLParser with Rewriter {
 
   var nodesById = Map[String, Node]()
   var childParentMap = Map[String,String]()
-
+//
   def main( args: Array[String] ){
 //    processCDLFile("problems.iml", "clafer.txt")
     processCDLFile("pc_vmWare.iml.txt", "clafer.txt")
@@ -556,5 +556,15 @@ object CDLToClafer extends IMLParser with Rewriter {
 
     builder.toString
   }
+
+  def getClaferStringFromIMLFile( inputFile: String ) : String = {
+    parseAll(cdl, new PagedSeqReader(PagedSeq fromFile inputFile)) match {
+      case Success(res,_) => {
+        asClaferString( res )
+      }
+      case x => ""
+    }
+  }
+
 
 }
