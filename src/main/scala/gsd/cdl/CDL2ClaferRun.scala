@@ -12,6 +12,6 @@ object CDL2ClaferRun {
   def main( args: Array[String] ){
 //    processCDLFile("problems.iml", "clafer.txt")
 //    val cdl2clafer = new CDLToClafer
-    gsd.cdl.CDLToClaferConversion.processCDLFile("problems.iml", "clafer.txt")
+    gsd.cdl.CDLToClafer.processCDLFile("problems.iml", "clafer.txt")
   }
 }

@@ -56,7 +56,7 @@ class CDL2ClaferTest extends FunSuite {
         (inputFile) => {
           // load iml from file, convert it to clafer and return list of clafer strings
           var resultList = List[String]()
-          List.fromArray(gsd.cdl.CDLToClaferConversion.getClaferStringFromIMLFile(getBaseInputDir + inputFile).split("\n")).
+          List.fromArray(gsd.cdl.CDLToClafer.getClaferStringFromIMLFile(getBaseInputDir + inputFile).split("\n")).
           foreach(
             el => {
                         if (el.trim() != "") {
