@@ -32,7 +32,8 @@ object CDLToClafer extends IMLParser with Rewriter {
   var childParentMap = Map[String,String]()
 
   def main( args: Array[String] ){
-    processCDLFile("calculated.iml.txt", "clafer.txt")
+//    processCDLFile("problems.iml", "clafer.txt")
+    processCDLFile("pc_vmWare.iml.txt", "clafer.txt")
   }
 
   def processCDLFile (inputFile: String, outputFile: String) {
@@ -88,14 +89,14 @@ object CDLToClafer extends IMLParser with Rewriter {
         )
   }
 
-  private def appendReqs (n: Node, depth: Int, builder : StringBuilder) = {
+  private def appendReqs (n: Node, refType: ClaferReferenceType, depth: Int, builder : StringBuilder) = {
     n.reqs.foreach(req =>
         builder.append(newLine).append(indent(depth)).
-        append("[").append(getCDLExpressionAsString(req)).append("]")
+        append("[").append(getCDLExpressionAsStringWithType(req, refType)).append("]")
       )
   }
 
-  private def appendFirstLineOfClafer(builder: StringBuilder, depth: Int, reference: Option[String], n: Node) = {
+  private def appendFirstLineOfClafer(builder: StringBuilder, depth: Int, reference: ClaferReferenceType, n: Node) = {
     builder.append(newLineAndIndent(depth - 1))
     if (n.cdlType == InterfaceType && n.flavor == DataFlavor) {
       builder.append("abstract ")
@@ -104,9 +105,8 @@ object CDLToClafer extends IMLParser with Rewriter {
     if (n.implements.size == 1)
       builder.append(" extends ").append(getCDLExpressionAsString(n.implements.first))
 
-    reference match {
-      case Some(r) => {builder.append(" -> ").append(r).append(" ")}
-      case None => {}
+    if (!reference.isInstanceOf[NoRef] && !reference.isInstanceOf[BooleanRef]) {
+      builder.append(" -> ").append(reference).append(" ")
     }
 
     n.cdlType match {
@@ -125,16 +125,6 @@ object CDLToClafer extends IMLParser with Rewriter {
           value.substring(1, value.length - 1)
         }  else {
           value
-        }
-      }
-      case IntLiteral(value) => {String.valueOf(value)}
-      case Eq(left, right) => {
-        if (left.isInstanceOf[Identifier]) {
-          "" + getCDLExpressionAsString(left) + " = " + getCDLExpressionAsString(right)
-        } else if (right.isInstanceOf[Identifier]) {
-          getCDLExpressionAsString(left) + " = " + getCDLExpressionAsString(right)
-        } else {
-          getCDLExpressionAsString(left) + " = " + getCDLExpressionAsString(right)
         }
       }
       case Conditional(cond, pass, fail) => {
@@ -175,31 +165,138 @@ object CDLToClafer extends IMLParser with Rewriter {
     getCalculatedxpressionAsString(e, 0, depth)
   }
 
+  private def getCDLExpressionAsStringWithType(e: CDLExpression, refType: ClaferReferenceType): String = {
+    e match {
+      case Identifier(s) => {
+        if (refType.isInstanceOf[IntegerRef]) {
+          "#" + getCDLExpressionAsString(e)
+        } else {
+          getCDLExpressionAsString(e)
+        }
+      }
+      case Plus(first, second) => {
+        getCDLExpressionAsStringWithType(first, refType) + " + " + getCDLExpressionAsStringWithType(second, refType)
+      }
+
+      case _ => {getCDLExpressionAsString(e)}
+    }
+  }
+
+  abstract class ClaferReferenceType
+  case class IntegerRef extends ClaferReferenceType {
+    override def toString = "integer"
+  }
+  case class StringRef extends ClaferReferenceType {
+    override def toString = "string"
+  }
+  case class EnumRef(nodeName: String) extends ClaferReferenceType {
+    private var enumList = List[String]()
+    override def toString = nodeName
+
+    def addEnumElement(enum: String) = {
+      enumList += enum
+    }
+
+    def getEnumElements() :List[String] = {
+      enumList.toList // return copy?
+    }
+  }
+  case class NoRef extends ClaferReferenceType {
+    override def toString = "unknown"
+  }
+  case class BooleanRef extends ClaferReferenceType
+
   private def getCDLExpressionAsString (e : CDLExpression) : String = {
     e match {
       case StringLiteral(value) => {
-        if (value.substring(0, 1) == "\"" && value.substring(value.length - 1, value.length) == "\"") {
-          value.substring(1, value.length - 1)
-        }  else {
+//        if (value.substring(0, 1) == "\"" && value.substring(value.length - 1, value.length) == "\"") {
+//          value.substring(1, value.length - 1)
+//        }  else {
           value
-        }
+//        }
       }
       case IntLiteral(value) => {String.valueOf(value)}
       case Eq(left, right) => {
-        if (left.isInstanceOf[Identifier]) {
+        if (left.isInstanceOf[Identifier] && getCDLExpressionType(right).isInstanceOf[IntegerRef]) {
           "#" + getCDLExpressionAsString(left) + " = " + getCDLExpressionAsString(right)
-        } else if (right.isInstanceOf[Identifier]) {
+        } else if (getCDLExpressionType(left).isInstanceOf[IntegerRef] && right.isInstanceOf[Identifier]) {
           getCDLExpressionAsString(left) + " = #" + getCDLExpressionAsString(right)
         } else {
           getCDLExpressionAsString(left) + " = " + getCDLExpressionAsString(right)
         }
       }
+      case NEq(left, right) => {
+        if (left.isInstanceOf[Identifier] && getCDLExpressionType(right).isInstanceOf[IntegerRef]) {
+          "#" + getCDLExpressionAsString(left) + " != " + getCDLExpressionAsString(right)
+        } else if (getCDLExpressionType(left).isInstanceOf[IntegerRef] && right.isInstanceOf[Identifier]) {
+          getCDLExpressionAsString(left) + " != #" + getCDLExpressionAsString(right)
+        } else {
+          getCDLExpressionAsString(left) + " != " + getCDLExpressionAsString(right)
+        }
+      }
+      case GreaterThanOrEq(left, right) => {
+        if (left.isInstanceOf[Identifier] && getCDLExpressionType(right).isInstanceOf[IntegerRef]) {
+          "#" + getCDLExpressionAsString(left) + " >= " + getCDLExpressionAsString(right)
+        } else if (getCDLExpressionType(left).isInstanceOf[IntegerRef] && right.isInstanceOf[Identifier]) {
+          getCDLExpressionAsString(left) + " >= #" + getCDLExpressionAsString(right)
+        } else {
+          getCDLExpressionAsString(left) + " >= " + getCDLExpressionAsString(right)
+        }
+      }
+      case GreaterThan(left, right) => {
+        if (left.isInstanceOf[Identifier] && getCDLExpressionType(right).isInstanceOf[IntegerRef]) {
+          "#" + getCDLExpressionAsString(left) + " > " + getCDLExpressionAsString(right)
+        } else if (getCDLExpressionType(left).isInstanceOf[IntegerRef] && right.isInstanceOf[Identifier]) {
+          getCDLExpressionAsString(left) + " > #" + getCDLExpressionAsString(right)
+        } else {
+          getCDLExpressionAsString(left) + " > " + getCDLExpressionAsString(right)
+        }
+      }
+      case LessThanOrEq(left, right) => {
+        if (left.isInstanceOf[Identifier] && getCDLExpressionType(right).isInstanceOf[IntegerRef]) {
+          "#" + getCDLExpressionAsString(left) + " <= " + getCDLExpressionAsString(right)
+        } else if (getCDLExpressionType(left).isInstanceOf[IntegerRef] && right.isInstanceOf[Identifier]) {
+          getCDLExpressionAsString(left) + " <= #" + getCDLExpressionAsString(right)
+        } else {
+          getCDLExpressionAsString(left) + " <= " + getCDLExpressionAsString(right)
+        }
+      }
+      case LessThan(left, right) => {
+        if (left.isInstanceOf[Identifier] && getCDLExpressionType(right).isInstanceOf[IntegerRef]) {
+          "#" + getCDLExpressionAsString(left) + " < " + getCDLExpressionAsString(right)
+        } else if (getCDLExpressionType(left).isInstanceOf[IntegerRef] && right.isInstanceOf[Identifier]) {
+          getCDLExpressionAsString(left) + " < #" + getCDLExpressionAsString(right)
+        } else {
+          getCDLExpressionAsString(left) + " < " + getCDLExpressionAsString(right)
+        }
+      }
       case Identifier(s) => {s}
       case Not(s) => {"!" + s}
+      case Plus(first, second) => {
+        if (getCDLExpressionType(first).isInstanceOf[IntegerRef] || getCDLExpressionType(second).isInstanceOf[IntegerRef]) {
+          if (first.isInstanceOf[Identifier]) {
+            "#" + getCDLExpressionAsString(first) + " + " + getCDLExpressionAsString(second)
+          } else if (second.isInstanceOf[Identifier]) {
+            getCDLExpressionAsString(first) + " + #" + getCDLExpressionAsString(second)
+          } else {
+            getCDLExpressionAsString(first) + " + " + getCDLExpressionAsString(second)
+          }
+        } else {
+          getCDLExpressionAsString(first) + " + " + getCDLExpressionAsString(second)
+        }
+      }
       case Or(left, right) => {getCDLExpressionAsString(left) + " || " + getCDLExpressionAsString(right) }
-//      case Conditional(cond, pass, fail) => {"[" + getCDLExpressionAsString(cond) + " ? " + getCDLExpressionAsString(pass) + " : " + getCDLExpressionAsString(fail) + "]"}
+      case And(left, right) => {getCDLExpressionAsString(left) + " && " + getCDLExpressionAsString(right) }
       case Conditional(cond, pass, fail: CDLExpression) => {
         val builder = new StringBuilder
+        builder.
+          append("(").
+          append(getCDLExpressionAsString(cond)).
+          append(")").
+          append(" => ").
+          append(getCDLExpressionAsString(pass)).
+          append(" else ").
+          append(getCDLExpressionAsString(fail))
         builder.toString
       }
       case _ => {e.toString}
@@ -216,13 +313,15 @@ object CDLToClafer extends IMLParser with Rewriter {
   }
 
   private def appendDisplay(builder: StringBuilder, depth: Int, n: Node) = {
-    builder.append(newLineAndIndent(depth)).append("display = " + n.display.toString)
+    if (!n.display.isEmpty) {
+      builder.append(newLineAndIndent(depth)).append("display = " + n.display.toString)
+    }
   }
 
-  private def appendDefaultValues(n: Node, builder: StringBuilder, depth: Int) = {
+  private def appendDefaultValues(n: Node, refType: ClaferReferenceType, builder: StringBuilder, depth: Int) = {
     n.defaultValue match {
       case Some(value) => {
-        builder.append(newLineAndIndent(depth)).append("-- default_value = ").append(getCDLExpressionAsString(value))
+        builder.append(newLineAndIndent(depth)).append("-- default_value = ").append(getCDLExpressionAsStringWithType(value, refType))
       }
       case _ => {}
     }
@@ -232,63 +331,103 @@ object CDLToClafer extends IMLParser with Rewriter {
     "" + n.id + "_ENUM"
   }
 
-  private def appendEnumDeclaration(enum: List[String], builder: StringBuilder, n: Node): Unit = {
-    if (!enum.isEmpty) {
-      builder.append(newLine).append("enum ").append(getEnumNameForNode(n)).append(" = ")
-      var these = enum
-      for {i <- 0 to enum.size - 1} {
+  private def appendEnumDeclaration(enum: ClaferReferenceType, builder: StringBuilder, n: Node): Unit = {
+    if (enum.isInstanceOf[EnumRef]) {
+
+      builder.append(newLine).append("enum ").append(enum.asInstanceOf[EnumRef].nodeName).append(" = ")
+      var these = enum.asInstanceOf[EnumRef].getEnumElements
+      for {i <- 0 to enum.asInstanceOf[EnumRef].getEnumElements.size - 1} {
         builder.append(these.head)
         these = these.tail
-        if (i != enum.size - 1)
+        if (i != enum.asInstanceOf[EnumRef].getEnumElements.size - 1)
           builder.append(" | ")
       }
     }
   }
 
-  private def appendLegalValuesDeclaration(legalValues: List[String], builder: StringBuilder, depth: Int) = {
-    if (!legalValues.isEmpty) {
-      legalValues.foreach(builder.append(newLineAndIndent(depth)).append(_))
+  /**
+  *
+  **/
+  private def appendLegalValuesDeclaration(n: Node, refType: ClaferReferenceType, builder: StringBuilder, depth: Int) = {
+    n.legalValues match {
+      case Some(legalValueOption: LegalValuesOption) => {
+        legalValueOption.ranges.foreach(
+          range_ => range_ match {
+            case MinMaxRange(low, high) => {
+                builder.
+                  append(newLineAndIndent(depth)).
+                  append("[").
+                  append(getCDLExpressionAsStringWithType(low, refType)).
+                  append(" <= this && this <= ").
+                  append(getCDLExpressionAsStringWithType(high, refType)).
+                  append("]")
+            }
+
+            case SingleValueRange(r) => {}
+          }
+        )
+      }
+
+      case None => {}
     }
   }
 
-  private def getReference(expression : CDLExpression) : String = {
+//  private def getTypeOfExpression(e: CDLExpression) : ClaferReferenceType = {
+//      e match {
+//        case Eq(left, right) => {
+//          if (left.isInstanceOf[IntLiteral] || left.isInstanceOf[IntLiteral])
+//            new IntegerRef
+//          else
+//            new NoRef
+//        }
+//        case NEq(left, right) => {
+//          if (left.isInstanceOf[IntLiteral] || left.isInstanceOf[IntLiteral])
+//            new IntegerRef
+//          else
+//            new NoRef
+//        }
+//        case _ => {new NoRef}
+//      }
+//  }
+
+//  private def getCDLExpressionType(expression : CDLExpression) : ClaferReferenceType = {
+//    expression match {
+//      case IntLiteral(s) => {
+//        new IntegerRef
+//      }
+//      case StringLiteral(value) => {
+//        if (value.substring(1, 2) == "x") {
+//          new IntegerRef
+//        } else {
+//          new StringRef
+//        }
+//      }
+//      case Plus (left, right) => {
+//        new IntegerRef
+//      }
+//      case _ => new NoRef
+//    }
+//  }
+
+  private def getCDLExpressionType(expression : CDLExpression) : ClaferReferenceType = {
     expression match {
       case Conditional(cond, pass, fail) => {
-          getReference(pass)
+          getCDLExpressionType(pass)
       }
       case IntLiteral(s) => {
-        "integer"
+        new IntegerRef
       }
       case StringLiteral(value) => {
         if (value.substring(1, 2) == "x") {
-          "integer"
+          new IntegerRef
         } else {
-          "string"
+          new StringRef
         }
       }
-      case Plus(left, right) => {"integer"} // check
-      case Minus(left, right) => {"integer"} // check
-      case _ => "unknown (" + expression.getClass.toString + ")"  // error! TODO: cover all cases
+      case Plus(left, right) => {new IntegerRef} // check
+      case Minus(left, right) => {new IntegerRef} // check
+      case _ => new NoRef //"unknown (" + expression.getClass.toString + ")"  // error! TODO: cover all cases
     }
-  }
-
-  private def getReference(enum: List[String], n: Node): Option[String] = {
-      if (n.flavor != BoolFlavor) {
-        if (!enum.isEmpty) {
-          Some(getEnumNameForNode(n))
-        } else {
-          n.defaultValue match {
-            case Some(expression) => {
-              Some(getReference(expression))
-            }
-            case None => {
-              None
-            }
-          }
-        }
-      } else {
-        None
-      }
   }
 
   private def appendCalculated(n: Node, builder: StringBuilder, depth: Int): Unit = {
@@ -305,41 +444,90 @@ object CDLToClafer extends IMLParser with Rewriter {
     }
   }
 
+  private def getClaferTypeFromLegalValues(n: Node): ClaferReferenceType = {
+    n.legalValues match {
+      case Some(legalValueOption: LegalValuesOption) => {
+        if (!legalValueOption.ranges.isEmpty) {
+          legalValueOption.ranges.first match {
+            case SingleValueRange(value) => {
+              val enumRef = new EnumRef(getEnumNameForNode(n))
+              legalValueOption.ranges.foreach(
+              range_ => range_ match {
+                case SingleValueRange(value) => {
+                  enumRef.addEnumElement(getCDLExpressionAsString(value))
+                }
+              })
+              enumRef
+            }
+            case MinMaxRange(low, high) => {
+              if (getCDLExpressionType(low).isInstanceOf[IntegerRef]
+                || getCDLExpressionType(high).isInstanceOf[IntegerRef]) {
+                new IntegerRef
+              } else {
+                new NoRef
+              }
+            }
+          }
+        } else {
+          new NoRef
+        }
+      }
+
+      case None => {new NoRef}
+    }
+  }
+
+  /**
+   * Gets reference type for clafer. i.e integer, enum, string
+   * The process goes as follows:
+   * Take Legal Values from node.
+   *    If there is a list of SingleValues, reference is Enum
+   *    If there is MinMax value, read both and see if it is Integer Type
+   * If Legal Values returns NoRef, proceed to default values and try
+   * to figure out type from there.
+   *
+  **/
+  private def getClaferType(n: Node): ClaferReferenceType = {
+
+    if (n.flavor != BoolFlavor) {
+      val referenceTypeFromLegalValues = getClaferTypeFromLegalValues(n)
+
+      if (!referenceTypeFromLegalValues.isInstanceOf[NoRef]) {
+        referenceTypeFromLegalValues
+      } else {
+        n.defaultValue match {
+          case Some(expression) => {
+            getCDLExpressionType(expression)
+          }
+          case None => {
+            new NoRef
+          }
+        }
+      }
+    } else {
+      new BooleanRef
+    }
+  }
+
+  /**
+  *  Main method that converts Node to clafer string
+  **/
   private def cdlNodeToClaferString(n : Node, depth : Int) : String = {
     val builder = new StringBuilder
     builder.append(newLine)
 
-    var enum = List[String]()
-    var legalValues = List[String]()
+    val refType = getClaferType(n)
 
-    n.legalValues match {
-      case Some(legalValueOption: LegalValuesOption) => {
-          legalValueOption.ranges.foreach(
-             range_ => range_ match {
-               case SingleValueRange(value) => {
-                 enum += getCDLExpressionAsString(value)
-               }
-               case MinMaxRange(low, high) => {
-                 val b = new StringBuilder
-                 legalValues += b.append("[").append(low).append(" <= this && this <= ").append(high).append("]").toString
-               }
-             }
-          )
-        }
-
-      case None => {}
-    }
-
-    appendFirstLineOfClafer(builder, depth, getReference(enum, n), n)
+    appendFirstLineOfClafer(builder, depth, refType, n)
     appendDisplay(builder, depth, n)
     appendImplements(n, depth, builder)
     appendDescription(n, builder, depth)
-    appendDefaultValues(n, builder, depth)
-    appendLegalValuesDeclaration(legalValues, builder, depth)
+    appendDefaultValues(n, refType, builder, depth)
+    appendLegalValuesDeclaration(n, refType, builder, depth)
     appendActiveIfs(n, depth, builder)
-    appendReqs(n, depth, builder)
+    appendReqs(n, refType, depth, builder)
     appendCalculated(n, builder, depth)
-    appendEnumDeclaration(enum, builder, n)
+    appendEnumDeclaration(refType, builder, n)
 
 //    builder.append(newLineAndIndent(depth)).append("FLAVOR: ").append(n.flavor)
 
