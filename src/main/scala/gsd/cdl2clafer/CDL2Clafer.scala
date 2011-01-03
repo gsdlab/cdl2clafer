@@ -16,17 +16,18 @@
  * You should have received a copy of the GNU General Public License
  * along with cdl2clafer.  If not, see <http://www.gnu.org/licenses/>.
  */
-package gsd.cdl
 
-import model._
+package gsd.cdl2clafer
+
+import gsd.cdl.model._
 import util.parsing.input.PagedSeqReader
 import collection.immutable.PagedSeq
 import kiama.rewriting.Rewriter
 import scala.collection.jcl.Conversions._
-import scala.Option
 import java.io.FileWriter
+import gsd.cdl.IMLParser
 
-object CDLToClafer extends IMLParser with Rewriter {
+object CDL2Clafer extends IMLParser with Rewriter {
 
   var nodesById = Map[String, Node]()
   var childParentMap = Map[String,String]()

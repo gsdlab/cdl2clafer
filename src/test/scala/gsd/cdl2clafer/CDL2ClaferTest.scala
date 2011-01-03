@@ -19,17 +19,9 @@ package gsd.cdltest
  * along with cdl2clafer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//import org.scalatest.junit.AssertionsForJUnit
-//import scala.collection.mutable.ListBuffer
-
 import scala.collection.mutable
 
-//import org.junit.Assert._
-//import org.junit.Test
-//import org.junit.Before
-
 import org.scalatest.FunSuite
-import gsd.cdl.CDLToClafer
 
 //@RunWith(classOf[JUnitRunner])
 class CDL2ClaferTest extends FunSuite {
@@ -56,7 +48,7 @@ class CDL2ClaferTest extends FunSuite {
         (inputFile) => {
           // load iml from file, convert it to clafer and return list of clafer strings
           var resultList = List[String]()
-          List.fromArray(gsd.cdl.CDLToClafer.getClaferStringFromIMLFile(getBaseInputDir + inputFile).split("\n")).
+          List.fromArray(gsd.cdl2clafer.CDL2Clafer.getClaferStringFromIMLFile(getBaseInputDir + inputFile).split("\n")).
           foreach(
             el => {
                         if (el.trim() != "") {
@@ -74,8 +66,8 @@ class CDL2ClaferTest extends FunSuite {
                         }
             }
           )
-//                    resultList.foreach(println)
-//                    supposedResultList.foreach(println)
+//        resultList.foreach(println)
+//        supposedResultList.foreach(println)
 
           // sizes should be the same
           assert(resultList.size == supposedResultList.size)
@@ -86,9 +78,6 @@ class CDL2ClaferTest extends FunSuite {
           }
         }
     )
-    // convert
-    //    cdl2Clafer.getClaferStringFromIMLFile ("")
-    // testLineByLine
   }
 }
 
