@@ -1,0 +1,231 @@
+-- ----------------------------------------------------------------------------
+1. Option
+
+cdl_option CYGDBG_INFRA_DEBUG_PRECONDITIONS {
+    display       "Preconditions"
+    default_value 1
+    description   "
+        This option allows individual control of preconditions.
+        A precondition is one type of assert, which it is
+        useful to control separately from more general asserts.
+        The function is CYG_PRECONDITION(condition,msg)."
+}
+
+CYGDBG_INFRA_DEBUG_PRECONDITIONS ? -- CHECK
+    display       = "Preconditions"
+    --default_value = 1 default; feature existing; default values only for configurator; keep them in comments; introduce defaults to clafer
+    description   = "
+        This option allows individual control of preconditions.
+        A precondition is one type of assert, which it is
+        useful to control separately from more general asserts.
+        The function is CYG_PRECONDITION(condition,msg)."
+
+-- ----------------------------------------------------------------------------
+2. Component
+
+cdl_component CYGDBG_USE_ASSERTS {
+    display       "Use asserts"
+    default_value 1
+    description   "
+        If this component is enabled, assertions in the code are
+        tested at run-time. Assert functions (CYG_ASSERT()) are
+        defined in 'include/cyg/infra/cyg_ass.h' within the 'install'
+        tree. If the component is disabled, these result in no
+        additional object code and no checking of the asserted
+        conditions."
+    script        assert.cdl
+}
+
+CYGDBG_USE_ASSERTS ?
+    display       = "Use asserts"
+    --default_value = 1 -- presence
+    description   = "
+        If this component is enabled, assertions in the code are
+        tested at run-time. Assert functions (CYG_ASSERT()) are
+        defined in 'include/cyg/infra/cyg_ass.h' within the 'install'
+        tree. If the component is disabled, these result in no
+        additional object code and no checking of the asserted
+        conditions."
+
+-- ----------------------------------------------------------------------------
+3. Package
+
+-- booldata, always enabled; data value is a version of the package
+-- hardware mandatory; others optional
+cdl_package CYGPKG_INFRA {
+    display       "Infrastructure"
+    include_dir   cyg/infra
+    description   "
+        Common types and useful macros.
+        Tracing and assertion facilities.
+        Package startup options."
+
+    compile startup.cxx prestart.cxx pkgstart.cxx userstart.cxx      \
+            dummyxxmain.cxx null.cxx simple.cxx fancy.cxx buffer.cxx \
+            diag.cxx tcdiag.cxx memcpy.c memset.c delete.cxx
+}
+
+CYGPKG_INFRA -> string ?
+    display       = "Infrastructure"
+    description   = "
+        Common types and useful macros.
+        Tracing and assertion facilities.
+        Package startup options."
+    [this = "v3.0"]
+
+-- ----------------------------------------------------------------------------
+4. Interface
+cdl_interface CYGINT_KERNEL_SCHEDULER {
+    display  "Number of schedulers in this configuration"
+    requires 1 == CYGINT_KERNEL_SCHEDULER
+}
+
+-- data by default; for bool it would be [CYGINT_KERNEL_SCHEDULER]
+abstract CYGINT_KERNEL_SCHEDULER
+    display  = "Number of schedulers in this configuration"
+[1 = #CYGINT_KERNEL_SCHEDULER]
+
+5. Another Interface
+option CYGDBG_HAL_DEBUG_GDB_CTRLC_SUPPORT{
+            display "Include GDB external break support when no stubs"
+            active_if [CYGINT_HAL_DEBUG_GDB_CTRLC_UNSUPPORTED == 0 ]
+}
+
+CYGDBG_HAL_DEBUG_GDB_CTRLC_SUPPORT ?
+    display = "Include GDB external break support when no stubs"
+    --isActive
+    [#CYGINT_HAL_DEBUG_GDB_CTRLC_UNSUPPORTED = 0]
+    -- [isActive xor CYGINT_HAL_DEBUG_GDB_CTRLC_UNSUPPORTED]
+
+-- ----------------------------------------------------------------------------
+6. https://gdansk.uwaterloo.ca/svn/shared/papers/conference/2010-ase/figs/cdlsnippet.tex
+
+MISC_FILESYSTEMS
+    display   = "Miscellaneous filesystems"
+
+-- reparented: MISC_FILESYSTEMS
+CYGPKG_FS_JFFS2 extends CYGINT_IO_FILEIO
+    display = "Journalling Flash File System"
+    [CYGPKG_CRC]
+    -- isActive
+    [MTD]
+
+    CYGOPT_FS_JFFS2_DEBUG -> integer
+        display = "Debug level"
+        -- default_value = 0
+        [0 <= this && this <= 2]  -- CDL: legal_values 0 to 2
+        description = "Debug verbosity of...."
+
+    CYGOPT_FS_JFFS2_NAND ?
+        display = "Support for NAND flash"
+        description = "Enable support for ...."
+        -- calculated
+    [CYGOPT_FS_JFFS2_NAND <=> HAS_IOMEM]
+
+    CYGOPT_FS_JFFS2_COMPRESS ?
+        display = "Compress data"
+        -- default_value = true
+
+        CYGOPT_FS_JFFS2_COMPRESS_ZLIB ?
+            display = "Compress data using zlib"
+            [CYGPKG_COMPRESS_ZLIB]
+            -- default_value = true
+
+        CYGOPT_FS_JFFS2_COMPRESS_CMODE -> CompressMode
+            display = "Set the default compression mode"
+            -- default_value -> Priority
+
+enum CompressMode = None | Priority | Size
+
+-- ----------------------------------------------------------------------------
+7. Implements
+package CYGPKG_HAL_I386_PC{
+  display "i386 PC Target"
+  implements [CYGINT_HAL_DEBUG_GDB_STUBS ]
+  implements [CYGINT_HAL_DEBUG_GDB_STUBS_BREAK ]
+  implements [CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT ]
+  implements [CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT_GUARANTEED ]
+
+  component CYGPKG_HAL_I386_PC_MEMSIZE{
+    display "How to discover the size of available RAM."
+    legal_values ["BIOS" "HARDCODE" ]
+    default_value ["BIOS" ]
+    flavor data
+
+    option CYGNUM_HAL_I386_PC_MEMSIZE_BASE{
+      display "Amount of Base RAM available."
+      default_value [0x000F0000 ]
+      active_if [CYGPKG_HAL_I386_PC_MEMSIZE == "HARDCODE" ]
+      flavor data
+    }
+
+    option CYGNUM_HAL_I386_PC_MEMSIZE_EXTENDED{
+      display "Amount of Extended RAM available."
+      default_value [0x00100000 ]
+      active_if [CYGPKG_HAL_I386_PC_MEMSIZE == "HARDCODE" ]
+      flavor data
+    }
+  }
+}
+
+CYGPKG_HAL_I386_PC
+    display = "i386 PC Target"
+    -- CYGINT_HAL_DEBUG_GDB_STUBS extends CYGINT_HAL_DEBUG_GDB_STUBS
+    `CYGINT_HAL_DEBUG_GDB_STUBS
+    `CYGINT_HAL_DEBUG_GDB_STUBS_BREAK
+    `CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT
+    `CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT_GUARANTEED
+
+    CYGPKG_HAL_I386_PC_MEMSIZE -> MemSize
+        display "How to discover the size of available RAM."
+        -- default_value -> BIOS
+
+    CYGNUM_HAL_I386_PC_MEMSIZE_BASE -> integer
+        display = "Amount of Base RAM available."
+        -- default_value = 0x000F0000
+        -- isActive
+        [CYGPKG_HAL_I386_PC_MEMSIZE = HARDCODE ]
+
+    CYGNUM_HAL_I386_PC_MEMSIZE_EXTENDED -> integer
+        display = "Amount of Extended RAM available."
+        -- default_value = 0x00100000
+        -- isActive
+        [CYGPKG_HAL_I386_PC_MEMSIZE = HARDCODE]
+
+enum MemSize = BIOS | HARDCODE
+
+-- ----------------------------------------------------------------------------
+8. Constraint
+
+option CYGPKG_NET_MEM_USAGE{
+    display "Memory designated for networking buffers."
+    default_value [(256*1024)+(CYGPKG_NET_MAXSOCKETS*1024) ]
+    flavor data
+}
+
+CYGPKG_NET_MEM_USAGE -> integer
+    display = "Memory designated for networking buffers."
+    -- default_value = (256*1024)+(CYGPKG_NET_MAXSOCKETS*1024)
+
+-- ----------------------------------------------------------------------------
+9. calculated
+
+component CYGHWR_MEMORY_LAYOUT{
+    display "Memory layout"
+    calculated [CYG_HAL_STARTUP == "RAM" ? (CYGHWR_HAL_I386_PC_LOAD_HIGH ? "i386_pc_ram_hi" : "i386_pc_ram") : CYG_HAL_STARTUP == "ROM" ? "i386_pc_rom" : CYG_HAL_STARTUP == "GRUB" ? (CYGHWR_HAL_I386_PC_LOAD_HIGH ? "i386_pc_grub_hi" : "i386_pc_grub") : "i386_pc_floppy" ]
+    flavor data
+
+-- strings to clafers
+CYGHWR_MEMORY_LAYOUT -> string
+    display = "Memory layout"
+    -- calculated
+    [this =
+     CYG_HAL_STARTUP = "RAM" =>
+         (CYGHWR_HAL_I386_PC_LOAD_HIGH => "i386_pc_ram_hi" else "i386_pc_ram")
+     else
+         CYG_HAL_STARTUP = "ROM" => "i386_pc_rom"
+         else
+             CYG_HAL_STARTUP = "GRUB" =>
+                 (CYGHWR_HAL_I386_PC_LOAD_HIGH => "i386_pc_grub_hi"
+                 else "i386_pc_grub")
+             else "i386_pc_floppy"]

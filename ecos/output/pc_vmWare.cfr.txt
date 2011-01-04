@@ -46,8 +46,8 @@ CYGPKG_HAL
 
             CYGSEM_HAL_DIAG_MANGLER -> CYGSEM_HAL_DIAG_MANGLER_ENUM 
                 display = "Mangler used on diag output"
-                -- default_value = "GDB"
-enum CYGSEM_HAL_DIAG_MANGLER_ENUM = "GDB" | "None"
+                -- default_value = GDB
+enum CYGSEM_HAL_DIAG_MANGLER_ENUM = GDB | None
 
         CYGBLD_HAL_LINKER_GROUPED_LIBS
             display = "Grouped libraries for linking"
@@ -102,8 +102,8 @@ enum CYGSEM_HAL_DIAG_MANGLER_ENUM = "GDB" | "None"
 
             CYGSEM_HAL_DCACHE_STARTUP_MODE -> CYGSEM_HAL_DCACHE_STARTUP_MODE_ENUM 
                 display = "DATA cache mode on startup"
-                -- default_value = "COPYBACK"
-enum CYGSEM_HAL_DCACHE_STARTUP_MODE_ENUM = "COPYBACK" | "WRITETHRU"
+                -- default_value = COPYBACK
+enum CYGSEM_HAL_DCACHE_STARTUP_MODE_ENUM = COPYBACK | WRITETHRU
 
         CYGSEM_HAL_ENABLE_ICACHE_ON_STARTUP ?
             display = "Enable INSTRUCTION cache on startup"
@@ -163,8 +163,8 @@ enum CYGSEM_HAL_DCACHE_STARTUP_MODE_ENUM = "COPYBACK" | "WRITETHRU"
 
         CYGDBG_HAL_CRCTABLE_LOCATION -> CYGDBG_HAL_CRCTABLE_LOCATION_ENUM 
             display = "Location of CRC32 table"
-            -- default_value = "RAM"
-enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = "ROM" | "RAM"
+            -- default_value = RAM
+enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = ROM | RAM
 
         CYGDBG_HAL_DEBUG_GDB_INITIAL_BREAK ?
             display = "Enable initial breakpoint"
@@ -185,7 +185,8 @@ enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = "ROM" | "RAM"
             display = "Enable use of virtual vector calling interface"
             -- ifActive
             [CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT]
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
             CYGSEM_HAL_VIRTUAL_VECTOR_INHERIT_CONSOLE ?
@@ -196,12 +197,14 @@ enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = "ROM" | "RAM"
 
             CYGPRI_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_CONFIGURABLE ?
                 display = "Debug channel is configurable"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS]
 
             CYGPRI_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_CONFIGURABLE ?
                 display = "Console channel is configurable"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 !CYGSEM_HAL_VIRTUAL_VECTOR_INHERIT_CONSOLE && !CYGDBG_HAL_DIAG_TO_DEBUG_CHAN]
 
             CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE ?
@@ -240,7 +243,8 @@ enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = "ROM" | "RAM"
 
             CYGSEM_HAL_VIRTUAL_VECTOR_DIAG ?
                 display = "Do diagnostic IO via virtual vector table"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 1]
 
         CYGSEM_HAL_ROM_MONITOR ?
@@ -251,9 +255,9 @@ enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = "ROM" | "RAM"
 
         CYGSEM_HAL_USE_ROM_MONITOR -> CYGSEM_HAL_USE_ROM_MONITOR_ENUM 
             display = "Work with a ROM monitor"
-            -- default_value = ((CYG_HAL_STARTUP = "RAM") => "GDB_stubs" else 0)
+            -- default_value = ((CYG_HAL_STARTUP = "RAM") => GDB_stubs else 0)
             [CYG_HAL_STARTUP = "RAM"]
-enum CYGSEM_HAL_USE_ROM_MONITOR_ENUM = "Generic" | "GDB_stubs"
+enum CYGSEM_HAL_USE_ROM_MONITOR_ENUM = Generic | GDB_stubs
 
     abstract CYGINT_HAL_PLF_IF_INIT
         display = "Platform defined I/O channels."
@@ -273,7 +277,8 @@ enum CYGSEM_HAL_USE_ROM_MONITOR_ENUM = "Generic" | "GDB_stubs"
 
     CYGPKG_HAL_TESTS -> string 
         display = "Common HAL tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         ((("tests/context tests/basic") ++
                 (!CYGINT_HAL_TESTS_NO_CACHES => " tests/cache" else "")) ++
                 (CYGPKG_HAL_BUILD_COMPILER_TESTS => " tests/cpp1 tests/vaargs" else "")) ++
@@ -316,7 +321,8 @@ enum CYGSEM_HAL_USE_ROM_MONITOR_ENUM = "Generic" | "GDB_stubs"
 
         CYGBLD_LINKER_SCRIPT -> string 
             display = "Linker script"
-            calculated: [this = 
+            -- calculated
+            [this = 
             "src/i386.ld"]
 
         abstract CYGINT_HAL_I386_MEM_REAL_REGION_TOP
@@ -343,8 +349,8 @@ enum CYGSEM_HAL_USE_ROM_MONITOR_ENUM = "Generic" | "GDB_stubs"
 
             CYGPKG_HAL_I386_PC_MEMSIZE -> CYGPKG_HAL_I386_PC_MEMSIZE_ENUM 
                 display = "How to discover the size of available RAM."
-                -- default_value = "BIOS"
-enum CYGPKG_HAL_I386_PC_MEMSIZE_ENUM = "BIOS" | "HARDCODE"
+                -- default_value = BIOS
+enum CYGPKG_HAL_I386_PC_MEMSIZE_ENUM = BIOS | HARDCODE
 
                 CYGNUM_HAL_I386_PC_MEMSIZE_BASE -> integer 
                     display = "Amount of Base RAM available."
@@ -360,23 +366,24 @@ enum CYGPKG_HAL_I386_PC_MEMSIZE_ENUM = "BIOS" | "HARDCODE"
 
             CYG_HAL_STARTUP -> CYG_HAL_STARTUP_ENUM 
                 display = "Startup type"
-                -- default_value = "RAM"
-enum CYG_HAL_STARTUP_ENUM = "RAM" | "FLOPPY" | "ROM" | "GRUB"
+                -- default_value = RAM
+enum CYG_HAL_STARTUP_ENUM = RAM | FLOPPY | ROM | GRUB
 
             CYGBLD_BUILD_I386_ROMBOOT ?
                 display = "Build ROM bootstrap code"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 CYG_HAL_STARTUP = "ROM"]
 
             CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD -> CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD_ENUM 
                 display = "Diagnostic serial port baud rate"
-                -- default_value = 38400
-enum CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD_ENUM = 9600 | 19200 | 38400 | 57600 | 115200
+                -- default_value = VAL_38400
+enum CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD_ENUM = VAL_9600 | VAL_38400 | VAL_57600 | VAL_19200 | VAL_115200
 
             CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD -> CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM 
                 display = "GDB serial port baud rate"
-                -- default_value = 38400
-enum CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM = 9600 | 19200 | 38400 | 57600 | 115200
+                -- default_value = VAL_38400
+enum CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM = VAL_9600 | VAL_38400 | VAL_57600 | VAL_19200 | VAL_115200
 
             CYGNUM_HAL_VIRTUAL_VECTOR_COMM_CHANNELS -> integer 
                 display = "Number of communication channels on the board"
@@ -409,7 +416,8 @@ enum CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM = 9600 | 19200 | 38400 | 
 
             CYGHWR_MEMORY_LAYOUT -> string 
                 display = "Memory layout"
-                calculated: [this = 
+                -- calculated
+                [this = 
                                     CYG_HAL_STARTUP = "RAM" => (CYGHWR_HAL_I386_PC_LOAD_HIGH => "i386_pc_ram_hi" else "i386_pc_ram")
                         else 
                                     CYG_HAL_STARTUP = "ROM" => "i386_pc_rom"
@@ -420,7 +428,8 @@ enum CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM = 9600 | 19200 | 38400 | 
 
                 CYGHWR_MEMORY_LAYOUT_LDI -> string 
                     display = "Memory layout linker script fragment"
-                    calculated: [this = 
+                    -- calculated
+                    [this = 
                                             CYG_HAL_STARTUP = "RAM" => (CYGHWR_HAL_I386_PC_LOAD_HIGH => "<pkgconf/mlt_i386_pc_ram_hi.ldi>" else "<pkgconf/mlt_i386_pc_ram.ldi>")
                             else 
                                             CYG_HAL_STARTUP = "ROM" => "<pkgconf/mlt_i386_pc_rom.ldi>"
@@ -431,7 +440,8 @@ enum CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM = 9600 | 19200 | 38400 | 
 
                 CYGHWR_MEMORY_LAYOUT_H -> string 
                     display = "Memory layout header file"
-                    calculated: [this = 
+                    -- calculated
+                    [this = 
                                             CYG_HAL_STARTUP = "RAM" => (CYGHWR_HAL_I386_PC_LOAD_HIGH => "<pkgconf/mlt_i386_pc_ram_hi.h>" else "<pkgconf/mlt_i386_pc_ram.h>")
                             else 
                                             CYG_HAL_STARTUP = "ROM" => "<pkgconf/mlt_i386_pc_rom.h>"
@@ -474,7 +484,8 @@ enum CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM = 9600 | 19200 | 38400 | 
             CYGPKG_HAL_I386_PCMB_SMP_SUPPORT
                 -- ifActive
                 [CYGPKG_HAL_SMP_SUPPORT]
-                calculated: [this = 
+                -- calculated
+                [this = 
                 CYGPKG_HAL_SMP_SUPPORT]
 
             CYGFUN_HAL_I386_PCMB_GPROF_SUPPORT extends CYGINT_PROFILE_HAL_TIMER ?
@@ -482,7 +493,8 @@ enum CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM = 9600 | 19200 | 38400 | 
                 -- ifActive
                 [CYGPKG_PROFILE_GPROF]
                 [CYGVAR_KERNEL_COUNTERS_CLOCK]
-                calculated: [this = 
+                -- calculated
+                [this = 
                 1]
 
             abstract CYGINT_HAL_I386_PCMB_SCREEN_SUPPORT
@@ -559,8 +571,8 @@ CYGPKG_IO
 
             CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT -> CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM 
                 display = "Default flow control method"
-                -- default_value = "NONE"
-enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = "NONE" | "XONXOFF" | "RTSCTS" | "DSRDTR"
+                -- default_value = NONE
+enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRDTR
 
             CYGNUM_IO_SERIAL_FLOW_CONTROL_LOW_WATER_PERCENT -> integer 
                 display = "Rx flow control low water mark"
@@ -637,7 +649,8 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = "NONE" | "XONXOFF" | "RTSCTS" 
                 display = "Build termios tty driver file"
                 -- ifActive
                 [#CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY > 0]
-                calculated: [this = 
+                -- calculated
+                [this = 
                 1]
 
             CYGPKG_IO_SERIAL_TERMIOS_TERMIOS0 extends CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY
@@ -703,8 +716,8 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = "NONE" | "XONXOFF" | "RTSCTS" 
 
                     CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO_RX_THRESHOLD -> CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO_RX_THRESHOLD_ENUM 
                         display = "Threshold for RX interrupt on 16550 FIFO"
-                        -- default_value = 1
-enum CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO_RX_THRESHOLD_ENUM = 14 | 8 | 4 | 1
+                        -- default_value = VAL_1
+enum CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO_RX_THRESHOLD_ENUM = VAL_14 | VAL_8 | VAL_4 | VAL_1
 
                     CYGNUM_IO_SERIAL_GENERIC_16X5X_FIFO_TX_SIZE -> integer 
                         display = "16x5x TX FIFO size"
@@ -745,8 +758,8 @@ enum CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO_RX_THRESHOLD_ENUM = 14 | 8 | 4 | 1
 
                     CYGNUM_IO_SERIAL_I386_PC_SERIAL0_BAUD -> CYGNUM_IO_SERIAL_I386_PC_SERIAL0_BAUD_ENUM 
                         display = "Baud rate for the PC serial port 0 driver"
-                        -- default_value = 38400
-enum CYGNUM_IO_SERIAL_I386_PC_SERIAL0_BAUD_ENUM = 50 | 75 | 110 | "134_5" | 150 | 200 | 300 | 600 | 1200 | 1800 | 2400 | 3600 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 | 57600 | 115200 | 230400
+                        -- default_value = VAL_38400
+enum CYGNUM_IO_SERIAL_I386_PC_SERIAL0_BAUD_ENUM = VAL_200 | VAL_1800 | VAL_9600 | VAL_150 | VAL_600 | VAL_1200 | VAL_75 | VAL_19200 | VAL_300 | 134_5 | VAL_38400 | VAL_14400 | VAL_230400 | VAL_4800 | VAL_50 | VAL_57600 | VAL_3600 | VAL_7200 | VAL_110 | VAL_115200 | VAL_2400
 
                     CYGNUM_IO_SERIAL_I386_PC_SERIAL0_BUFSIZE -> integer 
                         display = "Buffer size for the PC serial port 0 driver"
@@ -781,8 +794,8 @@ enum CYGNUM_IO_SERIAL_I386_PC_SERIAL0_BAUD_ENUM = 50 | 75 | 110 | "134_5" | 150 
 
                     CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD -> CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM 
                         display = "Baud rate for the PC serial port 1 driver"
-                        -- default_value = 38400
-enum CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM = 50 | 75 | 110 | "134_5" | 150 | 200 | 300 | 600 | 1200 | 1800 | 2400 | 3600 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 | 57600 | 115200 | 230400
+                        -- default_value = VAL_38400
+enum CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM = VAL_200 | VAL_1800 | VAL_9600 | VAL_150 | VAL_600 | VAL_1200 | VAL_75 | VAL_19200 | VAL_300 | 134_5 | VAL_38400 | VAL_14400 | VAL_230400 | VAL_4800 | VAL_50 | VAL_57600 | VAL_3600 | VAL_7200 | VAL_110 | VAL_115200 | VAL_2400
 
                     CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BUFSIZE -> integer 
                         display = "Buffer size for the PC serial port 1 driver"
@@ -819,7 +832,8 @@ enum CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM = 50 | 75 | 110 | "134_5" | 150 
                     display = "Testing parameters"
                     -- ifActive
                     [CYGPKG_IO_SERIAL_I386_PC_SERIAL0]
-                    calculated: [this = 
+                    -- calculated
+                    [this = 
                     1]
 
                     CYGPRI_SER_TEST_SER_DEV
@@ -843,7 +857,8 @@ enum CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM = 50 | 75 | 110 | "134_5" | 150 
 
             CYGPKG_IO_SERIAL_TESTS -> string 
                 display = "Serial device driver tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 CYGPKG_IO_SERIAL_DEVICES => "tests/serial1 tests/serial2 tests/serial3 tests/serial4 tests/serial5 tests/tty1 tests/tty2 tests/flow1 tests/flow2" else ""]
 
         CYGPKG_IO_SERIAL_SELECT_SUPPORT ?
@@ -855,7 +870,8 @@ enum CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM = 50 | 75 | 110 | "134_5" | 150 
 
         CYGPKG_IO_SERIAL_TEST_SPECS
             display = "Serial testing specification"
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
             abstract CYGINT_IO_SERIAL_TEST_SKIP_9600
@@ -923,18 +939,18 @@ enum CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM = 50 | 75 | 110 | "134_5" | 150 
 
                 CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_RX -> CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_RX_ENUM 
                     display = "Drop incoming packets (percentage)"
-                    -- default_value = 10
-enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_RX_ENUM = 10 | 50 | 80
+                    -- default_value = VAL_10
+enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_RX_ENUM = VAL_10 | VAL_50 | VAL_80
 
                 CYGPKG_IO_ETH_DRIVERS_SIMULATE_CORRUPT_RX -> CYGPKG_IO_ETH_DRIVERS_SIMULATE_CORRUPT_RX_ENUM 
                     display = "Corrupt incoming packets (percentage)"
-                    -- default_value = 10
-enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_CORRUPT_RX_ENUM = 10 | 50 | 80
+                    -- default_value = VAL_10
+enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_CORRUPT_RX_ENUM = VAL_10 | VAL_50 | VAL_80
 
                 CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX -> CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM 
                     display = "Drop outgoing packets (percentage)"
-                    -- default_value = 10
-enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM = 10 | 50 | 80
+                    -- default_value = VAL_10
+enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM = VAL_10 | VAL_50 | VAL_80
 
                 CYGPKG_IO_ETH_DRIVERS_SIMULATE_LINE_CUT ?
                     display = "Simulate a line cut from time to time"
@@ -988,7 +1004,8 @@ enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM = 10 | 50 | 80
 
             CYGNUM_DEVS_ETH_AMD_LANCEPCI_DEV_COUNT
                 display = "Number of supported interfaces."
-                calculated: [this = 
+                -- calculated
+                [this = 
                 CYGINT_DEVS_ETH_AMD_LANCEPCI_REQUIRED]
 
             CYGPKG_DEVS_ETH_AMD_LANCEPCI_OPTIONS
@@ -1015,13 +1032,13 @@ enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM = 10 | 50 | 80
 
                 CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_RX_RING_SIZE -> CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_RX_RING_SIZE_ENUM 
                     display = "Size of RX ring for ETH0"
-                    -- default_value = 4
-enum CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_RX_RING_SIZE_ENUM = 4 | 8 | 16 | 32 | 64 | 128
+                    -- default_value = VAL_4
+enum CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_RX_RING_SIZE_ENUM = VAL_32 | VAL_16 | VAL_128 | VAL_64 | VAL_4 | VAL_8
 
                 CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_TX_RING_SIZE -> CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_TX_RING_SIZE_ENUM 
                     display = "Size of TX ring for ETH0"
-                    -- default_value = 4
-enum CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_TX_RING_SIZE_ENUM = 4 | 8 | 16 | 32 | 64 | 128
+                    -- default_value = VAL_4
+enum CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_TX_RING_SIZE_ENUM = VAL_32 | VAL_16 | VAL_128 | VAL_64 | VAL_4 | VAL_8
 
                 CYGDAT_DEVS_ETH_I386_PC_LANCEPCI_ETH0_NAME -> string 
                     display = "Device name for the ETH0 ethernet port 0 driver"
@@ -1075,7 +1092,8 @@ enum CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_TX_RING_SIZE_ENUM = 4 | 8 | 16 | 32 |
 
             CYGPKG_POWER_TESTS -> string 
                 display = "Power management tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 "tests/powertest"]
 
     CYGPKG_IO_PCI
@@ -1098,7 +1116,8 @@ enum CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_TX_RING_SIZE_ENUM = 4 | 8 | 16 | 32 |
 
             CYGPKG_IO_PCI_TESTS -> string 
                 display = "PCI tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 "tests/pci1 tests/pci2"]
 
             CYGPKG_IO_PCI_CONFIGURE_INTLINE ?
@@ -1273,7 +1292,8 @@ CYGPKG_INFRA
 
         CYGPKG_INFRA_TESTS -> string 
             display = "Infra package tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             "tests/cxxsupp tests/diag_sprintf1 tests/diag_sprintf2"]
 
             CYGNUM_TESTS_RUN_COUNT -> integer 
@@ -1359,7 +1379,8 @@ CYGPKG_KERNEL
 
         CYGPRI_KERNEL_SCHED_IMPL_HXX -> string 
             display = "Scheduler header file"
-            calculated: [this = 
+            -- calculated
+            [this = 
                             CYGSEM_KERNEL_SCHED_BITMAP => "<cyg/kernel/bitmap.hxx>"
                     else 
                             CYGSEM_KERNEL_SCHED_MLQUEUE => "<cyg/kernel/mlqueue.hxx>"
@@ -1373,7 +1394,8 @@ CYGPKG_KERNEL
 
             CYGNUM_KERNEL_SCHED_BITMAP_SIZE -> string 
                 display = "Bitmap size"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 "CYGNUM_KERNEL_SCHED_PRIORITIES"]
 
             CYGIMP_KERNEL_SCHED_SORTED_QUEUES ?
@@ -1458,12 +1480,14 @@ CYGPKG_KERNEL
 
         CYGNUM_KERNEL_COUNTERS_RTC_RESOLUTION -> string 
             display = "RTC resolution"
-            calculated: [this = 
+            -- calculated
+            [this = 
             "{CYGNUM_HAL_RTC_NUMERATOR, CYGNUM_HAL_RTC_DENOMINATOR}"]
 
         CYGNUM_KERNEL_COUNTERS_RTC_PERIOD -> string 
             display = "RTC period"
-            calculated: [this = 
+            -- calculated
+            [this = 
             "CYGNUM_HAL_RTC_PERIOD"]
 
     CYGPKG_KERNEL_THREADS
@@ -1524,27 +1548,32 @@ CYGPKG_KERNEL
 
             CYGNUM_KERNEL_THREADS_DATA_ALL -> integer 
                 display = "Bitmap of preallocated slots of thread data"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 15]
 
                 CYGNUM_KERNEL_THREADS_DATA_KERNEL -> integer 
                     display = "Slot 0 preallocated for the kernel"
-                    calculated: [this = 
+                    -- calculated
+                    [this = 
                     0]
 
                 CYGNUM_KERNEL_THREADS_DATA_ITRON -> integer 
                     display = "Slot 1 preallocated for uITRON"
-                    calculated: [this = 
+                    -- calculated
+                    [this = 
                     1]
 
                 CYGNUM_KERNEL_THREADS_DATA_ERRNO -> integer 
                     display = "Slot 2 preallocated for errno"
-                    calculated: [this = 
+                    -- calculated
+                    [this = 
                     2]
 
                 CYGNUM_KERNEL_THREADS_DATA_POSIX -> integer 
                     display = "Slot 3 preallocated for POSIX"
-                    calculated: [this = 
+                    -- calculated
+                    [this = 
                     3]
 
         CYGPKG_KERNEL_THREADS_DESTRUCTORS
@@ -1577,7 +1606,8 @@ CYGPKG_KERNEL
             display = "Idle thread must always yield"
             -- ifActive
             [#CYGNUM_KERNEL_SCHED_PRIORITIES = 1]
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
     CYGPKG_KERNEL_SYNCH
@@ -1585,11 +1615,11 @@ CYGPKG_KERNEL
 
         CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL -> CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_ENUM 
             display = "Priority inversion protection protocols"
-            -- default_value = "SIMPLE"
+            -- default_value = SIMPLE
             -- ifActive
             [CYGSEM_KERNEL_SCHED_MLQUEUE]
             [#CYGINT_KERNEL_SCHEDULER_UNIQUE_PRIORITIES = 0]
-enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_ENUM = "SIMPLE"
+enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_ENUM = SIMPLE
 
             CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_INHERIT extends CYGINT_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_COUNT ?
                 display = "Enable priority inheritance protocol"
@@ -1612,10 +1642,10 @@ enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_ENUM = "SIMPLE"
 
             CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT -> CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT_ENUM 
                 display = "Default priority inversion protocol"
-                -- default_value = ((CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_INHERIT) => "INHERIT" else ((CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_CEILING) => "CEILING" else "NONE"))
+                -- default_value = ((CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_INHERIT) => INHERIT else ((CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_CEILING) => CEILING else NONE))
                 -- ifActive
                 [#CYGINT_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_COUNT > 1]
-enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT_ENUM = "INHERIT" | "CEILING" | "NONE"
+enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT_ENUM = INHERIT | CEILING | NONE
 
             CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DYNAMIC ?
                 display = "Specify mutex priority inversion protocol at runtime"
@@ -1784,7 +1814,8 @@ enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT_ENUM = "INHER
 
         CYGPKG_KERNEL_TESTS -> string 
             display = "Kernel tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             (((("tests/bin_sem0 tests/bin_sem1 tests/bin_sem2 tests/bin_sem3 tests/clock0 tests/clock1 tests/clockcnv tests/clocktruth tests/cnt_sem0 tests/cnt_sem1 tests/except1 tests/flag0 tests/flag1 tests/intr0 tests/kill tests/mbox1 tests/mqueue1 tests/mutex0 tests/mutex1 tests/mutex2 tests/mutex3 tests/release tests/sched1 tests/sync2 tests/sync3 tests/thread0 tests/thread1 tests/thread2") ++
                     (CYGFUN_KERNEL_API_C => " tests/kclock0 tests/kclock1 tests/kexcept1 tests/kflag0 tests/kflag1 tests/kintr0 tests/klock tests/kmbox1 tests/kmutex0 tests/kmutex1 tests/kmutex3 tests/kmutex4 tests/ksched1 tests/ksem0 tests/ksem1 tests/kthread0 tests/kthread1 tests/stress_threads tests/thread_gdb tests/timeslice tests/timeslice2 tests/tm_basic tests/fptest tests/kalarm0" else "")) ++
                     (!CYGPKG_INFRA_DEBUG && !CYGPKG_KERNEL_INSTRUMENT && CYGFUN_KERNEL_API_C => " tests/dhrystone" else "")) ++
@@ -1925,7 +1956,8 @@ CYGPKG_MEMALLOC
 
         CYGPKG_MEMALLOC_TESTS -> string 
             display = "Tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             "tests/dlmalloc1 tests/dlmalloc2 tests/heaptest tests/kmemfix1 tests/kmemvar1 tests/malloc1 tests/malloc2 tests/malloc3 tests/malloc4 tests/memfix1 tests/memfix2 tests/memvar1 tests/memvar2 tests/realloc tests/sepmeta1 tests/sepmeta2"]
 
 CYGPKG_ISOINFRA
@@ -2694,7 +2726,8 @@ CYGPKG_LIBC
 
             CYGPKG_LIBC_I18N_TESTS -> string 
                 display = "C library i18n function tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 "tests/ctype tests/setlocale tests/i18nmb"]
 
     CYGPKG_LIBC_SETJMP extends CYGINT_ISO_SETJMP
@@ -2715,7 +2748,8 @@ CYGPKG_LIBC
 
             CYGPKG_LIBC_SETJMP_TESTS -> string 
                 display = "C library setjmp tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 "tests/setjmp"]
 
     CYGPKG_LIBC_STARTUP
@@ -2816,7 +2850,8 @@ CYGPKG_LIBC
 
             CYGPKG_LIBC_STARTUP_TESTS -> string 
                 display = "ISO environment startup/termination tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 "tests/atexit"]
 
     CYGPKG_LIBC_STDIO
@@ -2895,7 +2930,8 @@ CYGPKG_LIBC
 
         BUFSIZ
             display = "Default buffer size (BUFSIZ)"
-            calculated: [this = 
+            -- calculated
+            [this = 
             CYGSEM_LIBC_STDIO_WANT_BUFFERED_IO => CYGNUM_LIBC_STDIO_BUFSIZE else 0]
 
         CYGFUN_LIBC_STDIO_ungetc ?
@@ -2911,7 +2947,8 @@ CYGPKG_LIBC
                 display = "POSIX fdopen/fileno functions"
                 -- ifActive
                 [CYGPKG_LIBC_STDIO_FILEIO]
-                calculated: [this = 
+                -- calculated
+                [this = 
                 1]
 
         CYGDAT_LIBC_STDIO_DEFAULT_CONSOLE
@@ -2949,7 +2986,8 @@ CYGPKG_LIBC
             [CYGPKG_IO_FILEIO]
             [CYGSEM_LIBC_STDIO_WANT_BUFFERED_IO]
             [CYGSEM_LIBC_STDIO_DYNAMIC_SETVBUF]
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
         CYGPKG_LIBC_STDIO_OPTIONS
@@ -2965,7 +3003,8 @@ CYGPKG_LIBC
 
             CYGPKG_LIBC_STDIO_TESTS -> string 
                 display = "C library stdio function tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 ("tests/sprintf1 tests/sprintf2 tests/sscanf tests/stdiooutput ") ++
                         (CYGPKG_IO_FILEIO && CYGPKG_FS_RAM => "tests/fileio " else "")]
 
@@ -3062,7 +3101,8 @@ CYGPKG_LIBC
 
             CYGPKG_LIBC_STDLIB_TESTS -> string 
                 display = "C library stdlib tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 "tests/abs tests/atoi tests/atol tests/bsearch tests/div tests/getenv tests/labs tests/ldiv tests/qsort tests/rand1 tests/rand2 tests/rand3 tests/rand4 tests/srand tests/strtol tests/strtoul"]
 
     CYGPKG_LIBC_STRING
@@ -3110,7 +3150,8 @@ CYGPKG_LIBC
             display = "strdup"
             -- ifActive
             [CYGINT_ISO_MALLOC]
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
         CYGPKG_LIBC_STRING_OPTIONS
@@ -3126,7 +3167,8 @@ CYGPKG_LIBC
 
             CYGPKG_LIBC_STRING_TESTS -> string 
                 display = "C library string function tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 "tests/memchr tests/memcmp1 tests/memcmp2 tests/memcpy1 tests/memcpy2 tests/memmove1 tests/memmove2 tests/memset tests/strcat1 tests/strcat2 tests/strchr tests/strcmp1 tests/strcmp2 tests/strcoll1 tests/strcoll2 tests/strcpy1 tests/strcpy2 tests/strcspn tests/strcspn tests/strlen tests/strncat1 tests/strncat2 tests/strncpy1 tests/strncpy2 tests/strpbrk tests/strrchr tests/strspn tests/strstr tests/strtok tests/strxfrm1 tests/strxfrm2"]
 
     CYGPKG_LIBC_TIME
@@ -3247,7 +3289,8 @@ CYGPKG_LIBC
 
             CYGPKG_LIBC_TIME_TESTS -> string 
                 display = "C library time and date function tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 ("tests/asctime tests/clock tests/ctime tests/gmtime tests/localtime tests/mktime tests/strftime tests/time ") ++
                         (CYGFUN_LIBC_TIME_POSIX => "tests/strptime" else "")]
 
@@ -3266,13 +3309,14 @@ CYGPKG_LIBM
 
         CYGNUM_LIBM_COMPATIBILITY extends CYGINT_LIBM_COMPAT -> CYGNUM_LIBM_COMPATIBILITY_ENUM 
             display = "Default mode"
-            -- default_value = "POSIX"
+            -- default_value = POSIX
             [CYGPKG_LIBC]
-enum CYGNUM_LIBM_COMPATIBILITY_ENUM = "POSIX" | "IEEE" | "XOPEN" | "SVID"
+enum CYGNUM_LIBM_COMPATIBILITY_ENUM = POSIX | IEEE | XOPEN | SVID
 
             CYGNUM_LIBM_COMPAT_DEFAULT -> string 
                 display = "Numeric representation"
-                calculated: [this = 
+                -- calculated
+                [this = 
                                     CYGNUM_LIBM_COMPATIBILITY = "POSIX" => "CYGNUM_LIBM_COMPAT_POSIX"
                         else 
                                     CYGNUM_LIBM_COMPATIBILITY = "IEEE" => "CYGNUM_LIBM_COMPAT_IEEE"
@@ -3344,7 +3388,8 @@ enum CYGNUM_LIBM_COMPATIBILITY_ENUM = "POSIX" | "IEEE" | "XOPEN" | "SVID"
 
         CYGPKG_LIBM_TESTS -> string 
             display = "Math library tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             "tests/vectors/acos tests/vectors/asin tests/vectors/atan tests/vectors/atan2 tests/vectors/ceil tests/vectors/cos tests/vectors/cosh tests/vectors/exp tests/vectors/fabs tests/vectors/floor tests/vectors/fmod tests/vectors/frexp tests/vectors/ldexp tests/vectors/log tests/vectors/log10 tests/vectors/modf tests/vectors/pow tests/vectors/sin tests/vectors/sinh tests/vectors/sqrt tests/vectors/tan tests/vectors/tanh"]
 
 CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
@@ -3383,7 +3428,8 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
         _POSIX_PRIORITY_SCHEDULING ?
             display = "POSIX priority scheduling feature test macro"
             [CYGSEM_KERNEL_SCHED_MLQUEUE]
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
     CYGPKG_POSIX_PTHREAD
@@ -3402,12 +3448,14 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
             [CYGFUN_KERNEL_THREADS_STACK_LIMIT]
             [CYGBLD_ISO_PTHREADTYPES_HEADER = "<cyg/posix/types.h>"]
             [CYGBLD_ISO_PTHREAD_IMPL_HEADER = "<cyg/posix/pthread.h>"]
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
         CYGPKG_POSIX_PTHREAD_VALUES
             display = "Constant values used in pthread package"
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
             CYGNUM_POSIX_PTHREAD_DESTRUCTOR_ITERATIONS -> integer 
@@ -3427,43 +3475,50 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
 
         CYGPKG_POSIX_PTHREAD_FEATURES
             display = "Fixed Feature test macros for POSIX"
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
             _POSIX_THREADS ?
                 display = "POSIX thread support feature test macro"
                 [CYGSEM_KERNEL_SCHED_TIMESLICE]
                 [CYGVAR_KERNEL_THREADS_DATA]
-                calculated: [this = 
+                -- calculated
+                [this = 
                 1]
 
             _POSIX_THREAD_PRIORITY_SCHEDULING ?
                 display = "POSIX thread priority scheduling feature test macro"
                 [CYGSEM_KERNEL_SCHED_MLQUEUE]
                 [_POSIX_THREADS]
-                calculated: [this = 
+                -- calculated
+                [this = 
                 1]
 
             _POSIX_THREAD_ATTR_STACKADDR ?
                 display = "POSIX stack address attribute feature test macro"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 1]
 
             _POSIX_THREAD_ATTR_STACKSIZE ?
                 display = "POSIX stack size attribute feature test macro"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 1]
 
             _POSIX_THREAD_PROCESS_SHARED ?
                 display = "POSIX process shared attribute feature test macro"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 0]
 
         CYGPKG_POSIX_MAIN_THREAD extends CYGINT_LIBC_STARTUP_EXTERNAL_INVOKE_MAIN_POSSIBLE
             display = "Main thread configuration"
             [0 != #CYGPKG_LIBC_STARTUP]
             [CYGSEM_LIBC_STARTUP_MAIN_OTHER]
-            calculated: [this = 
+            -- calculated
+            [this = 
             1]
 
             CYGNUM_POSIX_MAIN_DEFAULT_PRIORITY -> integer 
@@ -3557,7 +3612,8 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
 
     CYGPKG_POSIX_TESTS -> string 
         display = "POSIX tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         (((((CYGPKG_POSIX_PTHREAD => "tests/pthread1 tests/pthread2 tests/pthread3 " else "") ++
                 (CYGPKG_POSIX_PTHREAD_MUTEX => "tests/pmutex3 " else "")) ++
                 (CYGPKG_POSIX_MQUEUES => "tests/pmqueue1 tests/pmqueue2 " else "")) ++
@@ -3791,8 +3847,8 @@ CYGPKG_UITRON
 
         CYGNUM_UITRON_ISR_ACTION_QUEUESIZE -> CYGNUM_UITRON_ISR_ACTION_QUEUESIZE_ENUM 
             display = "Deferred operation queue size"
-            -- default_value = 32
-enum CYGNUM_UITRON_ISR_ACTION_QUEUESIZE_ENUM = 4 | 8 | 16 | 32 | 64 | 128 | 256
+            -- default_value = VAL_32
+enum CYGNUM_UITRON_ISR_ACTION_QUEUESIZE_ENUM = VAL_32 | VAL_256 | VAL_16 | VAL_128 | VAL_64 | VAL_4 | VAL_8
 
     CYGPKG_UITRON_VERSION
         display = "Version information"
@@ -3863,7 +3919,8 @@ enum CYGNUM_UITRON_ISR_ACTION_QUEUESIZE_ENUM = 4 | 8 | 16 | 32 | 64 | 128 | 256
 
         CYGPKG_UITRON_TESTS -> string 
             display = "uITRON tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             ("tests/testcxx tests/testcx2 tests/testcx3 tests/testcx4 tests/testcx5 tests/testcx6 tests/testcx7 tests/testcx8 tests/testcx9") ++
                     (!CYGIMP_UITRON_INLINE_FUNCS && !CYGIMP_UITRON_CPP_OUTLINE_FUNCS => " tests/test1 tests/test2 tests/test3 tests/test4 tests/test5 tests/test6 tests/test7 tests/test8 tests/test9 tests/testintr" else "")]
 
@@ -3894,7 +3951,8 @@ CYGPKG_IO_WATCHDOG
 
     CYGSEM_WATCHDOG_RESETS_ON_TIMEOUT ?
         display = "Set if device causes a reset on timeout"
-        calculated: [this = 
+        -- calculated
+        [this = 
         #CYGINT_WATCHDOG_RESETS_ON_TIMEOUT = 1]
 
     CYGPKG_IO_WATCHDOG_BUILD_INTERACTIVE_TEST ?
@@ -3914,7 +3972,8 @@ CYGPKG_IO_WATCHDOG
 
         CYGPKG_IO_WATCHDOG_TESTS -> string 
             display = "Watchdog tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
                             CYGPKG_IO_WATCHDOG_BUILD_INTERACTIVE_TEST => (CYGSEM_WATCHDOG_RESETS_ON_TIMEOUT => "tests/watchdog2 tests/watchdog_reset" else "tests/watchdog tests/watchdog2 tests/watchdog_reset")
                     else 
             (CYGSEM_WATCHDOG_RESETS_ON_TIMEOUT => "tests/watchdog2" else "tests/watchdog tests/watchdog2")]
@@ -3934,13 +3993,14 @@ CYGPKG_IO_WALLCLOCK
 
     CYGSEM_WALLCLOCK_MODE -> CYGSEM_WALLCLOCK_MODE_ENUM 
         display = "Wallclock mode"
-        -- default_value = ((CYGINT_WALLCLOCK_SET_GET_MODE_SUPPORTED) => "set_get" else "init_get")
+        -- default_value = ((CYGINT_WALLCLOCK_SET_GET_MODE_SUPPORTED) => set_get else init_get)
         [CYGINT_WALLCLOCK_SET_GET_MODE_SUPPORTED || CYGSEM_WALLCLOCK_MODE = "init_get"]
-enum CYGSEM_WALLCLOCK_MODE_ENUM = "init_get" | "set_get"
+enum CYGSEM_WALLCLOCK_MODE_ENUM = init_get | set_get
 
     CYGSEM_WALLCLOCK_SET_GET_MODE ?
         display = "Wallclock set/get mode"
-        calculated: [this = 
+        -- calculated
+        [this = 
         CYGSEM_WALLCLOCK_MODE = "set_get" => 1 else 0]
 
     CYGPKG_IO_WALLCLOCK_IMPLEMENTATION
@@ -3972,7 +4032,8 @@ enum CYGSEM_WALLCLOCK_MODE_ENUM = "init_get" | "set_get"
 
         CYGPKG_IO_WALLCLOCK_TESTS -> string 
             display = "Wallclock tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             CYGPKG_KERNEL => "tests/wallclock tests/wallclock2" else ""]
 
     CYGPKG_DEVICES_WALLCLOCK_DALLAS_DS12887
@@ -4146,7 +4207,8 @@ CYGPKG_IO_FILEIO
 
     CYGPKG_IO_FILEIO_TESTS -> string 
         display = "Fileio tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         "tests/fileio1 tests/socket tests/select tests/stdio tests/pselect tests/fnmatch"]
 
 CYGPKG_NET
@@ -4361,7 +4423,8 @@ CYGPKG_NET
 
         CYGPKG_NET_TESTS -> string 
             display = "Networking tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             CYGPKG_NET_BUILD_HW_TESTS => "tests/mbuf_test tests/socket_test tests/ftp_test tests/server_test tests/nc_test_slave tests/tftp_client_test tests/tftp_server_test tests/tcp_echo tests/set_mac_address tests/bridge tests/flood tests/ping_test tests/dhcp_test tests/dhcp_test2 tests/ping_lo_test tests/tcp_lo_test tests/udp_lo_test tests/multi_lo_select tests/tcp_lo_select tests/addr_test" else "tests/ping_lo_test tests/tcp_lo_test tests/udp_lo_test tests/multi_lo_select tests/tcp_lo_select"]
 
         CYGPKG_NET_TESTS_USE_RT_TEST_HARNESS ?
@@ -4628,7 +4691,8 @@ CYGPKG_NET
 
         CYGPKG_NET_FREEBSD_STACK_TESTS -> string 
             display = "FreeBSD network stack tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             CYGPKG_NET_FREEBSD_SYSCTL => "tests/sysctl1" else ""]
 
     CYGPKG_SNMPAGENT
@@ -4680,7 +4744,8 @@ CYGPKG_NET
 
             CYGPKG_SNMPAGENT_TESTS -> string 
                 display = "SNMP agent tests"
-                calculated: [this = 
+                -- calculated
+                [this = 
                 "tests/snmpping"]
 
                 CYGSEM_SNMPAGENT_TESTS_PROMISCUOUS ?
@@ -4787,7 +4852,8 @@ CYGPKG_NET
 
         CYGPKG_HTTPD_TESTS -> string 
             display = "HTTPD tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             "tests/httpd1"]
 
         CYGPKG_HTTPD_OPTIONS
@@ -4832,7 +4898,8 @@ CYGPKG_NET
 
         CYGPKG_NET_FTPCLIENT_TESTS -> string 
             display = "FTP Client tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             "tests/ftpclient1"]
 
     CYGPKG_PPP
@@ -4943,7 +5010,8 @@ CYGPKG_NET
 
         CYGPKG_PPP_TESTS -> string 
             display = "PPP tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             (((("tests/ppp_up ") ++
                     ("tests/ppp_updown ")) ++
                     ("tests/chat ")) ++
@@ -5011,10 +5079,10 @@ CYGPKG_NS_DNS
 
     CYGOPT_NS_DNS_FIRST_FAMILY -> CYGOPT_NS_DNS_FIRST_FAMILY_ENUM 
         display = "AF_INET or AF_INET6 first in the getaddrinfo list"
-        -- default_value = "AF_INET6"
+        -- default_value = AF_INET6
         -- ifActive
         [CYGPKG_NET_INET6]
-enum CYGOPT_NS_DNS_FIRST_FAMILY_ENUM = "AF_INET4" | "AF_INET6"
+enum CYGOPT_NS_DNS_FIRST_FAMILY_ENUM = AF_INET4 | AF_INET6
 
     CYGPKG_NS_DNS_OPTIONS
         display = "DNS support build options"
@@ -5031,7 +5099,8 @@ enum CYGOPT_NS_DNS_FIRST_FAMILY_ENUM = "AF_INET4" | "AF_INET6"
         display = "DNS test"
         -- ifActive
         [CYGPKG_NS_DNS_BUILD]
-        calculated: [this = 
+        -- calculated
+        [this = 
         "tests/dns1"]
 
     CYGPKG_NS_DNS_TESTS_LUNN ?
@@ -5047,7 +5116,8 @@ CYGPKG_CRC
 
     CYGPKG_CRC_TESTS -> string 
         display = "POSIX CRC tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         "tests/crc_test"]
 
 CYGPKG_CPULOAD
@@ -5057,7 +5127,8 @@ CYGPKG_CPULOAD
 
     CYGPKG_CPULOAD_TESTS -> string 
         display = "CPU load measurement tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         "tests/cpuload"]
 
 CYGPKG_NET_SNTP
@@ -5090,7 +5161,8 @@ CYGPKG_NET_SNTP
 
     CYGPKG_NET_SNTP_TESTS -> string 
         display = "sntp tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         CYGPKG_NET_BUILD_HW_TESTS => "tests/sntp1" else ""]
 
 CYGPKG_IO_FLASH
@@ -5278,7 +5350,8 @@ CYGPKG_IO_FLASH
 
         CYGPKG_IO_FLASH_TESTS -> string 
             display = "Flash device driver tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             (CYGSEM_IO_FLASH_LEGACY_API => "tests/flash1" else "") ++
                     (CYGPKG_IO_FLASH_BLOCK_DEVICE => " tests/flashdev" else "")]
 
@@ -5372,7 +5445,8 @@ CYGPKG_FS_RAM extends CYGINT_IO_FILEIO_FS
 
     CYGPKG_FS_RAM_TESTS -> string 
         display = "RAM FS tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         "tests/ramfs1 tests/ramfs2 tests/ramfs3"]
 
 CYGPKG_FS_ROM extends CYGINT_IO_FILEIO_FS
@@ -5402,7 +5476,8 @@ CYGPKG_FS_ROM extends CYGINT_IO_FILEIO_FS
 
         CYGPKG_FS_ROM_TESTS -> string 
             display = "ROM filesystem tests"
-            calculated: [this = 
+            -- calculated
+            [this = 
             "tests/romfs1"]
 
 CYGPKG_FS_JFFS2 extends CYGINT_IO_FILEIO_FS
@@ -5470,8 +5545,8 @@ CYGPKG_FS_JFFS2 extends CYGINT_IO_FILEIO_FS
 
         CYGOPT_FS_JFFS2_COMPRESS_CMODE -> CYGOPT_FS_JFFS2_COMPRESS_CMODE_ENUM 
             display = "Set the default compression mode"
-            -- default_value = "PRIORITY"
-enum CYGOPT_FS_JFFS2_COMPRESS_CMODE_ENUM = "NONE" | "PRIORITY" | "SIZE"
+            -- default_value = PRIORITY
+enum CYGOPT_FS_JFFS2_COMPRESS_CMODE_ENUM = NONE | PRIORITY | SIZE
 
     CYGNUM_FS_JFFS2_RAW_NODE_REF_CACHE_POOL_SIZE -> integer 
         display = "Memory pool size"
@@ -5493,7 +5568,8 @@ enum CYGOPT_FS_JFFS2_COMPRESS_CMODE_ENUM = "NONE" | "PRIORITY" | "SIZE"
 
     CYGPKG_FS_JFFS2_TESTS -> string 
         display = "JFFS2 FS tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         "tests/jffs2_1 tests/jffs2_2 tests/jffs2_3"]
 
 CYGPKG_LINUX_COMPAT
@@ -5552,7 +5628,8 @@ CYGPKG_COMPRESS_ZLIB
 
     CYGPKG_COMPRESS_ZLIB_TESTS -> string 
         display = "zlib tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         "tests/zlib1 tests/zlib2"]
 
 CYGPKG_VNC_SERVER
@@ -5661,7 +5738,8 @@ CYGPKG_VNC_SERVER
 
     CYGPKG_VNC_SERVER_TESTS -> string 
         display = "VNC server tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         "tests/vnc-test"]
 
 CYGPKG_IO_DISK
@@ -5755,5 +5833,6 @@ CYGPKG_FS_FAT extends CYGINT_IO_FILEIO_FS
 
     CYGPKG_FS_FAT_TESTS -> string 
         display = "FAT FS tests"
-        calculated: [this = 
+        -- calculated
+        [this = 
         "tests/fatfs1"]

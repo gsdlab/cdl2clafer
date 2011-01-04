@@ -1,3 +1,5 @@
+package gsd.cdl2clafer
+
 /*
  * Copyright (c) 2010 Marko Novakovic <mnovakov@gsd.uwaterloo.ca>
  *
@@ -17,11 +19,24 @@
  * along with cdl2clafer.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package gsd.cdl2clafer
+import scala.collection.mutable
 
-object CDL2ClaferRun {
-  def main( args: Array[String] ){
-    gsd.cdl2clafer.CDL2Clafer.processIMLFromFile("problems.iml.txt", "problems.cfr.txt")
-//    gsd.cdl2clafer.CDL2Clafer.processIMLFromFile("pc_vmWare.iml.txt", "pc_vmWare.cfr.txt")
+import org.scalatest.FunSuite
+import gsd.cdl2clafer.CDL2Clafer.EnumRef
+
+class ClaferReferenceTypesTest extends FunSuite {
+
+  test("Test Enums") {
+    var enum = new EnumRef("ENUM_TEST1")
+    enum.addEnumElement("14D")
+    enum.addEnumElement("14")
+    enum.addEnumElement("DD14")
+    enum.addEnumElement("DD14\"")
+    enum.getEnumElementsPrepared.foreach(println)
+//    enum.getEnumElementsKeys.foreach(println)
+
+//    println(enum.getEnumElementByKey("14").asInstanceOf[Some[String]].get)
+    assert(enum.getEnumElementByKey("14").isInstanceOf[Some[String]])
+    assert("VAL_14" == enum.getEnumElementByKey("14").asInstanceOf[Some[String]].get)
   }
 }
