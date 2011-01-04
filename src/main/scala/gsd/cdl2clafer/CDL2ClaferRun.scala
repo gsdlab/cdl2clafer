@@ -21,8 +21,7 @@ package gsd.cdl2clafer
 
 object CDL2ClaferRun {
   def main( args: Array[String] ){
-//    processCDLFile("problems.iml", "clafer.txt")
-//    val cdl2clafer = new CDL2Clafer
-    gsd.cdl2clafer.CDL2Clafer.processCDLFile("problems.iml", "clafer.txt")
+//    gsd.cdl2clafer.CDL2Clafer.processCDLFile("problems.iml", "problems.cfr.txt")
+    gsd.cdl2clafer.CDL2Clafer.processCDLFile("pc_vmWare.iml.txt", "pc_vmWare.cfr.txt")
   }
 }

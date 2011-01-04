@@ -1,0 +1,15 @@
+CYGPKG_LIBC_TIME_TESTS
+    display = "C library time and date function tests"
+    calculated: [this =
+    ("tests/asctime tests/clock tests/ctime tests/gmtime tests/localtime tests/mktime tests/strftime tests/time ") +
+            (CYGFUN_LIBC_TIME_POSIX => "tests/strptime" else "")]
+
+CYGPKG_POSIX_TESTS
+    display = "POSIX tests"
+    calculated: [this =
+    (((((CYGPKG_POSIX_PTHREAD => "tests/pthread1 tests/pthread2 tests/pthread3 " else "") +
+            (CYGPKG_POSIX_PTHREAD_MUTEX => "tests/pmutex3 " else "")) +
+            (CYGPKG_POSIX_MQUEUES => "tests/pmqueue1 tests/pmqueue2 " else "")) +
+            (CYGPKG_POSIX_SIGNALS => "tests/signal1 tests/signal2 tests/signal3 tests/sigsetjmp " else "")) +
+            (CYGPKG_POSIX_SIGNALS && CYGPKG_POSIX_TIMERS && CYGPKG_POSIX_SEMAPHORES => "tests/timer1 " else "")) +
+            (CYGPKG_POSIX_SIGNALS && CYGPKG_POSIX_TIMERS && CYGPKG_POSIX_PTHREAD && CYGPKG_POSIX_SEMAPHORES => "tests/tm_posix " else "")]

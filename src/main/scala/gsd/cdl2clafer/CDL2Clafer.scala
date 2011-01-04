@@ -25,7 +25,7 @@ import collection.immutable.PagedSeq
 import kiama.rewriting.Rewriter
 import scala.collection.jcl.Conversions._
 import java.io.FileWriter
-import gsd.cdl.IMLParser
+import gsd.cdl.{CDLExpression, IMLParser}
 
 object CDL2Clafer extends IMLParser with Rewriter {
 
@@ -33,8 +33,8 @@ object CDL2Clafer extends IMLParser with Rewriter {
   var childParentMap = Map[String,String]()
 //
 //  def main( args: Array[String] ){
-////    processCDLFile("problems.iml", "clafer.txt")
-//    processCDLFile("pc_vmWare.iml.txt", "clafer.txt")
+////    processCDLFile("problems.iml", "pc_vmWare.iml.txt")
+//    processCDLFile("pc_vmWare.iml.txt", "pc_vmWare.iml.txt")
 //  }
 
   def processCDLFile (inputFile: String, outputFile: String) {
@@ -75,8 +75,8 @@ object CDL2Clafer extends IMLParser with Rewriter {
 
   private def appendActiveIfs (n: Node, depth: Int, builder : StringBuilder) = {
     n.activeIfs.foreach(activeIf => builder.append(newLineAndIndent(depth)).
-      append("-- ifActive")
-      .append(" (").append(activeIf.getClass).append(")").     //TODO: Remove this line
+      append("-- ifActive").
+//      .append(" (").append(activeIf.getClass).append(")").     //TODO: Remove this line
       append(newLine).append(indent(depth)).
       append("[").append(getCDLExpressionAsString(activeIf)).append("]")
       )
@@ -93,7 +93,7 @@ object CDL2Clafer extends IMLParser with Rewriter {
   private def appendReqs (n: Node, refType: ClaferReferenceType, depth: Int, builder : StringBuilder) = {
     n.reqs.foreach(req =>
         builder.append(newLine).append(indent(depth)).
-        append("[").append(getCDLExpressionAsStringWithType(req, refType)).append("]")
+        append("[").append(getCDLExpressionAsString(req)).append("]")
       )
   }
 
@@ -122,11 +122,23 @@ object CDL2Clafer extends IMLParser with Rewriter {
   private def getCalculatedxpressionAsString (e : CDLExpression, level: Int, depth: Int) : String = {
     e match {
       case StringLiteral(value) => {
-        if (value.substring(0, 1) == "\"" && value.substring(value.length - 1, value.length) == "\"") {
-          value.substring(1, value.length - 1)
-        }  else {
+//        if (value.substring(0, 1) == "\"" && value.substring(value.length - 1, value.length) == "\"") {
+//          value.substring(1, value.length - 1)
+//        }  else {
           value
-        }
+//        }
+      }
+      case Dot(left, right) => {
+        val builder = new StringBuilder
+        builder.
+          append("(").
+          append(getCalculatedxpressionAsString(left, level, depth)).
+          append(")").
+          append(" + ").
+          append(newLineAndIndent(level + 2 + depth)).
+          append("(").
+          append(getCalculatedxpressionAsString(right, level, depth)).
+          append(")").toString
       }
       case Conditional(cond, pass, fail) => {
         val builder = new StringBuilder
@@ -207,6 +219,12 @@ object CDL2Clafer extends IMLParser with Rewriter {
   }
   case class BooleanRef extends ClaferReferenceType
 
+  /**
+   *
+   * Converts CDLExpression to String
+   * TODO: Refactor! Should be much smaller method
+   *
+   * */
   private def getCDLExpressionAsString (e : CDLExpression) : String = {
     e match {
       case StringLiteral(value) => {
@@ -283,7 +301,28 @@ object CDL2Clafer extends IMLParser with Rewriter {
             getCDLExpressionAsString(first) + " + " + getCDLExpressionAsString(second)
           }
         } else {
-          getCDLExpressionAsString(first) + " + " + getCDLExpressionAsString(second)
+            "(" +
+            getCDLExpressionAsString(first) +
+            " + " +
+            getCDLExpressionAsString(second) +
+            ")"
+        }
+      }
+      case Minus(first, second) => {
+        if (getCDLExpressionType(first).isInstanceOf[IntegerRef] || getCDLExpressionType(second).isInstanceOf[IntegerRef]) {
+          if (first.isInstanceOf[Identifier]) {
+            "#" + getCDLExpressionAsString(first) + " - " + getCDLExpressionAsString(second)
+          } else if (second.isInstanceOf[Identifier]) {
+            getCDLExpressionAsString(first) + " - #" + getCDLExpressionAsString(second)
+          } else {
+            getCDLExpressionAsString(first) + " - " + getCDLExpressionAsString(second)
+          }
+        } else {
+            "(" +
+            getCDLExpressionAsString(first) +
+            " - " +
+            getCDLExpressionAsString(second) +
+            ")"
         }
       }
       case Or(left, right) => {getCDLExpressionAsString(left) + " || " + getCDLExpressionAsString(right) }
@@ -291,13 +330,14 @@ object CDL2Clafer extends IMLParser with Rewriter {
       case Conditional(cond, pass, fail: CDLExpression) => {
         val builder = new StringBuilder
         builder.
-          append("(").
+          append("((").
           append(getCDLExpressionAsString(cond)).
           append(")").
           append(" => ").
           append(getCDLExpressionAsString(pass)).
           append(" else ").
-          append(getCDLExpressionAsString(fail))
+          append(getCDLExpressionAsString(fail)).
+          append(")")
         builder.toString
       }
       case _ => {e.toString}
@@ -322,7 +362,11 @@ object CDL2Clafer extends IMLParser with Rewriter {
   private def appendDefaultValues(n: Node, refType: ClaferReferenceType, builder: StringBuilder, depth: Int) = {
     n.defaultValue match {
       case Some(value) => {
-        builder.append(newLineAndIndent(depth)).append("-- default_value = ").append(getCDLExpressionAsStringWithType(value, refType))
+        builder.
+          append(newLineAndIndent(depth)).
+          append("-- default_value = ").
+          append(getCDLExpressionAsString(value))
+//          append(getCDLExpressionAsStringWithType(value, refType))
       }
       case _ => {}
     }
@@ -355,13 +399,15 @@ object CDL2Clafer extends IMLParser with Rewriter {
         legalValueOption.ranges.foreach(
           range_ => range_ match {
             case MinMaxRange(low, high) => {
-                builder.
-                  append(newLineAndIndent(depth)).
-                  append("[").
-                  append(getCDLExpressionAsStringWithType(low, refType)).
-                  append(" <= this && this <= ").
-                  append(getCDLExpressionAsStringWithType(high, refType)).
-                  append("]")
+              builder.
+                append(newLineAndIndent(depth)).
+                append("[").
+                //                  append(getCDLExpressionAsStringWithType(low, refType)).
+                append(getCDLExpressionAsString(low)).
+                append(" <= this && this <= ").
+                append(getCDLExpressionAsString(high)).
+                //                  append(getCDLExpressionAsStringWithType(high, refType)).
+                append("]")
             }
 
             case SingleValueRange(r) => {}
@@ -437,7 +483,7 @@ object CDL2Clafer extends IMLParser with Rewriter {
         builder.
           append(newLineAndIndent(depth)).
           append("calculated: [this = ").
-          append(newLineAndIndent(depth - 1)).
+          append(newLineAndIndent(depth)).
           append(getCalculatedxpressionAsString(expr, depth)).
           append("]")
       }
@@ -481,30 +527,68 @@ object CDL2Clafer extends IMLParser with Rewriter {
   /**
    * Gets reference type for clafer. i.e integer, enum, string
    * The process goes as follows:
-   * Take Legal Values from node.
+   * 1. See if there is Calculated value in this node.
+   *    Return type of leaf elements from calculated
+   * 2. Take Legal Values from node.
    *    If there is a list of SingleValues, reference is Enum
    *    If there is MinMax value, read both and see if it is Integer Type
-   * If Legal Values returns NoRef, proceed to default values and try
-   * to figure out type from there.
+   * 3. If Legal Values returns NoRef, proceed to default values and try
+   *    to figure out type from there.
    *
   **/
   private def getClaferType(n: Node): ClaferReferenceType = {
 
     if (n.flavor != BoolFlavor) {
-      val referenceTypeFromLegalValues = getClaferTypeFromLegalValues(n)
+      n.calculated match {
+        case Some(calculated: CDLExpression) => {
+          if (calculated.isInstanceOf[Conditional]) {
+            // TODO: refactor
+            // this might be optimized,
+            // we are traversing through the tree of CDLExpressions
+            // and are looking for leaf nodes.
+            var leafNodes = List[CDLExpression]()
+            collectl {
+              case e:CDLExpression => {
+                if (e.isInstanceOf[Conditional]) {
+                  if (!e.asInstanceOf[Conditional].pass.isInstanceOf[Conditional]) {
+                    leafNodes += e.asInstanceOf[Conditional].pass
+                  } else if (!e.asInstanceOf[Conditional].fail.isInstanceOf[Conditional]) {
+                    leafNodes += e.asInstanceOf[Conditional].fail
+                  }
+                }
+              }
+            }(calculated)
 
-      if (!referenceTypeFromLegalValues.isInstanceOf[NoRef]) {
-        referenceTypeFromLegalValues
-      } else {
-        n.defaultValue match {
-          case Some(expression) => {
-            getCDLExpressionType(expression)
-          }
-          case None => {
-            new NoRef
+            /**
+             * assuming leafNodes contains final elements of calculated
+             * and they are all of the same type,
+             * we are returning the type of first of them
+             *
+             * TODO: should this be represented as enum?
+             **/
+            getCDLExpressionType(leafNodes.apply(0))
+          } else {
+            getCDLExpressionType(calculated)
           }
         }
+        case None => {
+          val referenceTypeFromLegalValues = getClaferTypeFromLegalValues(n)
+          if (!referenceTypeFromLegalValues.isInstanceOf[NoRef]) {
+            referenceTypeFromLegalValues
+          } else {
+            n.defaultValue match {
+              case Some(expression) => {
+                getCDLExpressionType(expression)
+              }
+              case None => {
+                new NoRef
+              }
+            }
+          }
+
+        }
       }
+
     } else {
       new BooleanRef
     }
@@ -551,6 +635,9 @@ object CDL2Clafer extends IMLParser with Rewriter {
     }
   }
 
+  /**
+   *
+   **/
   def asClaferString( topLevelNodes:List[Node] ) : String = {
     val builder = new StringBuilder
     topLevelNodes.foreach(node => builder.append(cdlNodeToClaferString(node, 0)))
@@ -558,6 +645,10 @@ object CDL2Clafer extends IMLParser with Rewriter {
     builder.toString
   }
 
+  /**
+   * Reads IML file from inputFile
+   * and returns Clafer representation
+   **/
   def getClaferStringFromIMLFile( inputFile: String ) : String = {
     parseAll(cdl, new PagedSeqReader(PagedSeq fromFile inputFile)) match {
       case Success(res,_) => {
@@ -566,6 +657,4 @@ object CDL2Clafer extends IMLParser with Rewriter {
       case x => ""
     }
   }
-
-
 }

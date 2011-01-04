@@ -80,32 +80,3 @@ class CDL2ClaferTest extends FunSuite {
     )
   }
 }
-
-
-
-
-
-
-
-
-
-/*
-@RunWith(classOf[JUnitRunner])
-class RewriterTest extends FunSuite{
-
-  implicit def string2LI( i : String ) = LoadedIdentifier( i, InterfaceType, DataFlavor )
-
-  val vars = List[LoadedIdentifier]("a", "b" , "c" )
-
-  test("test XOR"){
-    assert( CDLBooleanTranslationMain.xor( vars ) ===
-            (((("a" & !"b") & !"c") | (("b" & !"a") & !"c")) | (("c" & !"a") & !"b")) )
-  }
-
-  test( "test MUTEX" ){
-    assert( CDLBooleanTranslationMain.mutex( vars ) ===
-            ((("a" implies (!"b" & !"c")) & ("b" implies (!"a" & !"c"))) & ("c" implies (!"a" & !"b"))) )
-  }
-
-}
-*/
