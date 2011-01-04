@@ -198,13 +198,13 @@ enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = ROM | RAM
             CYGPRI_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_CONFIGURABLE ?
                 display = "Debug channel is configurable"
                 -- calculated
-                [this = 
+                [
                 CYGSEM_HAL_VIRTUAL_VECTOR_CLAIM_COMMS]
 
             CYGPRI_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_CONFIGURABLE ?
                 display = "Console channel is configurable"
                 -- calculated
-                [this = 
+                [
                 !CYGSEM_HAL_VIRTUAL_VECTOR_INHERIT_CONSOLE && !CYGDBG_HAL_DIAG_TO_DEBUG_CHAN]
 
             CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE ?
@@ -372,7 +372,7 @@ enum CYG_HAL_STARTUP_ENUM = RAM | FLOPPY | ROM | GRUB
             CYGBLD_BUILD_I386_ROMBOOT ?
                 display = "Build ROM bootstrap code"
                 -- calculated
-                [this = 
+                [
                 CYG_HAL_STARTUP = "ROM"]
 
             CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD -> CYGNUM_HAL_VIRTUAL_VECTOR_CONSOLE_CHANNEL_BAUD_ENUM 
@@ -485,7 +485,7 @@ enum CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM = VAL_9600 | VAL_38400 | 
                 -- ifActive
                 [CYGPKG_HAL_SMP_SUPPORT]
                 -- calculated
-                [this = 
+                [
                 CYGPKG_HAL_SMP_SUPPORT]
 
             CYGFUN_HAL_I386_PCMB_GPROF_SUPPORT extends CYGINT_PROFILE_HAL_TIMER ?
@@ -1005,7 +1005,7 @@ enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM = VAL_10 | VAL_50 | VAL_80
             CYGNUM_DEVS_ETH_AMD_LANCEPCI_DEV_COUNT
                 display = "Number of supported interfaces."
                 -- calculated
-                [this = 
+                [
                 CYGINT_DEVS_ETH_AMD_LANCEPCI_REQUIRED]
 
             CYGPKG_DEVS_ETH_AMD_LANCEPCI_OPTIONS
@@ -3952,7 +3952,7 @@ CYGPKG_IO_WATCHDOG
     CYGSEM_WATCHDOG_RESETS_ON_TIMEOUT ?
         display = "Set if device causes a reset on timeout"
         -- calculated
-        [this = 
+        [
         #CYGINT_WATCHDOG_RESETS_ON_TIMEOUT = 1]
 
     CYGPKG_IO_WATCHDOG_BUILD_INTERACTIVE_TEST ?
