@@ -31,13 +31,8 @@ object CDL2Clafer extends IMLParser with Rewriter {
 
   var nodesById = Map[String, Node]()
   var childParentMap = Map[String,String]()
-//
-//  def main( args: Array[String] ){
-////    processCDLFile("problems.iml", "pc_vmWare.iml.txt")
-//    processCDLFile("pc_vmWare.iml.txt", "pc_vmWare.iml.txt")
-//  }
 
-  def processCDLFile (inputFile: String, outputFile: String) {
+  def processIMLFromFile (inputFile: String, outputFile: String) {
     parseAll(cdl, new PagedSeqReader(PagedSeq fromFile getBaseInputDir + inputFile)) match{
       case Success(res,_) => {
         val claferString = asClaferString( res )
@@ -72,6 +67,7 @@ object CDL2Clafer extends IMLParser with Rewriter {
 
   private def newLine () = "\n"
   private def indent () = "    "
+  private def concatenation () = "++"
 
   private def appendActiveIfs (n: Node, depth: Int, builder : StringBuilder) = {
     n.activeIfs.foreach(activeIf => builder.append(newLineAndIndent(depth)).
@@ -133,8 +129,8 @@ object CDL2Clafer extends IMLParser with Rewriter {
         builder.
           append("(").
           append(getCalculatedxpressionAsString(left, level, depth)).
-          append(")").
-          append(" + ").
+          append(") ").
+          append(concatenation).
           append(newLineAndIndent(level + 2 + depth)).
           append("(").
           append(getCalculatedxpressionAsString(right, level, depth)).
@@ -459,7 +455,10 @@ object CDL2Clafer extends IMLParser with Rewriter {
   private def getCDLExpressionType(expression : CDLExpression) : ClaferReferenceType = {
     expression match {
       case Conditional(cond, pass, fail) => {
-          getCDLExpressionType(pass)
+          getCDLExpressionType(pass) //
+      }
+      case Dot(left, right) => {
+          getCDLExpressionType(left) // both left and right should be fine
       }
       case IntLiteral(s) => {
         new IntegerRef
