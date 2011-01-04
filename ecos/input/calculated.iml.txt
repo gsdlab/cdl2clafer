@@ -1,8 +1,0 @@
-component CYGHWR_MEMORY_LAYOUT{
-    display "Memory layout"
-    calculated [
-    CYG_HAL_STARTUP == "RAM" ?
-    (CYGHWR_HAL_I386_PC_LOAD_HIGH ? "i386_pc_ram_hi" : "i386_pc_ram") :
-    CYG_HAL_STARTUP == "ROM" ? "i386_pc_rom" : CYG_HAL_STARTUP == "GRUB" ? (CYGHWR_HAL_I386_PC_LOAD_HIGH ? "i386_pc_grub_hi" : "i386_pc_grub") : "i386_pc_floppy" ]
-    flavor data
-}
