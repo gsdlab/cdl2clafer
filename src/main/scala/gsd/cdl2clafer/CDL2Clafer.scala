@@ -25,7 +25,7 @@ import collection.immutable.PagedSeq
 import kiama.rewriting.Rewriter
 import scala.collection.jcl.Conversions._
 import java.io.FileWriter
-import gsd.cdl.{CDLExpression, IMLParser}
+import gsd.cdl.IMLParser
 
 object CDL2Clafer extends IMLParser with Rewriter {
 
@@ -110,7 +110,7 @@ object CDL2Clafer extends IMLParser with Rewriter {
     if (n.cdlType == InterfaceType && n.flavor == DataFlavor) {
       builder.append("abstract ")
     }
-    builder.append(n.id) // Clafer name
+    builder.append(n.id) // ClaferReferenceHolder name
     if (n.implements.size == 1)
       builder.append(" extends ").append(getCDLExpressionAsString(n.implements.first))
 
@@ -118,18 +118,42 @@ object CDL2Clafer extends IMLParser with Rewriter {
       builder.append(" -> ").append(referenceType).append(" ")
     }
 
-    /*
-    * TODO: check is this the regular way of setting a Clafer as optional
-    * */
-    n.cdlType match {
-      case OptionType => {
-        if (n.flavor == BoolFlavor)
-          builder.append(" ?")
-      }
-      case _ => {}
+    if (isOptional(n)) {
+        builder.append(" ?")
     }
+  }
 
-    println(n.cdlType.getClass)
+  /*
+  * TODO: check if this the regular way of setting a ClaferReferenceHolder as optional
+  * For now, options and components that are either of Boolean or BooleanData flavor
+  * are optional ONLY if calculated is not - 1
+  **/
+  private def isOptional(n: Node) : Boolean = {
+    return isOptionalByNature(n) && !isMandatoryByCalculated(n)
+  }
+
+  /*
+  * Options and Components that are either of Boolean or BooleanData flavor
+  * are optional
+  **/
+  private def isOptionalByNature(n: Node) : Boolean = {
+    if ((n.cdlType == OptionType || n.cdlType == ComponentType) && (n.flavor == BoolFlavor || n.flavor == BoolDataFlavor)) {
+        true
+    } else {
+        false
+    }
+  }
+
+  /*
+  * Is Calculated value 1?
+  **/
+  private def isMandatoryByCalculated(n: Node) : Boolean = {
+    n.calculated match {
+      case Some(expr) => {
+        (expr.isInstanceOf[IntLiteral] && expr.asInstanceOf[IntLiteral].value == 1)
+      }
+      case None => {false}
+    }
   }
 
   private def getCalculatedExpressionAsString (e : CDLExpression, level: Int, depth: Int) : String = {
@@ -275,15 +299,51 @@ object CDL2Clafer extends IMLParser with Rewriter {
             case Some(s: String) => {s}
             case None => {String.valueOf(value)}
           }
+//        } else if (referenceType.isInstanceOf[IntegerRef]) {
         } else {
           String.valueOf(value)
         }
       }
-      case Eq(left, right) => {
+      case Dot(left, right) => {
+        val builder = new StringBuilder
+        builder.
+          append("(").
+          append(getCDLExpressionAsString(left, takeReferenceInAccount)).
+          append(") ").
+          append(concatenation).
+//          append(newLineAndIndent(level + 2 + depth)).
+          append("(").
+          append(getCDLExpressionAsString(right, takeReferenceInAccount)).
+          append(")").toString
+      }
+      case Eq(left: CDLExpression, right: CDLExpression) => {
         if (left.isInstanceOf[Identifier] && getCDLExpressionType(right).isInstanceOf[IntegerRef]) {
           "#" + getCDLExpressionAsString(left, takeReferenceInAccount) + " = " + getCDLExpressionAsString(right, takeReferenceInAccount)
         } else if (getCDLExpressionType(left).isInstanceOf[IntegerRef] && right.isInstanceOf[Identifier]) {
           getCDLExpressionAsString(left, takeReferenceInAccount) + " = #" + getCDLExpressionAsString(right, takeReferenceInAccount)
+        } else if (left.isInstanceOf[StringLiteral] && right.isInstanceOf[Identifier]) {
+          clafersMap.get(getCDLExpressionAsString(right)) match {
+            case Some(claferReferenceHolder: ClaferReferenceHolder) =>  {
+              if (claferReferenceHolder.referenceType.isInstanceOf[EnumRef]) {
+                guardString(getCDLExpressionAsString(left, takeReferenceInAccount)) + " = " + getCDLExpressionAsString(right, takeReferenceInAccount)
+              } else {
+                getCDLExpressionAsString(left, takeReferenceInAccount) +
+                " = " + getCDLExpressionAsString(right, takeReferenceInAccount)
+              }
+            }
+            case None => {getCDLExpressionAsString(left, takeReferenceInAccount) + " = " + getCDLExpressionAsString(right, takeReferenceInAccount)}
+          }
+        } else if (left.isInstanceOf[Identifier] && right.isInstanceOf[StringLiteral]) { // ENUM?
+          clafersMap.get(getCDLExpressionAsString(left)) match {  // there is
+            case Some(claferReferenceHolder: ClaferReferenceHolder) =>  {
+              if (claferReferenceHolder.referenceType.isInstanceOf[EnumRef]) {
+                getCDLExpressionAsString(left, takeReferenceInAccount) + " = " + guardString(getCDLExpressionAsString(right, takeReferenceInAccount))
+              } else {
+                getCDLExpressionAsString(left, takeReferenceInAccount) + " = " + getCDLExpressionAsString(right, takeReferenceInAccount)
+              }
+            }
+            case None => {getCDLExpressionAsString(left, takeReferenceInAccount) + " = " + getCDLExpressionAsString(right, takeReferenceInAccount)}
+          }
         } else {
           getCDLExpressionAsString(left, takeReferenceInAccount) + " = " + getCDLExpressionAsString(right, takeReferenceInAccount)
         }
@@ -333,7 +393,13 @@ object CDL2Clafer extends IMLParser with Rewriter {
           getCDLExpressionAsString(left, takeReferenceInAccount) + " < " + getCDLExpressionAsString(right, takeReferenceInAccount)
         }
       }
-      case Identifier(s) => {s}
+      case Identifier(identifierString) => {
+//        if (takeReferenceInAccount && referenceType.isInstanceOf[IntegerRef]) {
+//          "#" + String.valueOf(identifierString)
+//        } else {
+          String.valueOf(identifierString)
+//        }
+      }
       case Not(s) => {"!" + s}
       case Plus(first, second) => {
         if (getCDLExpressionType(first).isInstanceOf[IntegerRef] || getCDLExpressionType(second).isInstanceOf[IntegerRef]) {
@@ -487,18 +553,20 @@ object CDL2Clafer extends IMLParser with Rewriter {
   private def appendCalculated(n: Node, builder: StringBuilder, depth: Int): Unit = {
     n.calculated match {
       case Some(expr) => {
-        builder.
-          append(newLineAndIndent(depth)).
-          append("-- calculated").
-          append(newLineAndIndent(depth))
-          if (!isCalculatedExpressionBoolean(expr)) {
-            builder.append("[this = ")
-          } else {
-            builder.append("[")
-          }
-          builder.append(newLineAndIndent(depth)).
-          append(getCalculatedExpressionAsString(expr, depth)).
-          append("]")
+        if (!isOptionalByNature(n) || !isMandatoryByCalculated(n)) {
+          builder.
+            append(newLineAndIndent(depth)).
+            append("-- calculated").
+            append(newLineAndIndent(depth))
+            if (!isCalculatedExpressionBoolean(expr)) {
+              builder.append("[this = ")
+            } else {
+              builder.append("[")
+            }
+            builder.append(newLineAndIndent(depth)).
+            append(getCalculatedExpressionAsString(expr, depth)).
+            append("]")
+        }
       }
       case None =>
     }
@@ -609,34 +677,56 @@ object CDL2Clafer extends IMLParser with Rewriter {
     }
   }
 
+  private def isAbstractNode(n: Node): Boolean = {
+    n.cdlType == InterfaceType && n.flavor == DataFlavor
+  }
+
+  case class ClaferReferenceHolder (referenceType: ClaferReferenceType, name: String) {
+    override def toString: String = {name}
+  }
+
   var referenceType: ClaferReferenceType = new NoRef
+  var abstractClafers = List[String]()
+  var clafersMap = Map[String, ClaferReferenceHolder]()
 
   /**
-  *  Main method that converts Node to clafer string
-  **/
+   *  Main method that converts Node to clafer string
+   **/
   private def cdlNodeToClaferString(n : Node, depth : Int) : String = {
+    var actualDepth =  0
+    if (!isAbstractNode(n)) {
+        actualDepth = depth
+    }
+
     val builder = new StringBuilder
     builder.append(newLine)
 
-    referenceType = getClaferType(n)
+    clafersMap.get(n.id) match {
+      case Some (simpleClafer: ClaferReferenceHolder) => {referenceType = simpleClafer.referenceType}
+      case None => {throw new Exception()}
+    }
 
-    appendFirstLineOfClafer(builder, depth, n)
-    appendDisplay(builder, depth, n)
-    appendImplements(n, depth, builder)
-    appendDescription(n, builder, depth)
-    appendDefaultValues(n, builder, depth)
-    appendLegalValuesDeclaration(n, builder, depth)
-    appendActiveIfs(n, depth, builder)
-    appendReqs(n, depth, builder)
-    appendCalculated(n, builder, depth)
+    appendFirstLineOfClafer(builder, actualDepth, n)
+    appendDisplay(builder, actualDepth, n)
+    appendImplements(n, actualDepth, builder)
+    appendDescription(n, builder, actualDepth)
+    appendDefaultValues(n, builder, actualDepth)
+    appendLegalValuesDeclaration(n, builder, actualDepth)
+    appendActiveIfs(n, actualDepth, builder)
+    appendReqs(n, actualDepth, builder)
+    appendCalculated(n, builder, actualDepth)
     appendEnumDeclaration(builder, n)
 
 //    builder.append(newLineAndIndent(depth)).append("FLAVOR: ").append(n.flavor)
+    if (isAbstractNode(n)) {
+      abstractClafers += builder.toString
+      builder.delete(0, builder.length - 1) // empty this buffer
+    }
 
     //recursively print children
     n.children.foreach(child => builder.append(cdlNodeToClaferString(child, depth + 1)))
-
     builder.toString
+
   }
 
   private def printToFile(text: String, outputFile: String): Unit = {
@@ -656,15 +746,26 @@ object CDL2Clafer extends IMLParser with Rewriter {
    *
    **/
   def asClaferString( topLevelNodes:List[Node] ) : String = {
+    collectl {
+      case n:Node => {
+        clafersMap += (n.id -> new ClaferReferenceHolder(getClaferType(n), n.id))
+      }
+    }(topLevelNodes)
+
     val builder = new StringBuilder
     topLevelNodes.foreach(node => builder.append(cdlNodeToClaferString(node, 0)))
 
-    builder.toString
+    val builderWithAbstract = new StringBuilder
+    abstractClafers.foreach(node => builderWithAbstract.append(node))
+    builderWithAbstract.append(builder.toString)
+
+
+    builderWithAbstract.toString
   }
 
   /**
    * Reads IML file from inputFile
-   * and returns Clafer representation
+   * and returns ClaferReferenceHolder representation
    **/
   def getClaferStringFromIMLFile( inputFile: String ) : String = {
     parseAll(cdl, new PagedSeqReader(PagedSeq fromFile inputFile)) match {
