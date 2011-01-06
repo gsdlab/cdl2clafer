@@ -357,7 +357,7 @@ CYGPKG_HAL
             -- default_value = 0
             [CYGSEM_HAL_INSTALL_MMU_TABLES]
 
-        CYGDBG_HAL_DIAG_TO_DEBUG_CHAN
+        CYGDBG_HAL_DIAG_TO_DEBUG_CHAN ?
             display = "Route diagnostic output to debug channel"
             -- default_value = ((CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS || CYG_HAL_STARTUP = RAM) => 1 else 0)
             -- ifActive
@@ -417,7 +417,7 @@ enum CYGSEM_HAL_DIAG_MANGLER_ENUM = GDB | None
     CYGPKG_HAL_CACHE_CONTROL
         display = "Explicit control over cache behaviour"
 
-        CYGSEM_HAL_ENABLE_DCACHE_ON_STARTUP
+        CYGSEM_HAL_ENABLE_DCACHE_ON_STARTUP ?
             display = "Enable DATA cache on startup"
             -- default_value = 1
 
@@ -491,9 +491,6 @@ enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = ROM | RAM
             display = "Enable use of virtual vector calling interface"
             -- ifActive
             [CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT]
-            -- calculated
-            [this = 
-            1]
 
             CYGSEM_HAL_VIRTUAL_VECTOR_INHERIT_CONSOLE ?
                 display = "Inherit console settings from ROM monitor"
@@ -547,11 +544,8 @@ enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = ROM | RAM
                 display = "Claim comms virtual vectors"
                 -- default_value = CYGSEM_HAL_VIRTUAL_VECTOR_INIT_WHOLE_TABLE || CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS
 
-            CYGSEM_HAL_VIRTUAL_VECTOR_DIAG ?
+            CYGSEM_HAL_VIRTUAL_VECTOR_DIAG
                 display = "Do diagnostic IO via virtual vector table"
-                -- calculated
-                [this = 
-                1]
 
         CYGSEM_HAL_ROM_MONITOR ?
             display = "Behave as a ROM monitor"
@@ -559,7 +553,7 @@ enum CYGDBG_HAL_CRCTABLE_LOCATION_ENUM = ROM | RAM
             [CYG_HAL_STARTUP = FLOPPY || CYG_HAL_STARTUP = ROM || CYG_HAL_STARTUP = GRUB]
             [!CYGHWR_HAL_I386_FPU_SWITCH_LAZY]
 
-        CYGSEM_HAL_USE_ROM_MONITOR -> CYGSEM_HAL_USE_ROM_MONITOR_ENUM 
+        CYGSEM_HAL_USE_ROM_MONITOR -> CYGSEM_HAL_USE_ROM_MONITOR_ENUM  ?
             display = "Work with a ROM monitor"
             -- default_value = ((CYG_HAL_STARTUP = RAM) => GDB_stubs else 0)
             [CYG_HAL_STARTUP = RAM]
@@ -590,7 +584,7 @@ enum CYGSEM_HAL_USE_ROM_MONITOR_ENUM = Generic | GDB_stubs""
     CYGPKG_HAL_I386 extends CYGINT_PROFILE_HAL_MCOUNT
         display = "i386 architecture"
 
-        CYGPKG_HAL_SMP_SUPPORT
+        CYGPKG_HAL_SMP_SUPPORT ?
             display = "SMP support"
             -- default_value = 0
             [#CYGHWR_HAL_I386_FPU_SWITCH_LAZY = 0]
@@ -599,7 +593,7 @@ enum CYGSEM_HAL_USE_ROM_MONITOR_ENUM = Generic | GDB_stubs""
                 display = "Max number of CPUs supported"
                 -- default_value = 2
 
-        CYGHWR_HAL_I386_FPU
+        CYGHWR_HAL_I386_FPU ?
             display = "Enable I386 FPU support"
             -- default_value = 1
 
@@ -607,7 +601,7 @@ enum CYGSEM_HAL_USE_ROM_MONITOR_ENUM = Generic | GDB_stubs""
                 display = "Use lazy FPU state switching"
                 -- default_value = 1
 
-        CYGHWR_HAL_I386_PENTIUM
+        CYGHWR_HAL_I386_PENTIUM ?
             display = "Enable Pentium class CPU features"
             -- default_value = 0
 
@@ -771,28 +765,25 @@ enum CYGNUM_HAL_VIRTUAL_VECTOR_DEBUG_CHANNEL_BAUD_ENUM = VAL_9600 | VAL_38400 | 
                 display = "Search entire PCI space"
                 -- default_value = 0
 
-            CYGNUM_HAL_I386_PC_STARTUP_VIDEO_MODE -> integer 
+            CYGNUM_HAL_I386_PC_STARTUP_VIDEO_MODE -> integer  ?
                 display = "Switch the display to an alternative video mode"
                 -- default_value = 0
                 -- ifActive
                 [CYGPKG_REDBOOT]
                 [!CYGSEM_HAL_I386_PC_DIAG_SCREEN]
 
-            CYGPKG_HAL_I386_PCMB_SMP_SUPPORT
+            CYGPKG_HAL_I386_PCMB_SMP_SUPPORT ?
                 -- ifActive
                 [CYGPKG_HAL_SMP_SUPPORT]
                 -- calculated
                 [
                 CYGPKG_HAL_SMP_SUPPORT]
 
-            CYGFUN_HAL_I386_PCMB_GPROF_SUPPORT extends CYGINT_PROFILE_HAL_TIMER ?
+            CYGFUN_HAL_I386_PCMB_GPROF_SUPPORT extends CYGINT_PROFILE_HAL_TIMER
                 display = "Support for gprof profiling"
                 -- ifActive
                 [CYGPKG_PROFILE_GPROF]
-                [CYGVAR_KERNEL_COUNTERS_CLOCK]
-                -- calculated
-                [this = 
-                1]"
+                [CYGVAR_KERNEL_COUNTERS_CLOCK]"
 
 CYGPKG_IO
     display = "I/O sub-system"
@@ -802,7 +793,7 @@ CYGPKG_IO
         display = "Debug I/O sub-system"
         -- default_value = 0
 
-    CYGPKG_IO_FILE_SUPPORT
+    CYGPKG_IO_FILE_SUPPORT ?
         display = "Basic support for file based I/O"
         -- default_value = 1
         -- ifActive
@@ -827,12 +818,12 @@ CYGPKG_IO
             -- default_value = 0 != #CYGINT_IO_SERIAL_LINE_STATUS_HW
             [#CYGINT_IO_SERIAL_LINE_STATUS_HW > 0]
 
-        CYGPKG_IO_SERIAL_FLOW_CONTROL
+        CYGPKG_IO_SERIAL_FLOW_CONTROL ?
             display = "Flow control"
             -- default_value = 0
             [CYGOPT_IO_SERIAL_FLOW_CONTROL_SOFTWARE || CYGOPT_IO_SERIAL_FLOW_CONTROL_HW]
 
-            CYGOPT_IO_SERIAL_FLOW_CONTROL_SOFTWARE
+            CYGOPT_IO_SERIAL_FLOW_CONTROL_SOFTWARE ?
                 display = "Software flow control"
                 -- default_value = 1
 
@@ -870,11 +861,11 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                 [1 <= this && this <= 100]
                 [CYGNUM_IO_SERIAL_FLOW_CONTROL_HIGH_WATER_PERCENT >= CYGNUM_IO_SERIAL_FLOW_CONTROL_LOW_WATER_PERCENT]
 
-        CYGPKG_IO_SERIAL_TTY
+        CYGPKG_IO_SERIAL_TTY ?
             display = "TTY-mode serial device drivers"
             -- default_value = 1
 
-            CYGPKG_IO_SERIAL_HALDIAG
+            CYGPKG_IO_SERIAL_HALDIAG ?
                 display = "HAL/diag serial device driver"
                 -- default_value = 1
 
@@ -882,11 +873,11 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                 display = "Console device name"
                 -- default_value = "\"/dev/ttydiag\""
 
-            CYGPKG_IO_SERIAL_TTY_TTYDIAG
+            CYGPKG_IO_SERIAL_TTY_TTYDIAG ?
                 display = "TTY mode HAL/diag channel"
                 -- default_value = 1
 
-            CYGPKG_IO_SERIAL_TTY_TTY0
+            CYGPKG_IO_SERIAL_TTY_TTY0 ?
                 display = "TTY mode channel #0"
                 -- default_value = 0
 
@@ -894,7 +885,7 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                     display = "TTY mode channel #0 device"
                     -- default_value = "\"/dev/ser0\""
 
-            CYGPKG_IO_SERIAL_TTY_TTY1
+            CYGPKG_IO_SERIAL_TTY_TTY1 ?
                 display = "TTY mode channel #1"
                 -- default_value = 0
 
@@ -902,7 +893,7 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                     display = "TTY mode channel #1 device"
                     -- default_value = "\"/dev/ser1\""
 
-            CYGPKG_IO_SERIAL_TTY_TTY2
+            CYGPKG_IO_SERIAL_TTY_TTY2 ?
                 display = "TTY mode channel #2"
                 -- default_value = 0
 
@@ -910,7 +901,7 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                     display = "TTY mode channel #2 device"
                     -- default_value = "\"/dev/ser2\""
 
-            CYGPKG_IO_SERIAL_TTY_TTY3
+            CYGPKG_IO_SERIAL_TTY_TTY3 ?
                 display = "TTY mode channel #3"
                 -- default_value = 0
 
@@ -918,7 +909,7 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                     display = "TTY mode channel #3 device"
                     -- default_value = "\"/dev/ser3\""
 
-        CYGPKG_IO_SERIAL_TERMIOS extends CYGINT_ISO_TERMIOS
+        CYGPKG_IO_SERIAL_TERMIOS extends CYGINT_ISO_TERMIOS ?
             display = "Termios compatible TTY drivers"
             -- default_value = 0 != #CYGPKG_ISOINFRA && 0 != #CYGPKG_IO_FILEIO && 0 != #CYGINT_ISO_ERRNO_CODES && 0 != #CYGINT_ISO_ERRNO
             [CYGPKG_ISOINFRA]
@@ -927,15 +918,12 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
             [CYGINT_ISO_ERRNO]
             [CYGINT_ISO_MALLOC]"
 
-            CYGBLD_IO_SERIAL_TERMIOS_TERMIOS_TTY ?
+            CYGBLD_IO_SERIAL_TERMIOS_TERMIOS_TTY
                 display = "Build termios tty driver file"
                 -- ifActive
                 [#CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY > 0]
-                -- calculated
-                [this = 
-                1]
 
-            CYGPKG_IO_SERIAL_TERMIOS_TERMIOS0 extends CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY
+            CYGPKG_IO_SERIAL_TERMIOS_TERMIOS0 extends CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY ?
                 display = "Termios TTY channel #0"
                 -- default_value = 0
 
@@ -943,7 +931,7 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                     display = "Termios TTY channel #0 device"
                     -- default_value = "\"/dev/ser0\""
 
-            CYGPKG_IO_SERIAL_TERMIOS_TERMIOS1 extends CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY
+            CYGPKG_IO_SERIAL_TERMIOS_TERMIOS1 extends CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY ?
                 display = "Termios TTY channel #1"
                 -- default_value = 0
 
@@ -951,7 +939,7 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                     display = "Termios TTY channel #1 device"
                     -- default_value = "\"/dev/ser1\""
 
-            CYGPKG_IO_SERIAL_TERMIOS_TERMIOS2 extends CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY
+            CYGPKG_IO_SERIAL_TERMIOS_TERMIOS2 extends CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY ?
                 display = "Termios TTY channel #2"
                 -- default_value = 0
 
@@ -959,7 +947,7 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                     display = "Termios TTY channel #2 device"
                     -- default_value = "\"/dev/ser2\""
 
-            CYGPKG_IO_SERIAL_TERMIOS_TERMIOS3 extends CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY
+            CYGPKG_IO_SERIAL_TERMIOS_TERMIOS3 extends CYGINT_IO_SERIAL_TERMIOS_TERMIOS_TTY ?
                 display = "Termios TTY channel #3"
                 -- default_value = 0
 
@@ -973,7 +961,7 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                 [CYGINT_ISO_SIGNAL_NUMBERS]
                 [CYGINT_ISO_SIGNAL_IMPL]
 
-        CYGPKG_IO_SERIAL_DEVICES
+        CYGPKG_IO_SERIAL_DEVICES ?
             display = "Hardware serial device drivers"
             -- default_value = 0
 
@@ -992,7 +980,7 @@ enum CYGDAT_IO_SERIAL_FLOW_CONTROL_DEFAULT_ENUM = NONE | XONXOFF | RTSCTS | DSRD
                     display = "Transmission require priming"
                     -- default_value = 0
 
-                CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO
+                CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO ?
                     display = "16x5x FIFO support"
                     -- default_value = 1
 
@@ -1024,7 +1012,7 @@ enum CYGPKG_IO_SERIAL_GENERIC_16X5X_FIFO_RX_THRESHOLD_ENUM = VAL_14 | VAL_8 | VA
                 [CYGPKG_HAL_I386_PCMB]
                 [CYGPKG_ERROR]"
 
-                CYGPKG_IO_SERIAL_I386_PC_SERIAL0
+                CYGPKG_IO_SERIAL_I386_PC_SERIAL0 ?
                     display = "PC serial port 0 driver"
                     'CYGINT_IO_SERIAL_GENERIC_16X5X_REQUIRED
                     'CYGINT_IO_SERIAL_FLOW_CONTROL_HW
@@ -1060,7 +1048,7 @@ enum CYGNUM_IO_SERIAL_I386_PC_SERIAL0_BAUD_ENUM = VAL_200 | VAL_1800 | VAL_9600 
                         -- default_value = #CYGNUM_IO_SERIAL_I386_PC_SERIAL0_IRQ + 32
                         [32 <= this && this <= 47]
 
-                CYGPKG_IO_SERIAL_I386_PC_SERIAL1
+                CYGPKG_IO_SERIAL_I386_PC_SERIAL1 ?
                     display = "PC serial port 1 driver"
                     'CYGINT_IO_SERIAL_GENERIC_16X5X_REQUIRED
                     'CYGINT_IO_SERIAL_FLOW_CONTROL_HW
@@ -1111,9 +1099,6 @@ enum CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM = VAL_200 | VAL_1800 | VAL_9600 
                     display = "Testing parameters"
                     -- ifActive
                     [CYGPKG_IO_SERIAL_I386_PC_SERIAL0]
-                    -- calculated
-                    [this = 
-                    1]
 
                     CYGPRI_SER_TEST_SER_DEV
                         display = "Serial device used for testing"
@@ -1148,15 +1133,12 @@ enum CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM = VAL_200 | VAL_1800 | VAL_9600 
             [#CYGFUN_IO_FILEIO_SELECT = 1]
 
         CYGPKG_IO_SERIAL_TEST_SPECS
-            display = "Serial testing specification"
-            -- calculated
-            [this = 
-            1]"""""""""
+            display = "Serial testing specification""""""""""
 
     CYGPKG_IO_ETH_DRIVERS extends CYGPKG_NET_DRIVER_FRAMEWORK
         display = "Common ethernet support"""
 
-        CYGDBG_IO_ETH_DRIVERS_DEBUG
+        CYGDBG_IO_ETH_DRIVERS_DEBUG ?
             display = "Support printing driver debug information"
             -- default_value = 1
 
@@ -1168,32 +1150,32 @@ enum CYGNUM_IO_SERIAL_I386_PC_SERIAL1_BAUD_ENUM = VAL_200 | VAL_1800 | VAL_9600 
             display = "Size of scatter-gather I/O lists"
             -- default_value = 32
 
-        CYGPKG_IO_ETH_DRIVERS_NET extends CYGINT_IO_ETH_INT_SUPPORT_REQUIRED
+        CYGPKG_IO_ETH_DRIVERS_NET extends CYGINT_IO_ETH_INT_SUPPORT_REQUIRED ?
             display = "Support for standard eCos TCP/IP stack."
             -- default_value = 1
             -- ifActive
             [CYGPKG_NET]
             [CYGINT_ISO_STRING_STRFUNCS]
 
-            CYGPKG_IO_ETH_DRIVERS_WARN_NO_MBUFS
+            CYGPKG_IO_ETH_DRIVERS_WARN_NO_MBUFS ?
                 display = "Warn when there are no more mbufs"
                 -- default_value = 1
 
-            CYGPKG_IO_ETH_DRIVERS_SIMULATED_FAILURES
+            CYGPKG_IO_ETH_DRIVERS_SIMULATED_FAILURES ?
                 display = "Simulate network failures for testing"
                 -- default_value = 0
 
-                CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_RX -> CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_RX_ENUM 
+                CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_RX -> CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_RX_ENUM  ?
                     display = "Drop incoming packets (percentage)"
                     -- default_value = VAL_10
 enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_RX_ENUM = VAL_10 | VAL_50 | VAL_80
 
-                CYGPKG_IO_ETH_DRIVERS_SIMULATE_CORRUPT_RX -> CYGPKG_IO_ETH_DRIVERS_SIMULATE_CORRUPT_RX_ENUM 
+                CYGPKG_IO_ETH_DRIVERS_SIMULATE_CORRUPT_RX -> CYGPKG_IO_ETH_DRIVERS_SIMULATE_CORRUPT_RX_ENUM  ?
                     display = "Corrupt incoming packets (percentage)"
                     -- default_value = VAL_10
 enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_CORRUPT_RX_ENUM = VAL_10 | VAL_50 | VAL_80
 
-                CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX -> CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM 
+                CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX -> CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM  ?
                     display = "Drop outgoing packets (percentage)"
                     -- default_value = VAL_10
 enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM = VAL_10 | VAL_50 | VAL_80
@@ -1202,7 +1184,7 @@ enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM = VAL_10 | VAL_50 | VAL_80
                     display = "Simulate a line cut from time to time"
                     -- default_value = 0
 
-        CYGPKG_IO_ETH_DRIVERS_STAND_ALONE
+        CYGPKG_IO_ETH_DRIVERS_STAND_ALONE ?
             display = "Support for stand-alone network stack."
             -- default_value = 1
             -- ifActive
@@ -1224,7 +1206,7 @@ enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM = VAL_10 | VAL_50 | VAL_80
                 -- ifActive
                 [CYGPKG_REDBOOT]
 
-        CYGPKG_IO_ETH_DRIVERS_LWIP extends CYGINT_IO_ETH_INT_SUPPORT_REQUIRED
+        CYGPKG_IO_ETH_DRIVERS_LWIP extends CYGINT_IO_ETH_INT_SUPPORT_REQUIRED ?
             display = "Support for lwIP network stack."
             -- default_value = 1
             -- ifActive
@@ -1266,7 +1248,7 @@ enum CYGPKG_IO_ETH_DRIVERS_SIMULATE_DROP_TX_ENUM = VAL_10 | VAL_50 | VAL_80
             -- ifActive
             [CYGPKG_IO_ETH_DRIVERS]"
 
-            CYGPKG_DEVS_ETH_I386_PC_LANCEPCI_ETH0
+            CYGPKG_DEVS_ETH_I386_PC_LANCEPCI_ETH0 ?
                 display = "Lance PCI ethernet port 0 driver"
                 'CYGHWR_NET_DRIVERS
                 'CYGHWR_NET_DRIVER_ETH0
@@ -1287,7 +1269,7 @@ enum CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_TX_RING_SIZE_ENUM = VAL_32 | VAL_16 |
                     display = "Device name for the ETH0 ethernet port 0 driver"
                     -- default_value = "\"eth0\""
 
-                CYGSEM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_SET_ESA
+                CYGSEM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_SET_ESA ?
                     display = "Set the ethernet station address"
                     -- default_value = 0
 
@@ -1306,7 +1288,7 @@ enum CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_TX_RING_SIZE_ENUM = VAL_32 | VAL_16 |
             display = "Reserve space in each power controller for use by the policy manager"
             -- default_value = 1
 
-        CYGPKG_POWER_THREAD
+        CYGPKG_POWER_THREAD ?
             display = "Run a separate thread within the power management package"
             -- default_value = 1
             -- ifActive
@@ -1370,11 +1352,11 @@ enum CYGNUM_DEVS_ETH_I386_PC_LANCEPCI_ETH0_TX_RING_SIZE_ENUM = VAL_32 | VAL_16 |
 CYGPKG_INFRA
     display = "Infrastructure"
 
-    CYGPKG_INFRA_DEBUG
+    CYGPKG_INFRA_DEBUG ?
         display = "Asserts & Tracing"
         -- default_value = 0
 
-        CYGDBG_USE_ASSERTS
+        CYGDBG_USE_ASSERTS ?
             display = "Use asserts"
             -- default_value = 1
             [1 = #CYGINT_INFRA_DEBUG_TRACE_IMPL]
@@ -1395,7 +1377,7 @@ CYGPKG_INFRA
                 display = "Use assert text"
                 -- default_value = 1
 
-        CYGDBG_USE_TRACING
+        CYGDBG_USE_TRACING ?
             display = "Use tracing"
             -- default_value = 0
             [1 = #CYGINT_INFRA_DEBUG_TRACE_IMPL]
@@ -1420,7 +1402,7 @@ CYGPKG_INFRA
             display = "Fancy output"
             -- default_value = 0
 
-        CYGDBG_INFRA_DEBUG_TRACE_ASSERT_BUFFER extends CYGINT_INFRA_DEBUG_TRACE_IMPL
+        CYGDBG_INFRA_DEBUG_TRACE_ASSERT_BUFFER extends CYGINT_INFRA_DEBUG_TRACE_IMPL ?
             display = "Buffered tracing"
             -- default_value = 1
 
@@ -1546,11 +1528,11 @@ CYGPKG_KERNEL
     CYGPKG_KERNEL_INTERRUPTS
         display = "Kernel interrupt handling"
 
-        CYGIMP_KERNEL_INTERRUPTS_DSRS
+        CYGIMP_KERNEL_INTERRUPTS_DSRS ?
             display = "Use delayed service routines (DSRs)"
             -- default_value = 1]
 
-            CYGIMP_KERNEL_INTERRUPTS_DSRS_LIST extends CYGINT_KERNEL_INTERRUPTS_DSRS
+            CYGIMP_KERNEL_INTERRUPTS_DSRS_LIST extends CYGINT_KERNEL_INTERRUPTS_DSRS ?
                 display = "Use linked lists for DSRs"
                 -- default_value = 1
 
@@ -1558,7 +1540,7 @@ CYGPKG_KERNEL
                     display = "Schedule DSRs in FIFO order"
                     -- default_value = 1
 
-            CYGIMP_KERNEL_INTERRUPTS_DSRS_TABLE extends CYGINT_KERNEL_INTERRUPTS_DSRS
+            CYGIMP_KERNEL_INTERRUPTS_DSRS_TABLE extends CYGINT_KERNEL_INTERRUPTS_DSRS ?
                 display = "Use fixed-size table for DSRs"
                 -- default_value = 0
 
@@ -1572,7 +1554,7 @@ CYGPKG_KERNEL
                 -- default_value = 0
                 [CYGIMP_HAL_COMMON_INTERRUPTS_CHAIN]
 
-    CYGPKG_KERNEL_EXCEPTIONS
+    CYGPKG_KERNEL_EXCEPTIONS ?
         display = "Exception handling"
         -- default_value = 1
         [CYGPKG_HAL_EXCEPTIONS]
@@ -1588,7 +1570,7 @@ CYGPKG_KERNEL
     CYGPKG_KERNEL_SCHED
         display = "Kernel schedulers"]"
 
-        CYGSEM_KERNEL_SCHED_MLQUEUE extends CYGINT_KERNEL_SCHEDULER
+        CYGSEM_KERNEL_SCHED_MLQUEUE extends CYGINT_KERNEL_SCHEDULER ?
             display = "Multi-level queue scheduler"
             -- default_value = 1
 
@@ -1632,7 +1614,7 @@ CYGPKG_KERNEL
                 display = "Dequeue highest priority threads first"
                 -- default_value = 0
 
-        CYGSEM_KERNEL_SCHED_TIMESLICE
+        CYGSEM_KERNEL_SCHED_TIMESLICE ?
             display = "Scheduler timeslicing"
             -- default_value = 1
             [!CYGSEM_KERNEL_SCHED_BITMAP]
@@ -1647,7 +1629,7 @@ CYGPKG_KERNEL
                 display = "Support runtime enable of timeslice per-thread"
                 -- default_value = FALSE
 
-        CYGSEM_KERNEL_SCHED_ASR_SUPPORT
+        CYGSEM_KERNEL_SCHED_ASR_SUPPORT ?
             display = "Enable ASR support"
             -- default_value = FALSE
 
@@ -1659,7 +1641,7 @@ CYGPKG_KERNEL
                 display = "Make ASR data global"
                 -- default_value = TRUE
 
-    CYGPKG_KERNEL_SMP_SUPPORT
+    CYGPKG_KERNEL_SMP_SUPPORT ?
         display = "SMP support"
         -- default_value = 0
         [CYGPKG_HAL_SMP_SUPPORT]
@@ -1682,7 +1664,7 @@ CYGPKG_KERNEL
             display = "Implement counters using a single list"
             -- default_value = 1
 
-        CYGIMP_KERNEL_COUNTERS_MULTI_LIST extends CYGINT_KERNEL_COUNTERS
+        CYGIMP_KERNEL_COUNTERS_MULTI_LIST extends CYGINT_KERNEL_COUNTERS ?
             display = "Implement counters using a table of lists"
             -- default_value = 0
 
@@ -1737,7 +1719,7 @@ CYGPKG_KERNEL
             display = "Keep track of the base of each thread's stack"
             -- default_value = 1
 
-        CYGFUN_KERNEL_THREADS_STACK_CHECKING
+        CYGFUN_KERNEL_THREADS_STACK_CHECKING ?
             display = "Check thread stacks for overflows"
             -- default_value = 1
             -- ifActive
@@ -1755,7 +1737,7 @@ CYGPKG_KERNEL
                 -- default_value = 32
                 [8 <= this && this <= 512]
 
-        CYGFUN_KERNEL_THREADS_STACK_MEASUREMENT
+        CYGFUN_KERNEL_THREADS_STACK_MEASUREMENT ?
             display = "Measure stack usage"
             -- default_value = 0 != #CYGPKG_INFRA_DEBUG
 
@@ -1763,7 +1745,7 @@ CYGPKG_KERNEL
                 display = "Output stack usage on thread exit"
                 -- default_value = 0
 
-        CYGVAR_KERNEL_THREADS_DATA
+        CYGVAR_KERNEL_THREADS_DATA ?
             display = "Support for per-thread data"
             -- default_value = 1
             [CYGFUN_KERNEL_THREADS_STACK_LIMIT]
@@ -1803,7 +1785,7 @@ CYGPKG_KERNEL
                     [this = 
                     3]
 
-        CYGPKG_KERNEL_THREADS_DESTRUCTORS
+        CYGPKG_KERNEL_THREADS_DESTRUCTORS ?
             display = "Thread destructors"
             -- default_value = 0
 
@@ -1829,18 +1811,15 @@ CYGPKG_KERNEL
             display = "Maximal wake count"
             -- default_value = 500
 
-        CYGIMP_IDLE_THREAD_YIELD ?
+        CYGIMP_IDLE_THREAD_YIELD
             display = "Idle thread must always yield"
             -- ifActive
             [#CYGNUM_KERNEL_SCHED_PRIORITIES = 1]
-            -- calculated
-            [this = 
-            1]
 
     CYGPKG_KERNEL_SYNCH
         display = "Synchronization primitives"
 
-        CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL -> CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_ENUM 
+        CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL -> CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_ENUM  ?
             display = "Priority inversion protection protocols"
             -- default_value = SIMPLE
             -- ifActive
@@ -1852,7 +1831,7 @@ enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_ENUM = SIMPLE
                 display = "Enable priority inheritance protocol"
                 -- default_value = 1
 
-            CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_CEILING extends CYGINT_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_COUNT
+            CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_CEILING extends CYGINT_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_COUNT ?
                 display = "Enable priority ceiling protocol"
                 -- default_value = 1
 
@@ -1906,7 +1885,7 @@ enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT_ENUM = INHERI
             display = "Avoid inlines in mqueue implementation"
             -- default_value = 0
 
-    CYGPKG_KERNEL_INSTRUMENT
+    CYGPKG_KERNEL_INSTRUMENT ?
         display = "Kernel instrumentation"
         -- default_value = 0
 
@@ -1997,7 +1976,7 @@ enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT_ENUM = INHERI
             display = "Support application-level instrumentation"
             -- default_value = 1
 
-        CYGDBG_KERNEL_INSTRUMENT_MSGS
+        CYGDBG_KERNEL_INSTRUMENT_MSGS ?
             display = "Print user friendly instrument messages"
             -- default_value = 1
 
@@ -2005,7 +1984,7 @@ enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT_ENUM = INHERI
                 display = "Rebuild the header file"
                 -- default_value = 0
 
-            CYGDBG_KERNEL_INSTRUMENT_BUILD_HOST_DUMP
+            CYGDBG_KERNEL_INSTRUMENT_BUILD_HOST_DUMP ?
                 display = "Build the host tool to print out a dump"
                 -- default_value = 0
 
@@ -2127,7 +2106,7 @@ CYGPKG_MEMALLOC
         display = "Breakpoint site when running out of memory"
         -- default_value = 0
 
-    CYGPKG_MEMALLOC_MALLOC_ALLOCATORS
+    CYGPKG_MEMALLOC_MALLOC_ALLOCATORS ?
         display = "malloc() and supporting allocators"
         'CYGINT_ISO_MALLOC
         'CYGINT_ISO_MALLINFO
@@ -2135,11 +2114,11 @@ CYGPKG_MEMALLOC
         -- ifActive
         [CYGPKG_ISOINFRA]
 
-        CYGBLD_MEMALLOC_MALLOC_EXTERNAL_HEAP_H -> integer 
+        CYGBLD_MEMALLOC_MALLOC_EXTERNAL_HEAP_H -> integer  ?
             display = "Use external heap definition"
             -- default_value = 0
 
-        CYGBLD_MEMALLOC_MALLOC_EXTERNAL_JOIN_H -> integer 
+        CYGBLD_MEMALLOC_MALLOC_EXTERNAL_JOIN_H -> integer  ?
             display = "Use external implementation of joining multiple heaps"
             -- default_value = 0]
 
@@ -2189,25 +2168,25 @@ CYGPKG_ISOINFRA
     CYGPKG_ISO_CTYPE_H
         display = "ctype.h functions"]
 
-        CYGBLD_ISO_CTYPE_HEADER -> integer 
+        CYGBLD_ISO_CTYPE_HEADER -> integer  ?
             display = "Ctype implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_ERRNO
         display = "Error handling"]
 
-        CYGBLD_ISO_ERRNO_CODES_HEADER -> integer 
+        CYGBLD_ISO_ERRNO_CODES_HEADER -> integer  ?
             display = "Error codes implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_ERRNO_HEADER -> integer 
+        CYGBLD_ISO_ERRNO_HEADER -> integer  ?
             display = "errno variable implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_LOCALE
         display = "Locale-related functions"]
 
-        CYGBLD_ISO_LOCALE_HEADER -> integer 
+        CYGBLD_ISO_LOCALE_HEADER -> integer  ?
             display = "Locale implementation header"
             -- default_value = 0
 
@@ -2218,7 +2197,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of stdio file types"
             [1 >= #CYGINT_ISO_STDIO_FILETYPES]
 
-        CYGBLD_ISO_STDIO_FILETYPES_HEADER -> integer 
+        CYGBLD_ISO_STDIO_FILETYPES_HEADER -> integer  ?
             display = "Stdio file types implementation header"
             -- default_value = 0
 
@@ -2226,7 +2205,7 @@ CYGPKG_ISOINFRA
             display = "Stdio standard streams implementations"
             [1 >= #CYGINT_ISO_STDIO_STREAMS]
 
-        CYGBLD_ISO_STDIO_STREAMS_HEADER -> integer 
+        CYGBLD_ISO_STDIO_STREAMS_HEADER -> integer  ?
             display = "Stdio standard streams implementation header"
             -- default_value = 0
 
@@ -2234,7 +2213,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of stdio file operations"
             [1 >= #CYGINT_ISO_STDIO_FILEOPS]
 
-        CYGBLD_ISO_STDIO_FILEOPS_HEADER -> integer 
+        CYGBLD_ISO_STDIO_FILEOPS_HEADER -> integer  ?
             display = "Stdio file operations implementation header"
             -- default_value = 0
 
@@ -2242,7 +2221,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of stdio file access  functionals"
             [1 >= #CYGINT_ISO_STDIO_FILEACCESS]
 
-        CYGBLD_ISO_STDIO_FILEACCESS_HEADER -> integer 
+        CYGBLD_ISO_STDIO_FILEACCESS_HEADER -> integer  ?
             display = "Stdio file access implementation header"
             -- default_value = 0
 
@@ -2250,7 +2229,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of stdio formatted I/O"
             [1 >= #CYGINT_ISO_STDIO_FORMATTED_IO]
 
-        CYGBLD_ISO_STDIO_FORMATTED_IO_HEADER -> integer 
+        CYGBLD_ISO_STDIO_FORMATTED_IO_HEADER -> integer  ?
             display = "Stdio formatted I/O implementation header"
             -- default_value = 0
 
@@ -2258,7 +2237,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of stdio character I/O"
             [1 >= #CYGINT_ISO_STDIO_CHAR_IO]
 
-        CYGBLD_ISO_STDIO_CHAR_IO_HEADER -> integer 
+        CYGBLD_ISO_STDIO_CHAR_IO_HEADER -> integer  ?
             display = "Stdio character I/O implementation header"
             -- default_value = 0
 
@@ -2266,7 +2245,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of stdio direct I/O"
             [1 >= #CYGINT_ISO_STDIO_DIRECT_IO]
 
-        CYGBLD_ISO_STDIO_DIRECT_IO_HEADER -> integer 
+        CYGBLD_ISO_STDIO_DIRECT_IO_HEADER -> integer  ?
             display = "Stdio direct I/O implementation header"
             -- default_value = 0
 
@@ -2274,7 +2253,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of stdio file positioning"
             [1 >= #CYGINT_ISO_STDIO_FILEPOS]
 
-        CYGBLD_ISO_STDIO_FILEPOS_HEADER -> integer 
+        CYGBLD_ISO_STDIO_FILEPOS_HEADER -> integer  ?
             display = "Stdio file positioning implementation header"
             -- default_value = 0
 
@@ -2282,7 +2261,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of stdio error handling"
             [1 >= #CYGINT_ISO_STDIO_ERROR]
 
-        CYGBLD_ISO_STDIO_ERROR_HEADER -> integer 
+        CYGBLD_ISO_STDIO_ERROR_HEADER -> integer  ?
             display = "Stdio error handling implementation header"
             -- default_value = 0
 
@@ -2290,66 +2269,66 @@ CYGPKG_ISOINFRA
             display = "POSIX fd-related function implementations"
             [1 >= #CYGINT_ISO_STDIO_POSIX_FDFUNCS]
 
-        CYGBLD_ISO_STDIO_POSIX_FDFUNCS_HEADER -> integer 
+        CYGBLD_ISO_STDIO_POSIX_FDFUNCS_HEADER -> integer  ?
             display = "POSIX fd-related function implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_STDLIB
         display = "Standard general utility functions"]
 
-        CYGBLD_ISO_STDLIB_STRCONV_HEADER -> integer 
+        CYGBLD_ISO_STDLIB_STRCONV_HEADER -> integer  ?
             display = "String conversion function implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_STDLIB_STRCONV_FLOAT_HEADER -> integer 
+        CYGBLD_ISO_STDLIB_STRCONV_FLOAT_HEADER -> integer  ?
             display = "String to FP conversion function implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_RAND_HEADER -> integer 
+        CYGBLD_ISO_RAND_HEADER -> integer  ?
             display = "Random number generator implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_MALLOC_HEADER -> integer 
+        CYGBLD_ISO_MALLOC_HEADER -> integer  ?
             display = "Malloc implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_MALLINFO_HEADER -> integer 
+        CYGBLD_ISO_MALLINFO_HEADER -> integer  ?
             display = "Mallinfo() implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_EXIT_HEADER -> integer 
+        CYGBLD_ISO_EXIT_HEADER -> integer  ?
             display = "Program exit functionality implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_STDLIB_ENVIRON_HEADER -> integer 
+        CYGBLD_ISO_STDLIB_ENVIRON_HEADER -> integer  ?
             display = "Program environment implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_STDLIB_SYSTEM_HEADER -> integer 
+        CYGBLD_ISO_STDLIB_SYSTEM_HEADER -> integer  ?
             display = "system() implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_BSEARCH_HEADER -> integer 
+        CYGBLD_ISO_BSEARCH_HEADER -> integer  ?
             display = "bsearch() implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_QSORT_HEADER -> integer 
+        CYGBLD_ISO_QSORT_HEADER -> integer  ?
             display = "qsort() implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_STDLIB_ABS_HEADER -> integer 
+        CYGBLD_ISO_STDLIB_ABS_HEADER -> integer  ?
             display = "abs()/labs() implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_STDLIB_DIV_HEADER -> integer 
+        CYGBLD_ISO_STDLIB_DIV_HEADER -> integer  ?
             display = "div()/ldiv() implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_STDLIB_MB_CUR_MAX_HEADER -> integer 
+        CYGBLD_ISO_STDLIB_MB_CUR_MAX_HEADER -> integer  ?
             display = "Header defining the implementation's MB_CUR_MAX"
             -- default_value = 0]
 
-        CYGBLD_ISO_STDLIB_MULTIBYTE_HEADER -> integer 
+        CYGBLD_ISO_STDLIB_MULTIBYTE_HEADER -> integer  ?
             display = "Multibyte character implementation header"
             -- default_value = 0
 
@@ -2360,15 +2339,15 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of strerror() function"
             [1 >= #CYGINT_ISO_STRERROR]
 
-        CYGBLD_ISO_STRERROR_HEADER -> integer 
+        CYGBLD_ISO_STRERROR_HEADER -> integer  ?
             display = "strerror() implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_MEMCPY_HEADER -> integer 
+        CYGBLD_ISO_MEMCPY_HEADER -> integer  ?
             display = "memcpy() implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_MEMSET_HEADER -> integer 
+        CYGBLD_ISO_MEMSET_HEADER -> integer  ?
             display = "memset() implementation header"
             -- default_value = 0
 
@@ -2376,7 +2355,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of strtok_r() function"
             [1 >= #CYGINT_ISO_STRTOK_R]
 
-        CYGBLD_ISO_STRTOK_R_HEADER -> integer 
+        CYGBLD_ISO_STRTOK_R_HEADER -> integer  ?
             display = "strtok_r() implementation header"
             -- default_value = 0
 
@@ -2384,7 +2363,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of locale-specific string  functions"
             [1 >= #CYGINT_ISO_STRING_LOCALE_FUNCS]
 
-        CYGBLD_ISO_STRING_LOCALE_FUNCS_HEADER -> integer 
+        CYGBLD_ISO_STRING_LOCALE_FUNCS_HEADER -> integer  ?
             display = "Locale-specific string functions' implementation  header"
             -- default_value = 0
 
@@ -2392,7 +2371,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of BSD string functions"
             [1 >= #CYGINT_ISO_STRING_BSD_FUNCS]
 
-        CYGBLD_ISO_STRING_BSD_FUNCS_HEADER -> integer 
+        CYGBLD_ISO_STRING_BSD_FUNCS_HEADER -> integer  ?
             display = "BSD string functions' implementation header"
             -- default_value = 0
 
@@ -2400,7 +2379,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of other mem*() functions"
             [1 >= #CYGINT_ISO_STRING_MEMFUNCS]
 
-        CYGBLD_ISO_STRING_MEMFUNCS_HEADER -> integer 
+        CYGBLD_ISO_STRING_MEMFUNCS_HEADER -> integer  ?
             display = "Other mem*() functions' implementation header"
             -- default_value = 0
 
@@ -2408,26 +2387,26 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of other ISO C str*()  functions"
             [1 >= #CYGINT_ISO_STRING_STRFUNCS]
 
-        CYGBLD_ISO_STRING_STRFUNCS_HEADER -> integer 
+        CYGBLD_ISO_STRING_STRFUNCS_HEADER -> integer  ?
             display = "Other ISO C str*() functions' implementation  header"
             -- default_value = 0
 
     CYGPKG_ISO_TIME
         display = "Clock and time functionality"
 
-        CYGBLD_ISO_TIME_T_HEADER -> integer 
+        CYGBLD_ISO_TIME_T_HEADER -> integer  ?
             display = "time_t implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_CLOCK_T_HEADER -> integer 
+        CYGBLD_ISO_CLOCK_T_HEADER -> integer  ?
             display = "clock_t implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_STRUCTTIMEVAL_HEADER -> integer 
+        CYGBLD_ISO_STRUCTTIMEVAL_HEADER -> integer  ?
             display = "struct timeval implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_FNMATCH_HEADER -> integer 
+        CYGBLD_ISO_FNMATCH_HEADER -> integer  ?
             display = "fnmatch implementation header"
             -- default_value = 0
 
@@ -2435,7 +2414,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of POSIX timer types"
             [1 >= #CYGINT_ISO_POSIX_TIMER_TYPES]
 
-        CYGBLD_ISO_POSIX_TIMER_TYPES_HEADER -> integer 
+        CYGBLD_ISO_POSIX_TIMER_TYPES_HEADER -> integer  ?
             display = "POSIX timer types implementation header"
             -- default_value = 0
 
@@ -2443,7 +2422,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of POSIX clock types"
             [1 >= #CYGINT_ISO_POSIX_CLOCK_TYPES]
 
-        CYGBLD_ISO_POSIX_CLOCK_TYPES_HEADER -> integer 
+        CYGBLD_ISO_POSIX_CLOCK_TYPES_HEADER -> integer  ?
             display = "POSIX clock types implementation header"
             -- default_value = 0
 
@@ -2451,7 +2430,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of ISO C types"
             [1 >= #CYGINT_ISO_C_TIME_TYPES]
 
-        CYGBLD_ISO_C_TIME_TYPES_HEADER -> integer 
+        CYGBLD_ISO_C_TIME_TYPES_HEADER -> integer  ?
             display = "ISO C time types implementation header"
             -- default_value = 0
 
@@ -2459,7 +2438,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of POSIX timers"
             [1 >= #CYGINT_ISO_POSIX_TIMERS]
 
-        CYGBLD_ISO_POSIX_TIMERS_HEADER -> integer 
+        CYGBLD_ISO_POSIX_TIMERS_HEADER -> integer  ?
             display = "POSIX timer implementation header"
             -- default_value = 0
 
@@ -2467,7 +2446,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of POSIX clocks"
             [1 >= #CYGINT_ISO_POSIX_CLOCKS]
 
-        CYGBLD_ISO_POSIX_CLOCKS_HEADER -> integer 
+        CYGBLD_ISO_POSIX_CLOCKS_HEADER -> integer  ?
             display = "POSIX clocks implementation header"
             -- default_value = 0
 
@@ -2475,7 +2454,7 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of ISO C clock functions"
             [1 >= #CYGINT_ISO_C_CLOCK_FUNCS]
 
-        CYGBLD_ISO_C_CLOCK_FUNCS_HEADER -> integer 
+        CYGBLD_ISO_C_CLOCK_FUNCS_HEADER -> integer  ?
             display = "ISO C clock functions' implementation header"
             -- default_value = 0
 
@@ -2483,124 +2462,124 @@ CYGPKG_ISOINFRA
             display = "Number of implementations of tzset() function"
             [1 >= #CYGINT_ISO_TZSET]
 
-        CYGBLD_ISO_TZSET_HEADER -> integer 
+        CYGBLD_ISO_TZSET_HEADER -> integer  ?
             display = "tzset() implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_SIGNAL
         display = "Signal functionality"]
 
-        CYGBLD_ISO_SIGNAL_NUMBERS_HEADER -> integer 
+        CYGBLD_ISO_SIGNAL_NUMBERS_HEADER -> integer  ?
             display = "Signal numbering implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_SIGNAL_IMPL_HEADER -> integer 
+        CYGBLD_ISO_SIGNAL_IMPL_HEADER -> integer  ?
             display = "Signals implementation header"
             -- default_value = 0]
 
     CYGPKG_ISO_SETJMP
         display = "Non-local jumps functionality"]
 
-        CYGBLD_ISO_SETJMP_HEADER -> integer 
+        CYGBLD_ISO_SETJMP_HEADER -> integer  ?
             display = "setjmp() / longjmp() implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_SIGSETJMP_HEADER -> integer 
+        CYGBLD_ISO_SIGSETJMP_HEADER -> integer  ?
             display = "sigsetjmp() / siglongjmp() implementation header"
             -- default_value = 0
 
-    CYGBLD_ISO_ASSERT_HEADER -> integer 
+    CYGBLD_ISO_ASSERT_HEADER -> integer  ?
         display = "Assertions implementation header"
         -- default_value = 0
 
     CYGPKG_ISO_POSIX_FCNTL
         display = "POSIX file control"
 
-        CYGBLD_ISO_OFLAG_HEADER -> integer 
+        CYGBLD_ISO_OFLAG_HEADER -> integer  ?
             display = "POSIX open flags implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_FCNTL_HEADER -> integer 
+        CYGBLD_ISO_FCNTL_HEADER -> integer  ?
             display = "POSIX fcntl() implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_OPEN_HEADER -> integer 
+        CYGBLD_ISO_OPEN_HEADER -> integer  ?
             display = "POSIX file open implementation header"
             -- default_value = 0
 
-    CYGBLD_ISO_STAT_DEFS_HEADER -> integer 
+    CYGBLD_ISO_STAT_DEFS_HEADER -> integer  ?
         display = "<sys/stat.h> definitions implementation header"
         -- default_value = 0]
 
-    CYGBLD_ISO_DIRENT_HEADER -> integer 
+    CYGBLD_ISO_DIRENT_HEADER -> integer  ?
         display = "<dirent.h> definitions implementation header"
         -- default_value = 0
 
     CYGPKG_ISO_POSIX_TYPES
         display = "POSIX <sys/types.h> contents"]
 
-        CYGBLD_ISO_PTHREADTYPES_HEADER -> integer 
+        CYGBLD_ISO_PTHREADTYPES_HEADER -> integer  ?
             display = "POSIX thread types implementation header"
             -- default_value = 0]
 
-        CYGBLD_ISO_PMUTEXTYPES_HEADER -> integer 
+        CYGBLD_ISO_PMUTEXTYPES_HEADER -> integer  ?
             display = "POSIX mutex types implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_SSIZE_T_HEADER -> integer 
+        CYGBLD_ISO_SSIZE_T_HEADER -> integer  ?
             display = "ssize_t implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_FSTYPES_HEADER -> integer 
+        CYGBLD_ISO_FSTYPES_HEADER -> integer  ?
             display = "Filesystem types implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_SCHEDTYPES_HEADER -> integer 
+        CYGBLD_ISO_SCHEDTYPES_HEADER -> integer  ?
             display = "gid_t, pid_t, uid_t implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_EXTRA_TYPES
         display = "Non-POSIX <sys/types.h> contents"]
 
-        CYGBLD_ISO_BSDTYPES_HEADER -> integer 
+        CYGBLD_ISO_BSDTYPES_HEADER -> integer  ?
             display = "BSD types header"
             -- default_value = 0
 
     CYGPKG_ISO_UTSNAME
         display = "Utsname structure"
 
-        CYGBLD_ISO_UTSNAME_HEADER -> integer 
+        CYGBLD_ISO_UTSNAME_HEADER -> integer  ?
             display = "Utsname header"
             -- default_value = 0
 
     CYGPKG_ISO_SCHED
         display = "POSIX scheduler"]
 
-        CYGBLD_ISO_SCHED_IMPL_HEADER -> integer 
+        CYGBLD_ISO_SCHED_IMPL_HEADER -> integer  ?
             display = "POSIX scheduler implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_SEMAPHORES
         display = "POSIX semaphores"]
 
-        CYGBLD_ISO_SEMAPHORES_HEADER -> integer 
+        CYGBLD_ISO_SEMAPHORES_HEADER -> integer  ?
             display = "POSIX semaphore implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_MQUEUE
         display = "POSIX message queues"]
 
-        CYGBLD_ISO_MQUEUE_HEADER -> integer 
+        CYGBLD_ISO_MQUEUE_HEADER -> integer  ?
             display = "Implementation header"
             -- default_value = 0
 
-        CYGNUM_ISO_MQUEUE_OPEN_MAX
+        CYGNUM_ISO_MQUEUE_OPEN_MAX ?
             display = "Maximum number of open message queues"
             -- default_value = ((#CYGNUM_POSIX_MQUEUE_OPEN_MAX > 0) => CYGNUM_POSIX_MQUEUE_OPEN_MAX else 0)
             -- ifActive
             [CYGINT_ISO_MQUEUE]
 
-        CYGNUM_ISO_MQUEUE_PRIO_MAX -> integer 
+        CYGNUM_ISO_MQUEUE_PRIO_MAX -> integer  ?
             display = "Maximum number of message priorities"
             -- default_value = 65535
             -- ifActive
@@ -2613,7 +2592,7 @@ CYGPKG_ISOINFRA
             display = "POSIX pthread implementations"
             [1 >= #CYGINT_ISO_PTHREAD_IMPL]
 
-        CYGBLD_ISO_PTHREAD_IMPL_HEADER -> integer 
+        CYGBLD_ISO_PTHREAD_IMPL_HEADER -> integer  ?
             display = "POSIX pthread implementation header"
             -- default_value = 0
 
@@ -2621,44 +2600,44 @@ CYGPKG_ISOINFRA
             display = "POSIX mutex/cond var implementations"
             [1 >= #CYGINT_ISO_PTHREAD_MUTEX]
 
-        CYGBLD_ISO_PTHREAD_MUTEX_HEADER -> integer 
+        CYGBLD_ISO_PTHREAD_MUTEX_HEADER -> integer  ?
             display = "POSIX mutex/cond var implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_LIMITS
         display = "Limits"]
 
-        CYGBLD_ISO_POSIX_LIMITS_HEADER -> integer 
+        CYGBLD_ISO_POSIX_LIMITS_HEADER -> integer  ?
             display = "POSIX pthread limits implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_OPEN_MAX_HEADER -> integer 
+        CYGBLD_ISO_OPEN_MAX_HEADER -> integer  ?
             display = "OPEN_MAX implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_LINK_MAX_HEADER -> integer 
+        CYGBLD_ISO_LINK_MAX_HEADER -> integer  ?
             display = "LINK_MAX implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_NAME_MAX_HEADER -> integer 
+        CYGBLD_ISO_NAME_MAX_HEADER -> integer  ?
             display = "NAME_MAX implementation header"
             -- default_value = 0
 
-        CYGBLD_ISO_PATH_MAX_HEADER -> integer 
+        CYGBLD_ISO_PATH_MAX_HEADER -> integer  ?
             display = "PATH_MAX implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_TERMIOS
         display = "POSIX termios"]
 
-        CYGBLD_ISO_TERMIOS_HEADER -> integer 
+        CYGBLD_ISO_TERMIOS_HEADER -> integer  ?
             display = "POSIX termios implementation header"
             -- default_value = 0
 
     CYGPKG_ISO_DLFCN
         display = "Dynamic load API"]
 
-        CYGBLD_ISO_DLFCN_HEADER -> integer 
+        CYGBLD_ISO_DLFCN_HEADER -> integer  ?
             display = "Dynamic load implementation header"
             -- default_value = 0
 
@@ -2669,7 +2648,7 @@ CYGPKG_ISOINFRA
             display = "POSIX timer operations implementations"
             [1 >= #CYGINT_ISO_POSIX_TIMER_OPS]
 
-        CYGBLD_ISO_POSIX_TIMER_OPS_HEADER -> integer 
+        CYGBLD_ISO_POSIX_TIMER_OPS_HEADER -> integer  ?
             display = "POSIX timer operations implementation header"
             -- default_value = 0
 
@@ -2677,7 +2656,7 @@ CYGPKG_ISOINFRA
             display = "POSIX sleep() implementations"
             [1 >= #CYGINT_ISO_POSIX_SLEEP]
 
-        CYGBLD_ISO_POSIX_SLEEP_HEADER -> integer 
+        CYGBLD_ISO_POSIX_SLEEP_HEADER -> integer  ?
             display = "POSIX sleep() implementation header"
             -- default_value = 0
 
@@ -2688,7 +2667,7 @@ CYGPKG_ISOINFRA
             display = "select() implementations"
             [1 >= #CYGINT_ISO_SELECT]
 
-        CYGBLD_ISO_SELECT_HEADER -> integer 
+        CYGBLD_ISO_SELECT_HEADER -> integer  ?
             display = "select() implementation header"
             -- default_value = 0
 
@@ -2696,7 +2675,7 @@ CYGPKG_ISOINFRA
             display = "poll() implementations"
             [1 >= #CYGINT_ISO_POLL]
 
-        CYGBLD_ISO_POLL_HEADER -> integer 
+        CYGBLD_ISO_POLL_HEADER -> integer  ?
             display = "poll() implementation header"
             -- default_value = 0
 
@@ -2707,7 +2686,7 @@ CYGPKG_ISOINFRA
             display = "DNS implementations"
             [1 >= #CYGINT_ISO_DNS]
 
-        CYGBLD_ISO_DNS_HEADER -> integer 
+        CYGBLD_ISO_DNS_HEADER -> integer  ?
             display = "DNS implementation header"
             -- default_value = 0
 
@@ -2715,7 +2694,7 @@ CYGPKG_ISOINFRA
             display = "Protocol network database implementations"
             [1 >= #CYGINT_ISO_NETDB_PROTO]
 
-        CYGBLD_ISO_NETDB_PROTO_HEADER -> integer 
+        CYGBLD_ISO_NETDB_PROTO_HEADER -> integer  ?
             display = "Protocol network database implementation header"
             -- default_value = 0
 
@@ -2723,7 +2702,7 @@ CYGPKG_ISOINFRA
             display = "Services network database implementations"
             [1 >= #CYGINT_ISO_NETDB_SERV]
 
-        CYGBLD_ISO_NETDB_SERV_HEADER -> integer 
+        CYGBLD_ISO_NETDB_SERV_HEADER -> integer  ?
             display = "Services network database implementation header"
             -- default_value = 0
 
@@ -2852,7 +2831,7 @@ CYGPKG_LIBC
                 'CYGINT_LIBC_STARTUP_MAIN_NO_STACK_SIZE
                 -- default_value = 0 = #CYGPKG_KERNEL && 0 = #CYGINT_LIBC_STARTUP_EXTERNAL_INVOKE_MAIN_POSSIBLE
 
-            CYGSEM_LIBC_STARTUP_MAIN_THREAD extends CYGINT_LIBC_STARTUP_CONTEXT
+            CYGSEM_LIBC_STARTUP_MAIN_THREAD extends CYGINT_LIBC_STARTUP_CONTEXT ?
                 display = "Invoked as eCos thread"
                 -- default_value = 0 != #CYGPKG_KERNEL && 0 = #CYGINT_LIBC_STARTUP_EXTERNAL_INVOKE_MAIN_POSSIBLE
                 [CYGPKG_KERNEL]
@@ -2881,7 +2860,7 @@ CYGPKG_LIBC
             -- ifActive
             [!CYGINT_LIBC_STARTUP_MAIN_NO_STACK_SIZE]
 
-        CYGFUN_LIBC_ATEXIT
+        CYGFUN_LIBC_ATEXIT ?
             display = "Include atexit() function"
             -- default_value = 1
 
@@ -2982,7 +2961,7 @@ CYGPKG_LIBC
             -- default_value = 25
             [1 <= this && this <= 0x7fffffff]
 
-        CYGSEM_LIBC_STDIO_WANT_BUFFERED_IO
+        CYGSEM_LIBC_STDIO_WANT_BUFFERED_IO ?
             display = "Buffered I/O"
             -- default_value = 1
 
@@ -3011,18 +2990,15 @@ CYGPKG_LIBC
             display = "Support for ungetc()"
             -- default_value = 1
 
-        CYGPKG_LIBC_STDIO_OPEN
+        CYGPKG_LIBC_STDIO_OPEN ?
             display = "Dynamic opening/closing of files"
             -- default_value = 0 != #CYGINT_ISO_MALLOC
             [CYGINT_ISO_MALLOC]
 
-            CYGFUN_LIBC_STDIO_OPEN_POSIX_FDFUNCS extends CYGINT_ISO_STDIO_POSIX_FDFUNCS ?
+            CYGFUN_LIBC_STDIO_OPEN_POSIX_FDFUNCS extends CYGINT_ISO_STDIO_POSIX_FDFUNCS
                 display = "POSIX fdopen/fileno functions"
                 -- ifActive
                 [CYGPKG_LIBC_STDIO_FILEIO]
-                -- calculated
-                [this = 
-                1]
 
         CYGDAT_LIBC_STDIO_DEFAULT_CONSOLE
             display = "Default console device"
@@ -3053,15 +3029,12 @@ CYGPKG_LIBC
             -- ifActive
             [CYGPKG_KERNEL]
 
-        CYGPKG_LIBC_STDIO_FILEIO ?
+        CYGPKG_LIBC_STDIO_FILEIO
             display = "Enable use of FILEIO package for IO operations."
             -- ifActive
             [CYGPKG_IO_FILEIO]
             [CYGSEM_LIBC_STDIO_WANT_BUFFERED_IO]
             [CYGSEM_LIBC_STDIO_DYNAMIC_SETVBUF]
-            -- calculated
-            [this = 
-            1]
 
         CYGPKG_LIBC_STDIO_OPTIONS
             display = "C library stdio functions build options"
@@ -3219,13 +3192,10 @@ CYGPKG_LIBC
                 -- default_value = 0
                 [0 <= this && this <= 1]
 
-        CYGFUN_LIBC_STRING_STRDUP ?
+        CYGFUN_LIBC_STRING_STRDUP
             display = "strdup"
             -- ifActive
             [CYGINT_ISO_MALLOC]
-            -- calculated
-            [this = 
-            1]
 
         CYGPKG_LIBC_STRING_OPTIONS
             display = "C library string functions build options"
@@ -3377,7 +3347,7 @@ CYGPKG_LIBM
             display = "IEEE-only"
             -- default_value = 0
 
-        CYGNUM_LIBM_COMPATIBILITY extends CYGINT_LIBM_COMPAT -> CYGNUM_LIBM_COMPATIBILITY_ENUM 
+        CYGNUM_LIBM_COMPATIBILITY extends CYGINT_LIBM_COMPAT -> CYGNUM_LIBM_COMPATIBILITY_ENUM  ?
             display = "Default mode"
             -- default_value = POSIX
             [CYGPKG_LIBC]
@@ -3423,7 +3393,7 @@ enum CYGNUM_LIBM_COMPATIBILITY_ENUM = POSIX | IEEE | XOPEN | SVID
             -- default_value = 0
             [CYGVAR_KERNEL_THREADS_DATA]
 
-    CYGPKG_LIBM_TRACE
+    CYGPKG_LIBM_TRACE ?
         display = "Tracing output levels in math library"
         -- default_value = 0
         [CYGDBG_USE_TRACING]
@@ -3474,7 +3444,7 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
     [CYGBLD_ISO_PMUTEXTYPES_HEADER = "<cyg/posix/muttypes.h>"]
     [CYGBLD_ISO_PTHREAD_MUTEX_HEADER = "<cyg/posix/mutex.h>"]
 
-    CYGPKG_POSIX_PTHREAD_MUTEX
+    CYGPKG_POSIX_PTHREAD_MUTEX ?
         display = "POSIX pthread mutexes"
         'CYGINT_ISO_PMUTEXTYPES
         'CYGINT_ISO_PTHREAD_MUTEX
@@ -3490,23 +3460,20 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
             -- default_value = 1
             [CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_CEILING]
 
-    CYGPKG_POSIX_SCHED extends CYGINT_ISO_SCHED_IMPL
+    CYGPKG_POSIX_SCHED extends CYGINT_ISO_SCHED_IMPL ?
         display = "POSIX scheduling configuration"
         -- default_value = 1
         [CYGPKG_POSIX_CLOCKS]
 
-        _POSIX_PRIORITY_SCHEDULING ?
+        _POSIX_PRIORITY_SCHEDULING
             display = "POSIX priority scheduling feature test macro"
             [CYGSEM_KERNEL_SCHED_MLQUEUE]
-            -- calculated
-            [this = 
-            1]
 
-    CYGPKG_POSIX_PTHREAD
+    CYGPKG_POSIX_PTHREAD ?
         display = "POSIX pthread configuration"
         -- default_value = 1
 
-        CYGPKG_POSIX_PTHREAD_REQUIREMENTS ?
+        CYGPKG_POSIX_PTHREAD_REQUIREMENTS
             display = "Generic requirements of pthread package"
             'CYGINT_ISO_PTHREADTYPES
             'CYGINT_ISO_PTHREAD_IMPL
@@ -3518,15 +3485,9 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
             [CYGFUN_KERNEL_THREADS_STACK_LIMIT]
             [CYGBLD_ISO_PTHREADTYPES_HEADER = "<cyg/posix/types.h>"]
             [CYGBLD_ISO_PTHREAD_IMPL_HEADER = "<cyg/posix/pthread.h>"]
-            -- calculated
-            [this = 
-            1]
 
         CYGPKG_POSIX_PTHREAD_VALUES
             display = "Constant values used in pthread package"
-            -- calculated
-            [this = 
-            1]
 
             CYGNUM_POSIX_PTHREAD_DESTRUCTOR_ITERATIONS -> integer 
                 display = "Maximum number of iterations of key destructors"
@@ -3545,37 +3506,22 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
 
         CYGPKG_POSIX_PTHREAD_FEATURES
             display = "Fixed Feature test macros for POSIX"
-            -- calculated
-            [this = 
-            1]
 
-            _POSIX_THREADS ?
+            _POSIX_THREADS
                 display = "POSIX thread support feature test macro"
                 [CYGSEM_KERNEL_SCHED_TIMESLICE]
                 [CYGVAR_KERNEL_THREADS_DATA]
-                -- calculated
-                [this = 
-                1]
 
-            _POSIX_THREAD_PRIORITY_SCHEDULING ?
+            _POSIX_THREAD_PRIORITY_SCHEDULING
                 display = "POSIX thread priority scheduling feature test macro"
                 [CYGSEM_KERNEL_SCHED_MLQUEUE]
                 [_POSIX_THREADS]
-                -- calculated
-                [this = 
-                1]
 
-            _POSIX_THREAD_ATTR_STACKADDR ?
+            _POSIX_THREAD_ATTR_STACKADDR
                 display = "POSIX stack address attribute feature test macro"
-                -- calculated
-                [this = 
-                1]
 
-            _POSIX_THREAD_ATTR_STACKSIZE ?
+            _POSIX_THREAD_ATTR_STACKSIZE
                 display = "POSIX stack size attribute feature test macro"
-                -- calculated
-                [this = 
-                1]
 
             _POSIX_THREAD_PROCESS_SHARED ?
                 display = "POSIX process shared attribute feature test macro"
@@ -3587,9 +3533,6 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
             display = "Main thread configuration"
             [0 != #CYGPKG_LIBC_STARTUP]
             [CYGSEM_LIBC_STARTUP_MAIN_OTHER]
-            -- calculated
-            [this = 
-            1]
 
             CYGNUM_POSIX_MAIN_DEFAULT_PRIORITY -> integer 
                 display = "main()'s default thread priority"
@@ -3627,7 +3570,7 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
         -- default_value = 1
         [CYGBLD_ISO_SEMAPHORES_HEADER = "<cyg/posix/semaphore.h>"]
 
-    CYGPKG_POSIX_MQUEUES extends CYGINT_ISO_MQUEUE
+    CYGPKG_POSIX_MQUEUES extends CYGINT_ISO_MQUEUE ?
         display = "POSIX message queues"
         -- default_value = 1
         [CYGPKG_KERNEL]
@@ -3651,7 +3594,7 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
             -- default_value = CYGPKG_POSIX_SIGNALS
             [CYGPKG_POSIX_SIGNALS]
 
-    CYGPKG_POSIX_SIGNALS
+    CYGPKG_POSIX_SIGNALS ?
         display = "POSIX signals configuration"
         'CYGINT_POSIX_REALTIME_SIGNALS
         'CYGINT_ISO_SIGSETJMP
@@ -3665,7 +3608,7 @@ CYGPKG_POSIX extends CYGINT_ISO_POSIX_LIMITS
         [CYGBLD_ISO_SIGNAL_NUMBERS_HEADER = "<cyg/posix/signal.h>"]
         [CYGBLD_ISO_SIGNAL_IMPL_HEADER = "<cyg/posix/signal.h>"]
 
-    CYGPKG_POSIX_UTSNAME
+    CYGPKG_POSIX_UTSNAME ?
         display = "POSIX utsname configuration"
         -- default_value = 1
         [CYGBLD_ISO_UTSNAME_HEADER = "<cyg/posix/utsname.h>"]
@@ -3724,7 +3667,7 @@ CYGPKG_UITRON
         display = "NULL is a good pointer"
         -- default_value = 0
 
-    CYGPKG_UITRON_SEMAS
+    CYGPKG_UITRON_SEMAS ?
         display = "Semaphores"
         -- default_value = 1
 
@@ -3733,7 +3676,7 @@ CYGPKG_UITRON
             -- default_value = 3
             [1 <= this && this <= 65535]
 
-        CYGPKG_UITRON_SEMAS_CREATE_DELETE
+        CYGPKG_UITRON_SEMAS_CREATE_DELETE ?
             display = "Support create and delete"
             -- default_value = 1
 
@@ -3742,7 +3685,7 @@ CYGPKG_UITRON
                 -- default_value = 3
                 [0 <= this && this <= 65535]
 
-        CYGPKG_UITRON_SEMAS_ARE_INITIALIZED
+        CYGPKG_UITRON_SEMAS_ARE_INITIALIZED ?
             display = "Initialize semaphore counts"
             -- default_value = 0
 
@@ -3750,7 +3693,7 @@ CYGPKG_UITRON
                 display = "Static initializers"
                 -- default_value = "CYG_UIT_SEMA( 0 ), CYG_UIT_SEMA( 0 ), CYG_UIT_SEMA( 0 )"
 
-    CYGPKG_UITRON_MBOXES
+    CYGPKG_UITRON_MBOXES ?
         display = "Mailboxes"
         -- default_value = 1
 
@@ -3759,7 +3702,7 @@ CYGPKG_UITRON
             -- default_value = 4
             [1 <= this && this <= 65535]
 
-        CYGPKG_UITRON_MBOXES_CREATE_DELETE
+        CYGPKG_UITRON_MBOXES_CREATE_DELETE ?
             display = "Support create and delete"
             -- default_value = 1
 
@@ -3768,7 +3711,7 @@ CYGPKG_UITRON
                 -- default_value = 4
                 [0 <= this && this <= 65535]
 
-    CYGPKG_UITRON_FLAGS
+    CYGPKG_UITRON_FLAGS ?
         display = "Eventflags"
         -- default_value = 1
 
@@ -3777,7 +3720,7 @@ CYGPKG_UITRON
             -- default_value = 5
             [1 <= this && this <= 65535]
 
-        CYGPKG_UITRON_FLAGS_CREATE_DELETE
+        CYGPKG_UITRON_FLAGS_CREATE_DELETE ?
             display = "Support create and delete"
             -- default_value = 1
 
@@ -3799,7 +3742,7 @@ CYGPKG_UITRON
             -- default_value = 1
             [0 <= this && this <= 65535]
 
-        CYGPKG_UITRON_TASKS_CREATE_DELETE
+        CYGPKG_UITRON_TASKS_CREATE_DELETE ?
             display = "Support create and delete"
             -- default_value = 1
 
@@ -3821,7 +3764,7 @@ CYGPKG_UITRON
             display = "Static initializers"
             -- default_value = "CYG_UIT_TASK( \"t1\", 1, task1, &stack1, MAX(CYGNUM_UITRON_STACK_SIZE, CYGNUM_HAL_STACK_SIZE_MINIMUM) ), \\\n CYG_UIT_TASK( \"t2\", 2, task2, &stack2, MAX(CYGNUM_UITRON_STACK_SIZE, CYGNUM_HAL_STACK_SIZE_MINIMUM) ), \\\n CYG_UIT_TASK( \"t3\", 3, task3, &stack3, MAX(CYGNUM_UITRON_STACK_SIZE, CYGNUM_HAL_STACK_SIZE_MINIMUM) ), \\\n CYG_UIT_TASK( \"t4\", 4, task4, &stack4, MAX(CYGNUM_UITRON_STACK_SIZE, CYGNUM_HAL_STACK_SIZE_MINIMUM) ),"
 
-    CYGPKG_UITRON_MEMPOOLFIXED
+    CYGPKG_UITRON_MEMPOOLFIXED ?
         display = "Fixed-size memorypools"
         -- default_value = 1
         [CYGPKG_MEMALLOC]
@@ -3831,7 +3774,7 @@ CYGPKG_UITRON
             -- default_value = 3
             [1 <= this && this <= 65535]
 
-        CYGPKG_UITRON_MEMPOOLFIXED_CREATE_DELETE
+        CYGPKG_UITRON_MEMPOOLFIXED_CREATE_DELETE ?
             display = "Support create and delete"
             -- default_value = 1
             -- ifActive
@@ -3850,7 +3793,7 @@ CYGPKG_UITRON
             display = "Static initializers"
             -- default_value = "CYG_UIT_MEMPOOLFIXED( fpool1, 2000, 20 ), \\\n CYG_UIT_MEMPOOLFIXED( fpool2, 2000, 100 ), \\\n CYG_UIT_MEMPOOLFIXED( fpool3, 2000, 500 ),"
 
-    CYGPKG_UITRON_MEMPOOLVAR
+    CYGPKG_UITRON_MEMPOOLVAR ?
         display = "Variable-size memorypools"
         -- default_value = 1
         [CYGPKG_MEMALLOC]
@@ -3860,7 +3803,7 @@ CYGPKG_UITRON
             -- default_value = 3
             [1 <= this && this <= 65535]
 
-        CYGPKG_UITRON_MEMPOOLVAR_CREATE_DELETE
+        CYGPKG_UITRON_MEMPOOLVAR_CREATE_DELETE ?
             display = "Support create and delete"
             -- default_value = 1
             -- ifActive
@@ -3885,7 +3828,7 @@ CYGPKG_UITRON
         -- ifActive
         [CYGVAR_KERNEL_COUNTERS_CLOCK]
 
-    CYGPKG_UITRON_ALARMS
+    CYGPKG_UITRON_ALARMS ?
         display = "Alarm handlers"
         -- default_value = 1
         [CYGVAR_KERNEL_COUNTERS_CLOCK]
@@ -3895,7 +3838,7 @@ CYGPKG_UITRON
             -- default_value = 3
             [1 <= this && this <= 65535]
 
-    CYGPKG_UITRON_CYCLICS
+    CYGPKG_UITRON_CYCLICS ?
         display = "Cyclic handlers"
         -- default_value = 1
         [CYGVAR_KERNEL_COUNTERS_CLOCK]
@@ -4124,7 +4067,7 @@ CYGPKG_ERROR extends CYGINT_ISO_ERRNO_CODES
     display = "Common error code support"
     [CYGBLD_ISO_ERRNO_CODES_HEADER = "<cyg/error/codes.h>"]
 
-    CYGPKG_ERROR_ERRNO extends CYGINT_ISO_ERRNO
+    CYGPKG_ERROR_ERRNO extends CYGINT_ISO_ERRNO ?
         display = "errno variable"
         -- default_value = 1
         [CYGBLD_ISO_ERRNO_HEADER = "<cyg/error/errno.h>"]
@@ -4223,7 +4166,7 @@ CYGPKG_IO_FILEIO
         display = "Enable current directory tracking"
         -- default_value = 1
 
-    CYGPKG_IO_FILEIO_INODE
+    CYGPKG_IO_FILEIO_INODE ?
         display = "Generic inode support"
         -- default_value = 0
         [CYGINT_ISO_MALLOC]
@@ -4241,7 +4184,7 @@ CYGPKG_IO_FILEIO
         display = "cyg_fs_getinfo call for disk usage"
         -- default_value = 0
 
-    CYGPKG_FILEIO_FNMATCH
+    CYGPKG_FILEIO_FNMATCH ?
         display = "POSIX fnmatch configuration"
         -- default_value = CYGINT_ISO_STRING_STRFUNCS && CYGINT_ISO_CTYPE
         [CYGBLD_ISO_FNMATCH_HEADER = "<cyg/fileio/fnmatch.h>"]
@@ -4272,7 +4215,7 @@ CYGPKG_NET
     [CYGBLD_ISO_NETDB_SERV_HEADER = "<net/netdb.h>"]
     [#CYGPKG_NET_STACK = 1]"""""
 
-    CYGPKG_NET_INET
+    CYGPKG_NET_INET ?
         display = "INET support"
         -- default_value = 1
         -- ifActive
@@ -4299,7 +4242,7 @@ CYGPKG_NET
             display = "Use random sequence for IP packet identifiers"
             -- default_value = 0
 
-    CYGPKG_NET_TFTP
+    CYGPKG_NET_TFTP ?
         display = "TFTP (RFC-1350) support"
         -- default_value = 1
         [CYGPKG_NET_INET]
@@ -4308,7 +4251,7 @@ CYGPKG_NET
             display = "Priority level for TFTP daemon thread."
             -- default_value = 10
 
-        CYGPKG_NET_TFTPD_CLIENT_BIG_PACKET
+        CYGPKG_NET_TFTPD_CLIENT_BIG_PACKET ?
             display = "Extension to allow negotiation of big packets"
             -- default_value = 0
             [CYGINT_ISO_STDIO_FORMATTED_IO]
@@ -4322,7 +4265,7 @@ CYGPKG_NET
             display = "Stack size for TFTP threads."
             -- default_value = "(CYGNUM_HAL_STACK_SIZE_TYPICAL+(3*(SEGSIZE+4)))"
 
-        CYGSEM_NET_TFTPD_MULTITHREADED
+        CYGSEM_NET_TFTPD_MULTITHREADED ?
             display = "Multiple TFTPD server threads on the same port."
             -- default_value = 1
 
@@ -4334,7 +4277,7 @@ CYGPKG_NET
             display = "File I/O functions for TFTP server"
             -- default_value = 1
 
-    CYGPKG_NET_DHCP
+    CYGPKG_NET_DHCP ?
         display = "Use full DHCP instead of BOOTP"
         -- default_value = 1
         -- ifActive
@@ -4361,19 +4304,19 @@ CYGPKG_NET
             display = "Stack size for DHCP management threads."
             -- default_value = "(CYGNUM_HAL_STACK_SIZE_TYPICAL+sizeof(struct bootp))"
 
-        CYGOPT_NET_DHCP_PARM_REQ_LIST_REPLACE -> integer 
+        CYGOPT_NET_DHCP_PARM_REQ_LIST_REPLACE -> integer  ?
             display = "Replace DHCP request options"
             -- default_value = 0
             -- ifActive
             [CYGOPT_NET_DHCP_DHCP_THREAD]
 
-        CYGOPT_NET_DHCP_PARM_REQ_LIST_ADDITIONAL -> integer 
+        CYGOPT_NET_DHCP_PARM_REQ_LIST_ADDITIONAL -> integer  ?
             display = "Additional DHCP request options"
             -- default_value = 0
             -- ifActive
             [CYGOPT_NET_DHCP_DHCP_THREAD]
 
-        CYGOPT_NET_DHCP_OPTION_HOST_NAME
+        CYGOPT_NET_DHCP_OPTION_HOST_NAME ?
             display = "DHCP host name option"
             -- default_value = 0
             -- ifActive
@@ -4397,13 +4340,13 @@ CYGPKG_NET
             -- default_value = 100
             [0 <= this && this <= 100]
 
-    CYGPKG_NET_IPV6_ROUTING
+    CYGPKG_NET_IPV6_ROUTING ?
         display = "Options controlling IPv6 routing"
         -- default_value = 1
         -- ifActive
         [CYGPKG_NET_INET6]
 
-        CYGOPT_NET_IPV6_ROUTING_THREAD
+        CYGOPT_NET_IPV6_ROUTING_THREAD ?
             display = "Thread for IPv6 routing"
             -- default_value = 1
             [CYGPKG_POSIX]
@@ -4416,7 +4359,7 @@ CYGPKG_NET
                 display = "IPv6 routing thread rate"
                 -- default_value = (5 * 60)
 
-    CYGPKG_NET_DEBUG
+    CYGPKG_NET_DEBUG ?
         display = "Debug output"
         -- default_value = 0
 
@@ -4470,11 +4413,11 @@ CYGPKG_NET
         -- ifActive
         [#CYGHWR_NET_DRIVER_ETH0 = 1]]
 
-        CYGHWR_NET_DRIVER_ETH0_MANUAL extends CYGHWR_NET_DRIVER_ETH0_SETUP
+        CYGHWR_NET_DRIVER_ETH0_MANUAL extends CYGHWR_NET_DRIVER_ETH0_SETUP ?
             display = "Initialize 'eth0' manually?"
             -- default_value = 0
 
-        CYGHWR_NET_DRIVER_ETH0_BOOTP extends CYGHWR_NET_DRIVER_ETH0_SETUP
+        CYGHWR_NET_DRIVER_ETH0_BOOTP extends CYGHWR_NET_DRIVER_ETH0_SETUP ?
             display = "Use BOOTP/DHCP to initialize 'eth0'?"
             -- default_value = 1
 
@@ -4488,13 +4431,13 @@ CYGPKG_NET
                 display = "Show BOOTP/DHCP initialization values?"
                 -- default_value = 1
 
-        CYGHWR_NET_DRIVER_ETH0_IPV6_PREFIX -> string 
+        CYGHWR_NET_DRIVER_ETH0_IPV6_PREFIX -> string  ?
             display = "Static IPv6 address prefix for 'eth0'"
             -- default_value = "3ffe:302:11:2"
             -- ifActive
             [CYGPKG_NET_INET6]
 
-        CYGHWR_NET_DRIVER_ETH0_ADDRS extends CYGHWR_NET_DRIVER_ETH0_SETUP
+        CYGHWR_NET_DRIVER_ETH0_ADDRS extends CYGHWR_NET_DRIVER_ETH0_SETUP ?
             display = "Address setups for 'eth0'"
 
             CYGHWR_NET_DRIVER_ETH0_ADDRS_IP -> string 
@@ -4526,11 +4469,11 @@ CYGPKG_NET
         -- ifActive
         [#CYGHWR_NET_DRIVER_ETH1 = 1]]
 
-        CYGHWR_NET_DRIVER_ETH1_MANUAL extends CYGHWR_NET_DRIVER_ETH1_SETUP
+        CYGHWR_NET_DRIVER_ETH1_MANUAL extends CYGHWR_NET_DRIVER_ETH1_SETUP ?
             display = "Initialize 'eth1' manually?"
             -- default_value = 0
 
-        CYGHWR_NET_DRIVER_ETH1_BOOTP extends CYGHWR_NET_DRIVER_ETH1_SETUP
+        CYGHWR_NET_DRIVER_ETH1_BOOTP extends CYGHWR_NET_DRIVER_ETH1_SETUP ?
             display = "Use BOOTP/DHCP to initialize 'eth1'?"
             -- default_value = 1
 
@@ -4544,13 +4487,13 @@ CYGPKG_NET
                 display = "Show BOOTP/DHCP initialization values?"
                 -- default_value = 1
 
-        CYGHWR_NET_DRIVER_ETH1_IPV6_PREFIX -> string 
+        CYGHWR_NET_DRIVER_ETH1_IPV6_PREFIX -> string  ?
             display = "Static IPv6 address prefix for 'eth1'"
             -- default_value = "3ffe:302:12:2"
             -- ifActive
             [CYGPKG_NET_INET6]
 
-        CYGHWR_NET_DRIVER_ETH1_ADDRS extends CYGHWR_NET_DRIVER_ETH1_SETUP
+        CYGHWR_NET_DRIVER_ETH1_ADDRS extends CYGHWR_NET_DRIVER_ETH1_SETUP ?
             display = "Address setups for 'eth1'"
 
             CYGHWR_NET_DRIVER_ETH1_ADDRS_IP -> string 
@@ -4590,7 +4533,7 @@ CYGPKG_NET
         [CYGPKG_IO_FILEIO]
         [CYGBLD_ISO_BSDTYPES_HEADER = "<sys/bsdtypes.h>"]"
 
-        CYGPKG_NET_FREEBSD_INET
+        CYGPKG_NET_FREEBSD_INET ?
             display = "INET support"
             -- default_value = 1
             -- ifActive
@@ -4631,7 +4574,7 @@ CYGPKG_NET
             display = "Number of loopback interfaces"
             -- default_value = 1
 
-        CYGPKG_NET_FREEBSD_LOGGING -> integer 
+        CYGPKG_NET_FREEBSD_LOGGING -> integer  ?
             display = "Error and warning log control"
             -- default_value = 0xC08F
 
@@ -4685,7 +4628,7 @@ CYGPKG_NET
                 display = "Stack size for fast network processing"
                 -- default_value = "CYGNUM_HAL_STACK_SIZE_TYPICAL"
 
-        CYGPKG_NET_FAST_THREAD_TICKLE_DEVS
+        CYGPKG_NET_FAST_THREAD_TICKLE_DEVS ?
             display = "Fast network processing thread 'tickles' drivers"
             -- default_value = 1
 
@@ -4799,7 +4742,7 @@ CYGPKG_NET
             display = "Enable SNMP debug printout"
             -- default_value = 0
 
-        CYGPKG_SNMPLIB_FILESYSTEM_SUPPORT
+        CYGPKG_SNMPLIB_FILESYSTEM_SUPPORT ?
             display = "SNMP file-system options"
             -- default_value = 1
             -- ifActive
@@ -4865,7 +4808,7 @@ CYGPKG_NET
             display = "HTTPD server startup delay"
             -- default_value = 0
 
-        CYGPKG_HTTPD_MONITOR
+        CYGPKG_HTTPD_MONITOR ?
             display = "Simple Web System Monitor"
             -- default_value = 1
 
@@ -4936,7 +4879,7 @@ CYGPKG_NET
             -- default_value = (CYGNUM_KERNEL_SCHED_PRIORITIES / 2)
             [0 <= this && this <= CYGNUM_KERNEL_SCHED_PRIORITIES]
 
-        CYGPKG_PPP_DEBUG_WARN_ONLY
+        CYGPKG_PPP_DEBUG_WARN_ONLY ?
             display = "PPP protocol debug error only"
             -- default_value = 1
 
@@ -4955,15 +4898,15 @@ CYGPKG_NET
             display = "Default dialup number"
             -- default_value = "\"5551234\""
 
-        CYGPKG_PPP_PAP
+        CYGPKG_PPP_PAP ?
             display = "PAP support"
             -- default_value = 1
 
-        CYGPKG_PPP_CHAP
+        CYGPKG_PPP_CHAP ?
             display = "CHAP support"
             -- default_value = 1
 
-        CYGPKG_PPP_COMPRESSION
+        CYGPKG_PPP_COMPRESSION ?
             display = "PPP compression options"
             -- default_value = 0
 
@@ -4979,7 +4922,7 @@ CYGPKG_NET
                 display = "Inhibit older-style VJ compression"
                 -- default_value = 0
 
-        CYGPKG_PPP_CHAT
+        CYGPKG_PPP_CHAT ?
             display = "Chat script support"
             -- default_value = 1
 
@@ -5047,7 +4990,7 @@ CYGPKG_NET
             display = "PPP test device"
             -- default_value = "\"/dev/ser0\""
 
-        CYGPKG_PPP_TESTS_AUTOMATE
+        CYGPKG_PPP_TESTS_AUTOMATE ?
             display = "PPP test automation"
             -- default_value = 1
 
@@ -5072,7 +5015,7 @@ CYGPKG_NS_DNS
         [CYGINT_ISO_STRING_STRFUNCS]
         [CYGSEM_KERNEL_THREADS_DESTRUCTORS_PER_THREAD]
 
-    CYGPKG_NS_DNS_DEFAULT
+    CYGPKG_NS_DNS_DEFAULT ?
         display = "Provide a hard coded default server address"
         -- default_value = 0
         -- ifActive
@@ -5082,7 +5025,7 @@ CYGPKG_NS_DNS
             display = "IP address of the default DNS server"
             -- default_value = "192.168.1.1"
 
-    CYGPKG_NS_DNS_DOMAINNAME
+    CYGPKG_NS_DNS_DOMAINNAME ?
         display = "Provide a hard coded default domain name"
         -- default_value = 0
         -- ifActive
@@ -5157,11 +5100,11 @@ CYGPKG_NET_SNTP
     [CYGSEM_LIBC_TIME_TIME_WORKING]
     [CYGSEM_LIBC_TIME_SETTIME_WORKING]
 
-    CYGPKG_NET_SNTP_UNICAST
+    CYGPKG_NET_SNTP_UNICAST ?
         display = "Enable SNTP client unicast support"
         -- default_value = 0
 
-        CYGNUM_NET_SNTP_UNICAST_MAXDHCP -> integer 
+        CYGNUM_NET_SNTP_UNICAST_MAXDHCP -> integer  ?
             display = "Maximum number of NTP servers to use from DHCP"
             -- default_value = 2
             [1 <= this && this <= 8]
@@ -5223,7 +5166,7 @@ CYGPKG_IO_FLASH
         display = "Platform has flash soft DIP switch write-protect"
         -- default_value = 0
 
-    CYGPKG_IO_FLASH_BLOCK_DEVICE
+    CYGPKG_IO_FLASH_BLOCK_DEVICE ?
         display = "Provide /dev block devices"
         -- default_value = 0
         -- ifActive
@@ -5250,13 +5193,13 @@ CYGPKG_IO_FLASH
         display = "Provide the legacy user API"
         -- default_value = 1
 
-    CYGPKG_IO_FLASH_BLOCK_DEVICE_LEGACY
+    CYGPKG_IO_FLASH_BLOCK_DEVICE_LEGACY ?
         display = "Provide /dev block devices (legacy format)"
         -- default_value = 0
         -- ifActive
         [CYGPKG_IO]
 
-        CYGPKG_IO_FLASH_BLOCK_DEVICE_1
+        CYGPKG_IO_FLASH_BLOCK_DEVICE_1 ?
             display = "Provide block device 1"
             -- default_value = 1
 
@@ -5264,7 +5207,7 @@ CYGPKG_IO_FLASH
                 display = "Name of flash block device 1"
                 -- default_value = "\"/dev/flash1\""]
 
-            CYGNUM_IO_FLASH_BLOCK_CFG_STATIC_1 extends CYGINT_IO_FLASH_BLOCK_CFG_1
+            CYGNUM_IO_FLASH_BLOCK_CFG_STATIC_1 extends CYGINT_IO_FLASH_BLOCK_CFG_1 ?
                 display = "Static configuration via offset"
                 -- default_value = 1
 
@@ -5278,7 +5221,7 @@ CYGPKG_IO_FLASH
                     -- default_value = 0
                     [0 != #CYGNUM_IO_FLASH_BLOCK_OFFSET_1]
 
-            CYGNUM_IO_FLASH_BLOCK_CFG_STATIC_ABSOLUTE_1 extends CYGINT_IO_FLASH_BLOCK_CFG_1
+            CYGNUM_IO_FLASH_BLOCK_CFG_STATIC_ABSOLUTE_1 extends CYGINT_IO_FLASH_BLOCK_CFG_1 ?
                 display = "Static configuration via absolute address"
                 -- default_value = 0
 
@@ -5292,7 +5235,7 @@ CYGPKG_IO_FLASH
                     -- default_value = 0
                     [0 != #CYGNUM_IO_FLASH_BLOCK_ABSOLUTE_LENGTH_1]
 
-            CYGNUM_IO_FLASH_BLOCK_CFG_FIS_1 extends CYGINT_IO_FLASH_BLOCK_CFG_1
+            CYGNUM_IO_FLASH_BLOCK_CFG_FIS_1 extends CYGINT_IO_FLASH_BLOCK_CFG_1 ?
                 display = "Configuration from FIS"
                 -- default_value = 0
 
@@ -5301,7 +5244,7 @@ CYGPKG_IO_FLASH
                     -- default_value = "\"jffs2\""
                     ["" != CYGDAT_IO_FLASH_BLOCK_FIS_NAME_1]
 
-        CYGPKG_IO_FLASH_BLOCK_DEVICE_2
+        CYGPKG_IO_FLASH_BLOCK_DEVICE_2 ?
             display = "Provide block device 2"
             -- default_value = 0
 
@@ -5309,7 +5252,7 @@ CYGPKG_IO_FLASH
                 display = "Name of flash block device 2"
                 -- default_value = "\"/dev/flash2\""]
 
-            CYGNUM_IO_FLASH_BLOCK_CFG_STATIC_2 extends CYGINT_IO_FLASH_BLOCK_CFG_2
+            CYGNUM_IO_FLASH_BLOCK_CFG_STATIC_2 extends CYGINT_IO_FLASH_BLOCK_CFG_2 ?
                 display = "Static configuration via offset"
                 -- default_value = 1
 
@@ -5323,7 +5266,7 @@ CYGPKG_IO_FLASH
                     -- default_value = 0
                     [0 != #CYGNUM_IO_FLASH_BLOCK_OFFSET_2]
 
-            CYGNUM_IO_FLASH_BLOCK_CFG_STATIC_ABSOLUTE_2 extends CYGINT_IO_FLASH_BLOCK_CFG_2
+            CYGNUM_IO_FLASH_BLOCK_CFG_STATIC_ABSOLUTE_2 extends CYGINT_IO_FLASH_BLOCK_CFG_2 ?
                 display = "Static configuration via absolute address"
                 -- default_value = 0
 
@@ -5337,7 +5280,7 @@ CYGPKG_IO_FLASH
                     -- default_value = 0
                     [0 != #CYGNUM_IO_FLASH_BLOCK_ABSOLUTE_LENGTH_2]
 
-            CYGNUM_IO_FLASH_BLOCK_CFG_FIS_2 extends CYGINT_IO_FLASH_BLOCK_CFG_2
+            CYGNUM_IO_FLASH_BLOCK_CFG_FIS_2 extends CYGINT_IO_FLASH_BLOCK_CFG_2 ?
                 display = "Configuration from FIS"
                 -- default_value = 0
 
@@ -5381,7 +5324,7 @@ CYGPKG_FS_RAM extends CYGINT_IO_FILEIO_FS
     [CYGINT_ISO_ERRNO_CODES]
     [#CYGINT_FS_RAM_ALLOC = 1]"
 
-    CYGPKG_FS_RAM_SIMPLE extends CYGINT_FS_RAM_ALLOC
+    CYGPKG_FS_RAM_SIMPLE extends CYGINT_FS_RAM_ALLOC ?
         display = "Simple, malloc() based, implementation"
         -- default_value = 1
         -- ifActive
@@ -5393,7 +5336,7 @@ CYGPKG_FS_RAM extends CYGINT_IO_FILEIO_FS
             -- default_value = 256
             [64 <= this && this <= 32768]
 
-    CYGPKG_FS_RAM_BLOCKS extends CYGINT_FS_RAM_ALLOC
+    CYGPKG_FS_RAM_BLOCKS extends CYGINT_FS_RAM_ALLOC ?
         display = "Block-based RAM filesystem allocation"
         -- default_value = 0
         -- ifActive
@@ -5419,7 +5362,7 @@ CYGPKG_FS_RAM extends CYGINT_IO_FILEIO_FS
             -- default_value = 1
             [0 <= this && this <= 32]
 
-        CYGPKG_FS_RAM_BLOCKS_ARRAY
+        CYGPKG_FS_RAM_BLOCKS_ARRAY ?
             display = "Use block array rather than malloc()"
             -- default_value = 0
 
@@ -5472,7 +5415,7 @@ CYGPKG_FS_ROM extends CYGINT_IO_FILEIO_FS
         -- ifActive
         [CYGPKG_FILEIO_DIRENT_DTYPE]
 
-    CYGTST_ROMFS_BUILD_TESTS
+    CYGTST_ROMFS_BUILD_TESTS ?
         display = "Build ROM filesystem tests"
         -- default_value = 0
         [CYGINT_LIBC_STARTUP_CONTEXT]
@@ -5500,7 +5443,7 @@ CYGPKG_FS_JFFS2 extends CYGINT_IO_FILEIO_FS
     [CYGPKG_LINUX_COMPAT]
     [CYGPKG_CRC]
 
-    CYGOPT_FS_JFFS2_GCTHREAD
+    CYGOPT_FS_JFFS2_GCTHREAD ?
         display = "Support garbage-collection background thread"
         -- default_value = 0
         [CYGPKG_KERNEL]
@@ -5532,7 +5475,7 @@ CYGPKG_FS_JFFS2 extends CYGINT_IO_FILEIO_FS
         -- default_value = 0
         [0 <= this && this <= 2]
 
-    CYGOPT_FS_JFFS2_COMPRESS
+    CYGOPT_FS_JFFS2_COMPRESS ?
         display = "Compress data"
         -- default_value = 1
 
@@ -5661,7 +5604,7 @@ CYGPKG_VNC_SERVER
     CYGPKG_VNC_SERVER_ENCODING_OPTIONS
         display = "Encoding options"
 
-        CYGNUM_VNC_SERVER_USE_CORRE_ENCODING
+        CYGNUM_VNC_SERVER_USE_CORRE_ENCODING ?
             display = "Use CoRRE encoding"
             -- default_value = 1
 
@@ -5710,7 +5653,7 @@ CYGPKG_VNC_SERVER
             -- default_value = 1
             [!CYGPKG_MICROWINDOWS]
 
-    CYGPKG_VNC_SERVER_BUILD_MOUSE_DRIVER
+    CYGPKG_VNC_SERVER_BUILD_MOUSE_DRIVER ?
         display = "Build VNC mouse driver"
         -- default_value = 1
         [CYGPKG_IO_FILEIO]
@@ -5723,7 +5666,7 @@ CYGPKG_VNC_SERVER
             display = "Device name for the VNC server mouse driver"
             -- default_value = "\"/dev/vnc_mouse\""
 
-    CYGPKG_VNC_SERVER_BUILD_KEYBOARD_DRIVER
+    CYGPKG_VNC_SERVER_BUILD_KEYBOARD_DRIVER ?
         display = "Build VNC keyboard driver"
         -- default_value = 1
         [CYGPKG_IO_FILEIO]
@@ -5748,11 +5691,11 @@ CYGPKG_IO_DISK
     [CYGPKG_IO]
     [CYGPKG_ERROR]
 
-    CYGPKG_IO_DISK_DEVICES
+    CYGPKG_IO_DISK_DEVICES ?
         display = "Hardware disk device drivers"
         -- default_value = 1
 
-    CYGDBG_IO_DISK_DEBUG
+    CYGDBG_IO_DISK_DEBUG ?
         display = "Enable debugging output"
         -- default_value = 0
 
@@ -5819,7 +5762,7 @@ CYGPKG_FS_FAT extends CYGINT_IO_FILEIO_FS
         -- ifActive
         [CYGPKG_FILEIO_DIRENT_DTYPE]
 
-    CYGPKG_DEVS_DISK_TESTING
+    CYGPKG_DEVS_DISK_TESTING ?
         display = "Testing configuration"
         -- default_value = 1
 
