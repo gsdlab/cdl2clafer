@@ -215,11 +215,11 @@ package CYGPKG_HAL{
     display "ROM monitor support"
     flavor none 
 
-    interface CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT{
+    interface CYGINT_HAL_VIRTUAL_VECTOR_SUPPORT {
       display "Target has virtual vector support"
     }
 
-    interface CYGINT_HAL_VIRTUAL_VECTOR_COMM_BAUD_SUPPORT{
+    interface CYGINT_HAL_VIRTUAL_VECTOR_COMM_BAUD_SUPPORT {
       display "Target supports baud rate control via vectors"
     }
 
