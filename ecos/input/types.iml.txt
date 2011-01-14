@@ -1,0 +1,6 @@
+option CYGNUM_PPP_PPPD_THREAD_PRIORITY{
+  display "PPP thread priority"
+  calculated [ABC]
+  requires [A > 10]
+  flavor data
+}

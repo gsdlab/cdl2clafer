@@ -1,0 +1,3 @@
+abstract CYGINT_ISO_ENVIRON
+    display = "environ implementations"
+    [1 >= #CYGINT_ISO_ENVIRON]

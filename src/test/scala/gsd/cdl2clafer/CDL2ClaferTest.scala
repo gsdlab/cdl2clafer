@@ -32,7 +32,7 @@ class CDL2ClaferTest extends FunSuite {
    * Specify pair of input/output files we want to test
    * Test file by file: take input, generate clafer out of it and then compare it
    * line by line with supposed output
-   **/
+   */
 
   val inputOutputFilesMap = mutable.Map[java.lang.String, java.lang.String](
   )

@@ -1,0 +1,4 @@
+interface CYGINT_ISO_ENVIRON{
+  display "environ implementations"
+  requires [1 >= CYGINT_ISO_ENVIRON ]
+}
