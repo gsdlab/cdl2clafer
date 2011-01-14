@@ -2,4 +2,4 @@ target
 cdl2clafer.iml
 *.ipr
 *.iws
-libmanaged
+*.libmanaged
