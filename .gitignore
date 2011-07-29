@@ -4,6 +4,10 @@ cdl2clafer.iml
 *.iws
 *.log
 target
-libmanaged
+lib_managed
 bin
 *~
+.classpath
+.project
+*.bak
+.scala_dependencies

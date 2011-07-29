@@ -60,14 +60,14 @@ object IMLNode2ClaferNode {
 	        n.description,
 	        getConstraints(n, allNodesMap, symbolTable, constraintsMap),
 	        None,
-	        getImplements(),
+	        getImplements(n),
 	        getChildren(n, allNodesMap, symbolTable, constraintsMap)
 	  )
    }
  }
  
  private def getImplements(n:Node):List[GExpression] = {
-   n.implements.foreach(imple => {
+   n.implements.foreach(implements => {
      
    })
    List()

@@ -32,7 +32,7 @@ object CDL2ClaferRun {
      if (args.size == 2) {
       Converter.printIMLAsClafer(args(1))
      } else {
-  		  val file = "/home/marko/workspaces/gsdlab/gdansk/xcdl-analysis-dev_1.2/input/extracted_representative_model-cleaned.iml"
+  		  val file = "input/extracted_representative_model-cleaned.iml"
   		  Converter.printIMLAsClafer(file)     
   		 }
     } else if (args(0) == "-c") {
