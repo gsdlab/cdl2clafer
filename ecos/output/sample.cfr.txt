@@ -1,0 +1,190 @@
+
+
+abstract CYGINT_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_COUNT
+    display = "Number of protocols selected"
+
+abstract CYGINT_WALLCLOCK_IMPLEMENTATIONS
+    display = "Number of wallclock implementations"
+    [1 = #CYGINT_WALLCLOCK_IMPLEMENTATIONS]
+
+abstract CYGHWR_IO_FLASH_DEVICE
+    display = "Hardware FLASH device drivers"
+    [#CYGHWR_IO_FLASH_DEVICE >= 1]
+
+CYGPKG_FS_FAT
+    display = "FAT filesystem"
+
+    CYGNUM_FS_FAT_NODE_POOL_SIZE -> integer 
+        display = "Node pool size"
+        -- default_value = #CYGNUM_FILEIO_NFILE + 2
+        [1 <= this && this <= 2147483647]
+        [#CYGNUM_FS_FAT_NODE_POOL_SIZE >= #CYGNUM_FILEIO_NFILE + 2]
+
+CYGPKG_IO_FILEIO
+    display = "POSIX File IO compatibility layer"
+    [CYGBLD_ISO_DIRENT_HEADER = "<cyg/fileio/dirent.h>"]
+
+    CYGNUM_FILEIO_NFILE -> integer 
+        display = "Maximum number of open files"
+        -- default_value = 16
+        [1 <= this && this <= 9999999]
+
+    CYGFUN_IO_FILEIO_SELECT ?
+        display = "Enable support for select()"
+        -- default_value = 1
+        -- ifActive
+        [CYGPKG_KERNEL]
+
+CYGPKG_ISOINFRA
+
+    CYGBLD_ISO_DIRENT_HEADER -> integer  ?
+        display = "<dirent.h> definitions implementation header"
+        -- default_value = 0
+
+CYGPKG_KERNEL
+    display = "eCos kernel"
+
+    CYGPKG_KERNEL_SMP_SUPPORT ?
+        display = "SMP support"
+        -- default_value = 0
+
+    CYGPKG_KERNEL_SCHED
+        display = "Kernel schedulers"
+
+        CYGNUM_KERNEL_SCHED_PRIORITIES -> integer 
+            display = "Number of priority levels"
+            -- default_value = 32
+            [1 <= this && this <= 32]
+
+    CYGPKG_KERNEL_SYNCH
+        display = "Synchronization primitives"
+
+        CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL -> CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_ENUM  ?
+            display = "Priority inversion protection protocols"
+            -- default_value = SIMPLE
+enum CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_ENUM = SIMPLE
+
+            CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_CEILING ?
+                display = "Enable priority ceiling protocol"
+                -- default_value = 1
+
+                CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT_PRIORITY -> integer 
+                    display = "Default priority ceiling"
+                    -- default_value = 0
+                    [0 <= this && this <= #CYGNUM_KERNEL_SCHED_PRIORITIES - 1]
+                    -- ifActive
+                    [CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_CEILING]
+
+            CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DYNAMIC ?
+                display = "Specify mutex priority inversion protocol at runtime"
+                -- default_value = 1
+                -- ifActive
+                [#CYGINT_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_COUNT > 1]
+
+CYGPKG_UITRON
+
+    CYGPKG_UITRON_INTERRUPT_FUNCTIONS
+        display = "Interrupt-safe functions"
+
+        CYGNUM_UITRON_ISR_ACTION_QUEUESIZE -> CYGNUM_UITRON_ISR_ACTION_QUEUESIZE_ENUM 
+            display = "Deferred operation queue size"
+            -- default_value = VAL_32
+enum CYGNUM_UITRON_ISR_ACTION_QUEUESIZE_ENUM = VAL_32 | VAL_256 | VAL_16 | VAL_128 | VAL_64 | VAL_4 | VAL_8
+
+CYGPKG_CPULOAD
+    display = "Measure the current CPU load"
+    [CYGPKG_KERNEL]
+    [!CYGPKG_KERNEL_SMP_SUPPORT]
+
+CYGPKG_HAL
+    display = "eCos HAL"
+
+    CYGBLD_HAL_LINKER_GROUPED_LIBS
+        display = "Grouped libraries for linking"
+        [is_substr(CYGBLD_HAL_LINKER_GROUPED_LIBS,StringLiteral("libtarget.a"))]
+
+    CYGPKG_HAL_I386
+
+        CYGPKG_HAL_I386_PC
+
+            CYGHWR_HAL_I386_PC_LOAD_HIGH ?
+                display = "Load into higher memory (2MB)"
+                -- default_value = 0
+                [CYG_HAL_STARTUP = RAM || CYG_HAL_STARTUP = GRUB]
+
+            CYGHWR_MEMORY_LAYOUT -> string 
+                display = "Memory layout"
+                -- calculated
+                [this = 
+                                    CYG_HAL_STARTUP = RAM => (CYGHWR_HAL_I386_PC_LOAD_HIGH => "i386_pc_ram_hi" else "i386_pc_ram")
+                        else 
+                                    CYG_HAL_STARTUP = ROM => "i386_pc_rom"
+                            else 
+                                        CYG_HAL_STARTUP = GRUB => (CYGHWR_HAL_I386_PC_LOAD_HIGH => "i386_pc_grub_hi" else "i386_pc_grub")
+                                else 
+                        "i386_pc_floppy"]
+
+            CYG_HAL_STARTUP -> CYG_HAL_STARTUP_ENUM 
+                display = "Startup type"
+                -- default_value = RAM
+enum CYG_HAL_STARTUP_ENUM = RAM | FLOPPY | ROM | GRUB
+
+CYGPKG_IO_WALLCLOCK
+    display = "Wallclock device"
+
+    CYGPKG_IO_WALLCLOCK_IMPLEMENTATION
+        display = "Wallclock implementation"
+
+        CYGIMP_WALLCLOCK_NONE extends CYGINT_WALLCLOCK_IMPLEMENTATIONS ?
+            display = "No wallclock"
+
+CYGPKG_IO
+    display = "I/O sub-system"
+
+    CYGPKG_IO_SERIAL
+
+        CYGPKG_IO_SERIAL_SELECT_SUPPORT ?
+            display = "Enable serial device select support"
+            -- default_value = 1
+            -- ifActive
+            [CYGPKG_IO_FILEIO]
+            [#CYGFUN_IO_FILEIO_SELECT = 1]
+
+CYGPKG_POSIX
+    display = "POSIX compatibility layer"
+
+    CYGPKG_POSIX_PTHREAD ?
+        display = "POSIX pthread configuration"
+        -- default_value = 1
+
+CYGPKG_IO_FLASH
+
+    CYGHWR_IO_FLASH_INDIRECT_READS
+        display = "Hardware requires indirect reads"
+
+    CYGSEM_IO_FLASH_VERIFY_PROGRAM ?
+        display = "Verify data programmed to flash"
+        -- default_value = 1
+        -- ifActive
+        [CYGHWR_IO_FLASH_INDIRECT_READS < CYGHWR_IO_FLASH_DEVICE]
+
+CYGPKG_LIBC
+    display = "ISO C library"
+
+    CYGPKG_LIBC_STARTUP
+
+        CYGPKG_LIBC_STARTUP_CONTEXT ?
+
+            CYGSEM_LIBC_STARTUP_MAIN_THREAD ?
+                display = "Invoked as eCos thread"
+
+        CYGPKG_LIBC_STARTUP_CONTEXT
+            display = "Startup context for main()"
+
+            CYGSEM_LIBC_STARTUP_MAIN_OTHER ?
+                display = "Invoked elsewhere"
+
+        CYGSEM_LIBC_INVOKE_DEFAULT_STATIC_CONSTRUCTORS ?
+            display = "Invoke default static constructors"
+            -- default_value = 0
+            [CYGSEM_LIBC_STARTUP_MAIN_THREAD || CYGSEM_LIBC_STARTUP_MAIN_OTHER && CYGPKG_POSIX_PTHREAD]

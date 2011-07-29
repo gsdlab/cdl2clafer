@@ -1,0 +1,108 @@
+{-
+Example from "Context-Oriented Domain Analysis", Brecht Desmet, Jorge Vallejos, 
+Pascal Costanza, Wolfgang De Meuter, and Theo D’Hondt, 2007.
+
+Parts related to the original example commented with the requirements; 
+extensions commented with "not in reqs".
+
+Approach used: Business Entities with Lifecycle
+
+Business entities (BEs): ContextAwareCellPhone, Contact, Communication, Call, Message.
+
+The definition of each BE represents a run-time variability of an entity, 
+concrete instances are snapshots of BEs at the given moment in time.
+For example, ContextAwareCellPhone.rings represents whether the phone rings or not in the current snapshot.
+
+We use true concurrency interpretation, that is, constraint propagations occur as soon as 
+the conditions are satisfied (there is no global 'tick' at which the constraints are reevaluated). 
+-}
+
+abstract ContextAwareCellPhone
+	-- R1
+    rings ?												-- R1.1 (derived!)
+    incomingCall -> Call ?								-- R1.1
+    incomingMessage -> Message ? 						-- R1.1
+    [ incomingCall || incomingMessage => rings ]		-- R1.1
+    callAnswerButton									-- R1.2
+    -- R2
+    outgoingCall -> Call ?								-- R1.1
+    outgoingMessage -> Message ? 						-- R1.1
+    -- R3
+    contactList											-- R3.1
+        contacts -> Contact *
+    journal												-- R3.1
+        calls -> Call *
+        messages -> Message *
+	 
+    batteryLevel										-- R1.3									
+       low ?
+    -- [ low => incomingCall.incomingFrom.VIP ]			-- R1.3
+    
+    auditiveSignal ?									-- R1.4.3
+    answeringMachine									-- R1.4 (for calls)
+        active ?
+        memoryLeft ?									-- R1.4.3  
+        [ incomingCall && ~memoryLeft => auditiveSignal ]	-- R1.4.3
+    autoReplyService 									-- R1.4 (for messages)
+        active ?
+    clock												-- R1.4 
+        hour -> integer
+            [ hour >=0 && hour <= 23 ]
+        minute -> integer
+            [ minute >=0 && minute <= 59 ]
+        [ hour >= 23 && hour <= 8 => answeringMachine.active && autoReplyService.active ] 
+	-- R1.5
+    userInMeeting ?						
+    redirectingToSecretary ?				
+    [ userInMeeting && incomingCall => redirectingToSecretary ]
+    -- R2.3
+    outgoingCommunicationCountingService
+    	active ?
+    	totalCallDuration -> integer					-- R2.3.1
+    	totalNumberOfSentDataPackages -> integer		-- R2.3.2
+    	[ ~active => totalCallDuration = 0 && totalNumberOfSentDataPackages = 0 ]	-- auxiliary counter reset (not in reqs)
+	-- R2.4, R2.5
+	xor activeConnection							
+		mobile								-- R2.2
+		WiFi						
+		GPRS
+	WiFiAvailable ?
+	GPRSAvailable ?
+	[ ~WiFiAvailable && ~GPRSAvailable => mobile
+	  WiFiAvailable => WiFi							
+	  GPRSAvailable && ~WiFi => GPRS ]				-- prefer WiFi over GPRS (not in reqs)
+	-- R4
+	-- In general, switches between behaviour are only possible between incoming or outgoing phone calls or messages.
+	-- (do not understand!)
+
+abstract Contact    
+    VIP ?
+    canCircumventAnsweringMachine ?						-- R1.4.2
+
+abstract Communication
+    xor direction
+        incomingFrom -> Contact	
+        outgoingTo -> Contact
+
+abstract Call : Communication
+    duration -> integer	-- in seconds
+
+abstract Message
+    contents -> string
+    -- [ contents.length  <= 160 ]	-- (is there a function for counting/subclafer for length of a string?)
+    
+Agata : Contact
+	[ VIP
+	  canCircumventAnsweringMachine ]
+	  
+CallFromAgata : Call
+    [ incomingFrom = Agata ] 
+    
+MichalsPhone1 : ContextAwareCellPhone
+	[ incomingCall = CallFromAgata
+	  Agata in contacts
+	  low
+	  hour = 2
+	  minute = 31
+	  ~userInMeeting
+	  WiFiAvailable ]

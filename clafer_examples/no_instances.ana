@@ -1,0 +1,6 @@
+< 0 - * > A : clafer 1 .. 1 {
+  [~ some c1_A][no c1_A]
+}
+< 0 - * > B -> int 1 .. 1 {
+  [~ some c2_B][no c2_B][c2_B > 6]
+}

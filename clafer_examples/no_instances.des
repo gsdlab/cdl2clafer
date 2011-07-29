@@ -1,0 +1,6 @@
+A : clafer {
+  [~ some A][no A]
+}
+B -> int {
+  [~ some B][no B][B > 6]
+}

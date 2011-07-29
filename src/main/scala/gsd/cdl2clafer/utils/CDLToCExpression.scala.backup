@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2011 Marko Novakovic <mnovakov@gsd.uwaterloo.ca>
+ *
+ * This file is part of cdl2clafer.
+ *
+ * cdl2clafer is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * cdl2clafer is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with cdl2clafer.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package gsd.cdl2clafer.utils
+
+import gsd.cdl.model._
+import gsd.cdl2clafer.model._
+
+/**
+ * Simple, ono-to-one mapping from CDLExpression to CExpression
+ * Other mapping and transformations use
+ */
+object CDLToCExpression {
+
+ def apply(expr:CDLExpression):CExpression = {
+      expr match {
+        case StringLiteral(v) =>
+            val numberPattern = """0[xX]([0123456789abcdefABCDEF]+)""".r
+            numberPattern.unapplySeq(v) match {
+              case Some(List(numberPart)) => CLongIntLiteral(java.lang.Long.parseLong(numberPart, 16).toLong)
+              case None => {
+                  new CStringLiteral(v)
+                }
+            }
+        case LongIntLiteral(v) => CLongIntLiteral(v)
+        case Identifier(v) => CIdentifier(v)
+        case Conditional(cond, pass, fail) => CConditional(CDLToCExpression(cond), CDLToCExpression(pass), CDLToCExpression(fail))
+        case Or(left, right) => COr(CDLToCExpression(left), CDLToCExpression(right))
+        case And(left, right) => CAnd(CDLToCExpression(left), CDLToCExpression(right))
+        case Eq(left, right) => CEq(CDLToCExpression(left), CDLToCExpression(right))
+        case NEq(left, right) => CNEq(CDLToCExpression(left), CDLToCExpression(right))
+        case LessThan(left, right) => CLessThan(CDLToCExpression(left), CDLToCExpression(right))
+        case LessThanOrEq(left, right) => CLessThanOrEq(CDLToCExpression(left), CDLToCExpression(right))
+        case GreaterThan(l, r) => CGreaterThan(CDLToCExpression(l), CDLToCExpression(r))
+        case GreaterThanOrEq(l, r) => CGreaterThan(CDLToCExpression(l), CDLToCExpression(r))
+        case BtAnd(l, r) => CBtAnd(CDLToCExpression(l), CDLToCExpression(r))
+        case BtOr(l, r) => CBtOr(CDLToCExpression(l), CDLToCExpression(r))
+        case BtXor(l, r) => CBtXor(CDLToCExpression(l), CDLToCExpression(r))
+        case BtLeft(l, r) => CBtLeft(CDLToCExpression(l), CDLToCExpression(r))
+        case BtRight(l, r) => CBtRight(CDLToCExpression(l), CDLToCExpression(r))
+        case Plus(l,r)=>CPlus(CDLToCExpression(l), CDLToCExpression(r))
+        case Minus(l,r)=>CMinus(CDLToCExpression(l), CDLToCExpression(r))
+        case Dot(l,r)=>CDot(CDLToCExpression(l), CDLToCExpression(r))
+        case Times(l,r)=>CTimes(CDLToCExpression(l), CDLToCExpression(r))
+        case Div(l,r)=>CDiv(CDLToCExpression(l), CDLToCExpression(r))
+        case Mod(l,r)=>CMod(CDLToCExpression(l), CDLToCExpression(r))
+        case Not(e) => CNot(CDLToCExpression(e))
+        case FunctionCall("is_substr", List(whole, sub)) => 
+            CFunctionCall("is_substr", List(CDLToCExpression(whole), CDLToCExpression(sub)))
+        case FunctionCall("bool", List(e)) => CFunctionCall("bool", List(CDLToCExpression(e)))
+//        case FunctionCall("is_loaded", List(e)) => GIsLoadedFunc(CDLToCExpression(e))
+//        case FunctionCall("is_active", List(e)) => GIsActiveFunc(CDLToCExpression(e))
+//        case FunctionCall("is_enabled", List(e)) => GIsEnabledFunc(CDLToCExpression(e))
+        case True() => CTrue()
+        case False() => CFalse()
+        case _ => throw new Exception("unexpected expression:" + expr)
+      }
+    }
+}

@@ -22,6 +22,7 @@ package gsd.cdl2clafer
 import scala.collection.mutable
 
 import org.scalatest.FunSuite
+/*
 import gsd.cdl2clafer.CDL2Clafer.EnumRef
 
 class ClaferReferenceTypesTest extends FunSuite {
@@ -40,3 +41,4 @@ class ClaferReferenceTypesTest extends FunSuite {
     assert("VAL_14" == enum.getEnumElementByKey("14").asInstanceOf[Some[String]].get)
   }
 }
+*/

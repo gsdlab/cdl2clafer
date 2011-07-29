@@ -1,0 +1,106 @@
+abstract ContextAwareCellPhone : clafer {
+  rings : clafer 0 .. 1 {
+    }
+  incomingCall -> Call 0 .. 1 {
+    }
+  incomingMessage -> Message 0 .. 1 {
+    }
+  [some incomingCall || some incomingMessage => some rings]callAnswerButton : clafer {
+    }
+  outgoingCall -> Call 0 .. 1 {
+    }
+  outgoingMessage -> Message 0 .. 1 {
+    }
+  contactList : clafer {
+    contacts -> Contact 0 .. * {
+      }
+    }
+  journal : clafer {
+    calls -> Call 0 .. * {
+      }
+    messages -> Message 0 .. * {
+      }
+    }
+  batteryLevel : clafer {
+    low : clafer 0 .. 1 {
+      }
+    }
+  auditiveSignal : clafer 0 .. 1 {
+    }
+  answeringMachine : clafer {
+    active : clafer 0 .. 1 {
+      }
+    memoryLeft : clafer 0 .. 1 {
+      }
+    [some incomingCall && ~ some memoryLeft => some auditiveSignal]
+  }
+  autoReplyService : clafer {
+    active : clafer 0 .. 1 {
+      }
+    }
+  clock : clafer {
+    hour -> integer {
+      [hour >= 0 && hour <= 23]
+    }
+    minute -> integer {
+      [minute >= 0 && minute <= 59]
+    }
+    [hour >= 23 && hour <= 8 => some answeringMachine . active && some autoReplyService . active]
+  }
+  userInMeeting : clafer 0 .. 1 {
+    }
+  redirectingToSecretary : clafer 0 .. 1 {
+    }
+  [some userInMeeting && some incomingCall => some redirectingToSecretary]outgoingCommunicationCountingService : clafer {
+    active : clafer 0 .. 1 {
+      }
+    totalCallDuration -> integer {
+      }
+    totalNumberOfSentDataPackages -> integer {
+      }
+    [~ some active => totalCallDuration = 0 && totalNumberOfSentDataPackages = 0]< 1 - 1 > activeConnection : clafer {
+      mobile : clafer {
+        }
+      WiFi : clafer {
+        }
+      GPRS : clafer {
+        }
+      }
+    WiFiAvailable : clafer 0 .. 1 {
+      }
+    GPRSAvailable : clafer 0 .. 1 {
+      }
+    [(~ some WiFiAvailable && ~ some GPRSAvailable => some mobile)&& (some WiFiAvailable => some WiFi)&& (some GPRSAvailable && ~ some WiFi => some GPRS)] 
+  }
+  }
+abstract Contact : clafer {
+  VIP : clafer 0 .. 1 {
+    }
+  canCircumventAnsweringMachine : clafer 0 .. 1 {
+    }
+  }
+abstract Communication : clafer {
+  < 1 - 1 > direction : clafer {
+    incomingFrom -> Contact {
+      }
+    outgoingTo -> Contact {
+      }
+    }
+  }
+abstract Call : Communication {
+  duration -> integer {
+    }
+  }
+abstract Message : clafer {
+  contents -> string {
+    }
+  }
+Agata : Contact {
+  [some VIP && some canCircumventAnsweringMachine]
+}
+CallFromAgata : Call {
+  [incomingFrom = Agata]
+}
+MichalsPhone1 : ContextAwareCellPhone {
+  [incomingCall = CallFromAgata && Agata in contacts && some low && hour = 2 && minute = 31 && ~ some userInMeeting && some WiFiAvailable]
+}

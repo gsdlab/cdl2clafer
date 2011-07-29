@@ -167,7 +167,7 @@ package CYGPKG_HAL{
       default_value [CYGDBG_HAL_DEBUG_GDB_INCLUDE_STUBS ]
     }
 
-    interface CYGINT_HAL_DEBUG_GDB_CTRLC_UNSUPPORTED{
+    interface CYGINT_HAL_DEBUG_GDB_CTRLC_UNSUPPORTED {
       display "Platform does not support CTRLC"
     }
 
@@ -1348,7 +1348,7 @@ package CYGPKG_IO{
 
       option CYGNUM_POWER_THREAD_STACKSIZE{
         display "Stack size for the power management thread"
-        default_value [is_loaded(CYGNUM_LIBC_MAIN_DEFAULT_STACK_SIZE) ? CYGNUM_LIBC_MAIN_DEFAULT_STACK_SIZE : (2 * CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE) ]
+        default_value [(CYGNUM_LIBC_MAIN_DEFAULT_STACK_SIZE) ? CYGNUM_LIBC_MAIN_DEFAULT_STACK_SIZE : (2 * CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE) ]
         flavor data 
       }
 
@@ -1827,7 +1827,7 @@ package CYGPKG_KERNEL{
     option CYGNUM_KERNEL_COUNTERS_CLOCK_ISR_PRIORITY{
       display "Interrupt priority for the real-time clock"
       active_if [CYGVAR_KERNEL_COUNTERS_CLOCK ]
-      default_value [is_loaded(CYGNUM_HAL_KERNEL_COUNTERS_CLOCK_ISR_DEFAULT_PRIORITY) ? CYGNUM_HAL_KERNEL_COUNTERS_CLOCK_ISR_DEFAULT_PRIORITY : 1 ]
+      default_value [(CYGNUM_HAL_KERNEL_COUNTERS_CLOCK_ISR_DEFAULT_PRIORITY) ? CYGNUM_HAL_KERNEL_COUNTERS_CLOCK_ISR_DEFAULT_PRIORITY : 1 ]
       flavor data 
     }
 
@@ -3809,7 +3809,7 @@ package CYGPKG_LIBC{
 
       option CYGNUM_LIBC_STDIO_BUFSIZE{
         display "Default buffer size"
-        legal_values [1 to 0x7fffffff ]
+        legal_values [1 to 0x7fffffff]
         default_value [256 ]
         flavor data 
       }

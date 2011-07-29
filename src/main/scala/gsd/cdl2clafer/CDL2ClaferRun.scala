@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010 Marko Novakovic <mnovakov@gsd.uwaterloo.ca>
+ * Copyright (c) 2011 Marko Novakovic <mnovakov@gsd.uwaterloo.ca>
  *
  * This file is part of cdl2clafer.
  *
@@ -19,9 +19,31 @@
 
 package gsd.cdl2clafer
 
+import gsd.cdl.model._
+import org.kiama.rewriting.Rewriter._
+
 object CDL2ClaferRun {
+
   def main( args: Array[String] ){
-    gsd.cdl2clafer.CDL2Clafer.processIMLFromFile("types.iml.txt", "types.cfr.txt")
-    gsd.cdl2clafer.CDL2Clafer.processIMLFromFile("pc_vmWare.iml.txt", "pc_vmWare.cfr.txt")
+   if (args.size == 0) {
+    println("Not enough arguments")
+   } else {
+    if (args(0) == "--t") {
+     if (args.size == 2) {
+      Converter.printIMLAsClafer(args(1))
+     } else {
+  		  val file = "/home/marko/workspaces/gsdlab/gdansk/xcdl-analysis-dev_1.2/input/extracted_representative_model-cleaned.iml"
+  		  Converter.printIMLAsClafer(file)     
+  		 }
+    } else if (args(0) == "-c") {
+      TestTypes.testCollectl
+    } else if (args(0) == "--query") {
+      QueryAllFeaturesInDir()
+    } else if (args(0) == "--tc") {
+      TestTypes.testCounting()
+    } else if (args(0) == "--convert-all") {
+      TestTypes.all()    
+    }
+   }
   }
 }

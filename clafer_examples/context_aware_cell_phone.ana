@@ -1,0 +1,102 @@
+abstract < 0 - * > ContextAwareCellPhone : clafer 0 .. * {
+  < 0 - * > rings : clafer 0 .. 1 {
+    }
+  < 0 - * > incomingCall -> c43_Call 0 .. 1 {
+    }
+  < 0 - * > incomingMessage -> c45_Message 0 .. 1 {
+    }
+  [some this . c3_incomingCall || some this . c4_incomingMessage => some this . c2_rings]< 0 - * > callAnswerButton : clafer 1 .. 1 {
+    }
+  < 0 - * > outgoingCall -> c43_Call 0 .. 1 {
+    }
+  < 0 - * > outgoingMessage -> c45_Message 0 .. 1 {
+    }
+  < 0 - * > contactList : clafer 1 .. 1 {
+    < 0 - * > contacts -> c36_Contact 0 .. * {
+      }
+    }
+  < 0 - * > journal : clafer 1 .. 1 {
+    < 0 - * > calls -> c43_Call 0 .. * {
+      }
+    < 0 - * > messages -> c45_Message 0 .. * {
+      }
+    }
+  < 0 - * > batteryLevel : clafer 1 .. 1 {
+    < 0 - * > low : clafer 0 .. 1 {
+      }
+    }
+  < 0 - * > auditiveSignal : clafer 0 .. 1 {
+    }
+  < 0 - * > answeringMachine : clafer 1 .. 1 {
+    < 0 - * > active : clafer 0 .. 1 {
+      }
+    < 0 - * > memoryLeft : clafer 0 .. 1 {
+      }
+    [some c1_ContextAwareCellPhone . c3_incomingCall && ~ some this . c18_memoryLeft => some c1_ContextAwareCellPhone . c15_auditiveSignal]
+  }
+  < 0 - * > autoReplyService : clafer 1 .. 1 {
+    < 0 - * > active : clafer 0 .. 1 {
+      }
+    }
+  < 0 - * > clock : clafer 1 .. 1 {
+    < 0 - * > hour -> integer 1 .. 1 {
+      [c1_ContextAwareCellPhone . c21_clock . c22_hour >= 0 && c1_ContextAwareCellPhone . c21_clock . c22_hour <= 23]
+    }
+    < 0 - * > minute -> integer 1 .. 1 {
+      [c1_ContextAwareCellPhone . c21_clock . c23_minute >= 0 && c1_ContextAwareCellPhone . c21_clock . c23_minute <= 59]
+    }
+    [this . c22_hour >= 23 && this . c22_hour <= 8 => some c1_ContextAwareCellPhone . c16_answeringMachine . c17_active && some c1_ContextAwareCellPhone . c19_autoReplyService . c20_active]
+  }
+  < 0 - * > userInMeeting : clafer 0 .. 1 {
+    }
+  < 0 - * > redirectingToSecretary : clafer 0 .. 1 {
+    }
+  [some this . c24_userInMeeting && some this . c3_incomingCall => some this . c25_redirectingToSecretary]< 0 - * > outgoingCommunicationCountingService : clafer 1 .. 1 {
+    < 0 - * > active : clafer 0 .. 1 {
+      }
+    < 0 - * > totalCallDuration -> integer 1 .. 1 {
+      }
+    < 0 - * > totalNumberOfSentDataPackages -> integer 1 .. 1 {
+      }
+    [~ some this . c27_active => this . c28_totalCallDuration = 0 && this . c29_totalNumberOfSentDataPackages = 0]< 1 - 1 > activeConnection : clafer 1 .. 1 {
+      < 0 - * > mobile : clafer 0 .. 1 {
+        }
+      < 0 - * > WiFi : clafer 0 .. 1 {
+        }
+      < 0 - * > GPRS : clafer 0 .. 1 {
+        }
+      }
+    < 0 - * > WiFiAvailable : clafer 0 .. 1 {
+      }
+    < 0 - * > GPRSAvailable : clafer 0 .. 1 {
+      }
+    [(~ some this . c34_WiFiAvailable && ~ some this . c35_GPRSAvailable => some this . c30_activeConnection . c31_mobile)&& (some this . c34_WiFiAvailable => some this . c30_activeConnection . c32_WiFi)&& (some this . c35_GPRSAvailable && ~ some this . c30_activeConnection . c32_WiFi => some this . c30_activeConnection . c33_GPRS)] 
+  }
+  }
+abstract < 0 - * > Contact : clafer 0 .. * {
+  < 0 - * > VIP : clafer 0 .. 1 {
+    }
+  < 0 - * > canCircumventAnsweringMachine : clafer 0 .. 1 {
+    }
+  }
+abstract < 0 - * > Communication : clafer 0 .. * {
+  < 1 - 1 > direction : clafer 1 .. 1 {
+    < 0 - * > incomingFrom -> c36_Contact 0 .. 1 {
+      }
+    < 0 - * > outgoingTo -> c36_Contact 0 .. 1 {
+      }
+    }
+  }
+abstract < 0 - * > Call : c39_Communication 0 .. * {
+  < 0 - * > duration -> integer 1 .. 1 {
+    }
+  }
+< 0 - * > Agata : c36_Contact 1 .. 1 {
+  [some this . c37_VIP && some this . c38_canCircumventAnsweringMachine]
+}
+< 0 - * > CallFromAgata : c43_Call 1 .. 1 {
+  [this . c40_direction . c41_incomingFrom = c47_Agata]
+}
+< 0 - * > MichalsPhone1 : c1_ContextAwareCellPhone 1 .. 1 {
+  [this . c3_incomingCall = c48_CallFromAgata && c47_Agata in this . c8_contactList . c9_contacts && some this . c13_batteryLevel . c14_low && this . c21_clock . c22_hour = 2 && this . c21_clock . c23_minute = 31 && ~ some this . c24_userInMeeting && some this . c26_outgoingCommunicationCountingService . c34_WiFiAvailable]
+}
