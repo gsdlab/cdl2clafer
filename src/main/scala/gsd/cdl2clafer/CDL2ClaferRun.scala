@@ -42,7 +42,9 @@ object CDL2ClaferRun {
     } else if (args(0) == "--tc") {
       TestTypes.testCounting()
     } else if (args(0) == "--convert-all") {
-      TestTypes.all()    
+        TestTypes.all()    
+    } else if (args(0) == "--convert-all-with-output") {
+        TestTypes.writeAll()    
     }
    }
   }

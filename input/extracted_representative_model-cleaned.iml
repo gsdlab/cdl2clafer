@@ -180,6 +180,8 @@ package CYGPKG_IO_WALLCLOCK {
     option CYGIMP_WALLCLOCK_NONE {
       display "No wallclock"
       implements [CYGINT_WALLCLOCK_IMPLEMENTATIONS]
+      implements [CYGHWR_IO_FLASH_INDIRECT_READS]
+      requires [CYGFUN_IO_FILEIO_SELECT == 1]
     }
   }
 }

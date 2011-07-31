@@ -32,18 +32,58 @@ object TestTypes {
   
   def all() {
          val fs = new java.io.File("input/iml/").listFiles(new java.io.FileFilter() {
-        def accept(pathname:java.io.File) = pathname.getName.endsWith("7708.iml")
+        def accept(pathname:java.io.File) = pathname.getName.endsWith(".iml")
      })
 
     var ids = scala.collection.mutable.Set[String]()
+    
+    if (fs.size == 0) {
+      throw new Exception("No files")
+    }
     	
      for(f <- fs) {
-       println("Processing: *" + f.getName() + "*")
+    	 println("Processing: *" + f.getName() + "*")
+    	 try {
 //       Converter.convert(f.getAbsolutePath())
-       Converter.printIMLAsClafer(f.getAbsolutePath())
+    		 Converter.printIMLAsClafer(f.getAbsolutePath())
+    	 } catch {
+    	   case e: Exception => println("error")
+    	 }
      }
   }
 
+   
+  def writeAll() {
+     val fs = new java.io.File("input/iml/").listFiles(new java.io.FileFilter() {
+        def accept(pathname:java.io.File) = pathname.getName.endsWith(".iml")
+     })
+
+    if (fs.size == 0) {
+      throw new Exception("No files")
+    }
+
+     var ids = scala.collection.mutable.Set[String]()
+    	
+     for(f <- fs) {
+       if (!f.getAbsolutePath().endsWith(".iml"))
+         throw new Exception("Deals with .iml files only")
+
+       val out = new java.io.FileWriter("output/clafer/" + f.getName.substring(0, f.getName.length() - 3) + "cfr")
+       println("Processing: *" + f.getAbsolutePath() + "*")
+		try {
+			Converter.convert(f.getAbsolutePath()).foreach(n => {
+				out.write(ClaferPrettyPrinter.pretty(n))
+				out.write("\n")
+				out.flush
+			})
+		} catch {
+		   case e: Exception => e.printStackTrace()
+		}
+       
+       out.close
+     }
+  }
+  
  def countInterfaceOccurences(constraint:GExpression, 
      allNodesMap:scala.collection.immutable.Map[String, Node]):Int = {
 	count { case gVar:GVariable => {

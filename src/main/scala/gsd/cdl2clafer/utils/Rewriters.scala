@@ -30,6 +30,8 @@ import gsd.cdl.formula.types._
 import org.kiama.rewriting._
 import org.kiama.rewriting.Rewriter._
 
+import scala.collection._
+
 object Rewriters {
   
    private def truncateVarNames(variable:String):String = {
@@ -42,6 +44,11 @@ object Rewriters {
 	             exp.getRequiredType().getOrElse(null) == NumberType) {
 	           // bool to number conversion, for example A + 1, where A is BoolFlavor
 	           GConditional(GVariable(exp.asInstanceOf[GVariable].id), GLongIntLiteral(1), GLongIntLiteral(0))
+	    } else if (exp.getType().head == BoolType && 
+	             exp.getRequiredType().getOrElse(null) == StringType) {
+	         	// string to number conversion, A == "1", where A is String
+	         	// this is converted to A ? "1" : "0"
+	    	   GConditional(GVariable(exp.asInstanceOf[GVariable].id), GStringLiteral("1"), GStringLiteral("0"))
 	    } else if (exp.getType().head == NumberType && 
 	             exp.getRequiredType().getOrElse(null) == BoolType) {
 	         	// number to boolean conversion, A ? 1: 2, where A is Number
@@ -97,6 +104,46 @@ object Rewriters {
 	   
 	   rewriteS(exp, rule)
    }
+   
+   def applyGuardings(parentId:String,
+		   exp:GExpression,
+    	    allNodesMap:scala.collection.immutable.Map[String, Node],
+    	    symbolTable:mutable.Map[String, mutable.Set[Type]]
+   ):GExpression = {
+	   val rule = rulef {
+		   case variable@GVariable(id) => {
+		     if (parentId != id) {
+			   if (allNodesMap.apply(id).cdlType != InterfaceType) {
+			     if (allNodesMap.apply(id).flavor == DataFlavor ||
+			         allNodesMap.apply(id).flavor == BoolDataFlavor) {
+			       if (!symbolTable.contains(id) || symbolTable.apply(id).size != 1 ||
+			           (symbolTable.apply(id).head != NumberType &&
+			           symbolTable.apply(id).head != StringType)) {
+			         throw new Exception("There is more than one type or the type is wrong: " + variable)
+			       } else {
+			         if (symbolTable.apply(id).head == NumberType) {
+			        	 GConditional(variable, variable, GLongIntLiteral(0))
+			         } else {
+			        	 GConditional(variable, variable, GStringLiteral("0"))
+			         }
+			       }
+			     } else variable
+			       
+			   } else {
+			    if (allNodesMap.apply(id).flavor != BoolFlavor) {
+			      // variables that represent interfaces
+			      GConditional(variable, variable, GLongIntLiteral(0))
+			    } else variable
+			   }
+		     } else {
+		       GVariable("this")   
+		     }
+		   }
+		   case x@_ => x
+	   }
+	   
+	   rewriteS(exp, rule)
+   }   
 
  	def rewriteGVariable(exp:GExpression):GExpression = {
 	   val rewriteGVariableNameRule = rulef {
@@ -140,12 +187,6 @@ object Rewriters {
 	    	    case None => variable
 	    	    case Some(string) => getGVariableWithName(variable, string) 
 	    	  }
-
-//	    	  if (v.endsWith("_INTERFACE_ARTIFICIALLY_ADDED")) {
-//	    		getGVariableWithName(variable, variable.id.replaceFirst("_INTERFACE_ARTIFICIALLY_ADDED", ""))
-//	    	  } else {
-//	    	    variable
-//	    	  }
 	    	}
 	    	case x@_ => x
 	    }

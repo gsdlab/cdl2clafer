@@ -21,6 +21,7 @@ package gsd.cdl2clafer.utils
 
 import gsd.cdl.model._
 import gsd.cdl.formula._
+import gsd.cdl.formula.Main._
 import gsd.cdl2clafer.model._
 
 /**
@@ -85,7 +86,16 @@ object CDLToGExpression {
 //          GAliasReference(ActiveAliasVariableName(featureName))
           // WARNING: THIS IS A HACK
           // TODO: Replace this with the real semantics whatever that is
-          GVariable(BoolVariableName(featureName))
+          allNodesMap.get(featureName) match {
+            case Some(node) => 
+              node.flavor match {
+                case DataFlavor     => GVariable(DataVariableName(featureName))
+                case BoolDataFlavor => GVariable(DataVariableName(featureName))
+                case BoolFlavor     => GVariable(BoolVariableName(featureName))
+                case NoneFlavor     => GVariable(BoolVariableName(featureName))
+              }
+            case None          => GLongIntLiteral(0) //TODO: mnovakovic: check this!
+          }            
 
         case FunctionCall("is_enabled", List(Identifier(featureName))) =>
           allNodesMap.get(featureName) match {

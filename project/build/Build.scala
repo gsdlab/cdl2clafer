@@ -4,12 +4,12 @@ class Build(info: ProjectInfo) extends DefaultProject(info) {
 
   val junit= "junit" % "junit" % "4.7"        
   val graph = "gsd" % "graph" % "1.0.1-SNAPSHOT"
-  val kiama = "com.googlecode" %% "kiama" % "1.0.2"
+  val kiama = "com.googlecode" %% "kiama" % "1.1.0"
   val paulp = "com.github.paulp_optional" % "optional" % "0.0.1"
   val scalatest = "org.scalatest" % "scalatest_2.8.1" % "1.5.1"
   val javacup = "gsd" % "java-cup" % "11a"
   val imlparser = "gsd" % "iml-parser" % "dev_1.0"
-  val xcdl_analysis = "gsd" % "xcdl-analysis_2.8.1" % "dev_1.2"
+  val xcdl_analysis = "gsd" %% "xcdl-analysis" % "dev_1.2"
 
   val mavenLocalRepo = "LocalMavenRepo" at "file://" + Path.userHome + "/.m2/repository"
   val scalaToolsRepo = "Scala tools" at "http://www.scala-tools.org/repo-releases"

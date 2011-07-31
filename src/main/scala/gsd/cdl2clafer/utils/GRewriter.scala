@@ -104,9 +104,9 @@ object GRewriter {
             new1
         } catch {
             case e : java.lang.ClassCastException =>
-                error ("dup cast failed: " + t)
+                sys.error ("dup cast failed: " + t)
             case e : IllegalArgumentException =>
-                error ("dup illegal arguments: " + ctor.toString + " (" +
+                sys.error ("dup illegal arguments: " + ctor.toString + " (" +
                        children.deep.mkString (",") + "), expects " +
                        ctor.getParameterTypes.length)
         }
@@ -117,7 +117,7 @@ object GRewriter {
             return child.asInstanceOf[AnyRef]
         } catch {
             case e : ClassCastException =>
-                error ("makechild: can't cast child: " + child + " " + e)
+                sys.error ("makechild: can't cast child: " + child + " " + e)
         }
     } 
 }

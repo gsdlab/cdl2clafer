@@ -75,6 +75,8 @@ object Converter {
         case x@_ => x
       } )
       
+      println(nodes.size)
+      
     var allNodesNew = mutable.ListBuffer[Node]()
     
     allNodesNew ++= allNodes
@@ -102,7 +104,10 @@ object Converter {
     inferencedConstraints = inferencedConstraints.dropRight(allNodes.size)
     
     val newSymbolTable = getFullSymbolTable(allNodesMap, typeChecker.getSymbolTable)
-    val constraintsMap = generateConstraintMap(usedConstraintsIndexes, inferencedConstraints)
+    val constraintsMap = generateConstraintMap(usedConstraintsIndexes, 
+        inferencedConstraints, 
+        allNodesMap, 
+        newSymbolTable)
     
     // add clafer interfaces
     var claferNodes:mutable.ListBuffer[ClaferNode] = mutable.ListBuffer[ClaferNode]()
@@ -110,15 +115,17 @@ object Converter {
       createAbstractNode(n)
     })
     
+    claferNodes += trueLiteral
+    claferNodes += falseLiteral
+    
     claferNodes = claferNodes ++ nodes.map(node => {IMLNode2ClaferNode(node, allNodesMap, newSymbolTable, constraintsMap)})
     claferNodes.toList
-//    nodes.map(node => {IMLNode2ClaferNode(node, allNodesMap, newSymbolTable, constraintsMap)})
  }
  
  def createAbstractNode(n:Node):ClaferNode = {
   ClaferNode(AbstractVariableName(n.id), true,  true, types.BoolType, "Interface for node: " + n.id, None,
 		  getAbstractNodeConstraint(n), // no constraints
-		  None, List(), List()
+		  List(), List()
   )
  }
  
@@ -139,7 +146,30 @@ object Converter {
   ):Int = {
 	count { case gVar:gsd.cdl.formula.types.GCast => 1}(constraint)
  }
- 
+  
+  val trueLiteral:ClaferNode = {
+    ClaferNode("true",
+    true,
+    false,
+    gsd.cdl.formula.types.BoolType,
+    "Boolean literal TRUE",
+    None,
+    List(),
+    List(),
+    List())
+  }
+
+  val falseLiteral:ClaferNode = {
+    ClaferNode("false",
+    true,
+    false,
+    gsd.cdl.formula.types.BoolType,
+    "Boolean literal FALSE",
+    None,
+    List(GClaferNoInstances(GVariable("false"))),
+    List(),
+    List())
+  }
  
  private def getNodesConstraints(
      allNodes:List[Node],
@@ -219,20 +249,26 @@ object Converter {
  
  private def generateConstraintMap(
      usedConstraintsIndexes:mutable.Map[String, mutable.ListBuffer[Int]],
-     convertedExpressions: List[GExpression]
+     convertedExpressions: List[GExpression],
+     allNodesMap: immutable.Map[String, Node],
+     symbolTable:mutable.Map[String, mutable.Set[Type]]
  ):mutable.Map[String, mutable.ListBuffer[GExpression]] = {
+   
     var constraintsMap:mutable.Map[String, mutable.ListBuffer[GExpression]]
        = mutable.Map[String, mutable.ListBuffer[GExpression]]() 
-    
        
     // do the rewritings
-    var newConstraints = convertedExpressions.map(constraint => {
-      Rewriters.replaceGCasts(
-         Rewriters.removeInterfaceSuffix(
-             Rewriters.rewriteGVariable(constraint)
-         )
-      )
-    })
+//    var newConstraints = convertedExpressions.map(constraint => {
+//      Rewriters.replaceReferencesToDataGVariables(
+//	      Rewriters.replaceGCasts(
+//	         Rewriters.removeInterfaceSuffix(
+//	             Rewriters.rewriteGVariable(constraint)
+//	         )
+//	      ),
+//	      allNodesMap,
+//	      symbolTable
+//	      )
+//    })
     
     // do the casting rewritings
     
@@ -253,8 +289,15 @@ object Converter {
       }
       
       nodeIndexPair._2.foreach(index => {
+        val newConstraint = applyRewritings(nodeIndexPair._1,
+            convertedExpressions.apply(index),
+            allNodesMap,
+            symbolTable
+            )
+        
         constraintsMap.apply(nodeIndexPair._1) += 
-          newConstraints.apply(index) 
+          newConstraint
+          
       })
     
     })
@@ -262,13 +305,30 @@ object Converter {
     constraintsMap
  }
  
+ private def applyRewritings(id:String,
+     constraint:GExpression,
+     allNodesMap: immutable.Map[String, Node],
+     symbolTable:mutable.Map[String, mutable.Set[Type]]     
+     ):GExpression = {
+      Rewriters.applyGuardings(
+          id,
+	      Rewriters.replaceGCasts(
+	         Rewriters.removeInterfaceSuffix(
+	             Rewriters.rewriteGVariable(constraint)
+	         )
+	      ),
+	      allNodesMap,
+	      symbolTable
+	      )   
+ }
+ 
  /**
   * Prints IML model from file @file
   * as Clafer model 
   **/ 
  def printIMLAsClafer(file:String) = {
-   convert(file).foreach(node =>
-	   println(ClaferPrettyPrinter.pretty(node))
-   )
+   val nodes = convert(file).foreach(n => {
+     println(ClaferPrettyPrinter.pretty(n))
+   })
  }
 }

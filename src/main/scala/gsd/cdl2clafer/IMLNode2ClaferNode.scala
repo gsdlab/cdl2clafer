@@ -46,8 +46,7 @@ object IMLNode2ClaferNode {
 	        n.display, 
 	        n.description,
 	        getInterfaceConstraints(n, constraintsMap),
-	        None,
-	        List(),
+	        List(), // implements nothing!
 	        getChildren(n, allNodesMap, symbolTable, constraintsMap)
 	  )
    } else {
@@ -59,7 +58,6 @@ object IMLNode2ClaferNode {
 	        n.display, 
 	        n.description,
 	        getConstraints(n, allNodesMap, symbolTable, constraintsMap),
-	        None,
 	        getImplements(n),
 	        getChildren(n, allNodesMap, symbolTable, constraintsMap)
 	  )
@@ -67,10 +65,14 @@ object IMLNode2ClaferNode {
  }
  
  private def getImplements(n:Node):List[GExpression] = {
+   var list:mutable.ListBuffer[GVariable] = mutable.ListBuffer[GVariable]()
    n.implements.foreach(implements => {
-     
+     if (implements.isInstanceOf[Identifier]) {
+       list += GVariable(AbstractVariableName(implements.asInstanceOf[Identifier].id))
+     } else 
+       throw new Exception("Not implementing Identifier!")
    })
-   List()
+   list.toList
  }
  
  private def getInterfaceConstraints(n:Node,

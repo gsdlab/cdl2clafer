@@ -1,0 +1,5 @@
+BOOLEAN_OPTION : clafer 0 .. 1 {
+  }
+BOOLEAN_TO_INTEGER -> int {
+  [some BOOLEAN_OPTION => this == 1 else this == 0]
+}

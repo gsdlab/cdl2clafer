@@ -25,12 +25,11 @@ import gsd.cdl2clafer.model._
 import gsd.cdl2clafer.utils._
 import org.kiama.rewriting.Rewriter._
 import gsd.cdl.formula.types.checker._
-import gsd.cdl2clafer.prettyprinter.PrettyPrinter
 
 /**
  * Prints Clafer Nodes 
  ***/
-object ClaferPrettyPrinter extends PrettyPrinter {
+object ClaferPrettyPrinter extends org.kiama.util.PrettyPrinter {
 
 //    import AST._
     
@@ -66,24 +65,33 @@ object ClaferPrettyPrinter extends PrettyPrinter {
       
       if (node.constraints.size > 0) {
 	      nest(
-	          firstLineOfClafer(node) <@>
-//	          brackets(show(node.constraints.head, 0)),
-		      vsep(node.constraints.map(c => 
+	          firstLineOfClaferAndImplements(node) <@>
+		      vsep(node.constraints.map(c => { 
 		        brackets(
 		    		  text (GExpressionPrettyPrinter.pretty(c))
 		        )
-		      )),
+		      })),
 		      depth + 1
 	      )
       } else {
-        firstLineOfClafer(node)
+        firstLineOfClaferAndImplements(node)
       }
     }
+    
+    private def implements(node:ClaferNode):Doc = {
+      if (node.implements.size > 0) {
+    	  	  empty <@>
+		      vsep(node.implements.map(c => {
+		    	text("`") <> text (GExpressionPrettyPrinter.pretty(c))
+		      })) 
+	  } else 
+        empty
+    } 
     
     /**
      * Represents the first line of a Clafer node 
      **/
-    private def firstLineOfClafer(node:ClaferNode):Doc =  {
+    private def firstLineOfClaferAndImplements(node:ClaferNode):Doc =  {
       var doc = empty
       if (node.isAbstract) {
         doc = doc <> text("abstract") <+> empty 
@@ -96,12 +104,13 @@ object ClaferPrettyPrinter extends PrettyPrinter {
           case types.StringType => doc = doc <+> text("--> string")
           case UndefinedType => doc = doc <+> text("--> undefined")
         }
-        
       }
       if (!node.isMandatory) {
     	  doc = doc <+> text("?") 
       }
-//      doc <+> value(node.children.size)
-      doc
+      
+      // TODO: HOT TO DEAL WITH IMPLEMENTATIONS?
+
+      doc <> implements(node)
     }
 }

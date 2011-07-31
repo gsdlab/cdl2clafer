@@ -23,30 +23,17 @@ import gsd.cdl2clafer._
 import gsd.cdl.formula._
 import gsd.cdl.model._
 
+/**
+ * Represents a ClaferNode 
+ **/
 case class ClaferNode(
                 name : String, 
                 isMandatory: Boolean,
                 isAbstract: Boolean,
-                claferType : types.Type, // is string enough?
+                claferType : types.Type, 
                 display : String,
                 description : Option[String],
                 constraints : List[GExpression],
-                legalValues : Option[GExpression],
-//                defaultValue : Option[GExpression], //TODO restrict to only literals
-                implements : List[GExpression], // just identifiers
+                implements : List[GExpression], // list of GVariables
                 children : List[ClaferNode])
-
-// determine Enumerations 
-// determine Interfaces
-// determine types
-// for every Node
-//Create ClaferNode
-//set type
-//set isOptional
-//set display
-//set description
-//foreach active_if and requires exp
-//constraints.add(transsofmCDLExpression(exp))
-//add implements
-//foreach child do the same
 

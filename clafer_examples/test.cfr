@@ -1,0 +1,10 @@
+ abstract AA
+ 
+ CYGINT_WALLCLOCK_IMPLEMENTATIONS --> int
+   [this == #AA]
+   [1 == this]
+
+ CYGPKG_IO_WALLCLOCK_IMPLEMENTATION
+   CYGIMP_WALLCLOCK_NONE  ?
+   		`AA
+    

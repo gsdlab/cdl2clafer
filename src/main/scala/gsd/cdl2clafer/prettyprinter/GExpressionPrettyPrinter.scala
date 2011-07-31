@@ -25,12 +25,11 @@ import gsd.cdl2clafer.model._
 import gsd.cdl2clafer.utils._
 import org.kiama.rewriting.Rewriter._
 import gsd.cdl.formula.types.checker._
-import gsd.cdl2clafer.prettyprinter.PrettyPrinter
 
 /**
  * Prints GExpression Nodes 
  ***/
-object GExpressionPrettyPrinter extends PrettyPrinter {
+object GExpressionPrettyPrinter extends org.kiama.util.PrettyPrinter {
 
     /**
      * GExpression as String  
@@ -64,7 +63,15 @@ object GExpressionPrettyPrinter extends PrettyPrinter {
             case GConditional (c, p, f)   => parens(show (c, depth + 1) <+> text("=>") <+> show(p, depth + 1) <+> text("else") <+> show(f, depth + 1))
             case GSubString(a, b) => text("isSubstring") <> parens(show(a, depth + 1) <+> text(",") <+> show(b, depth + 1))
             case cast@gsd.cdl.formula.types.GCast(exp1) => text("(") <> text(GExpressionToString(cast)) <> text(")") <> show(exp1, depth + 1)
-            case x@_ => text(x.getClass().toString())
+            case GTrue() => text("true")
+            case GFalse() => text("false")
+            case GBtAnd(l, r) => text("WARNING!")
+            case GBtOr(l, r) => text("WARNING!")
+            case GBtLeft(l, r) => text("WARNING!")
+            case GBtRight(l, r) => text("WARNING!")
+            case GBtXor(l, r) => text("WARNING!")
+            case GMod(l, r) => text("WARNING!")
+            case x@_ => throw new Exception ("Not supported: " + x.getClass.toString)//text(x.getClass().toString())
         }
 //    
     def showbin (l : GExpression, op : String, r : GExpression, depth:Int) : Doc = {

@@ -1,0 +1,3 @@
+BOOLEAN_OPTION ?
+BOOLEAN_TO_INTEGER -> int
+  [BOOLEAN_OPTION => (this == 1) else (this == 0)]

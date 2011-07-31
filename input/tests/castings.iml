@@ -1,0 +1,63 @@
+package CYGPKG_IO_FILEIO {
+  display "POSIX File IO compatibility layer"
+
+  requires [CYGBLD_ISO_DIRENT_HEADER == "<cyg/fileio/dirent.h>"]
+  
+	option CYGPKG_IO_SERIAL_SELECT_SUPPORT {
+	  display "Boolean to Integer Conversion"
+	  requires [CYGFUN_IO_FILEIO_SELECT == 1]
+	  flavor bool
+	}  
+
+  option CYGNUM_FILEIO_NFILE {
+    display "Maximum number of open files"
+    default_value [16 ]
+    legal_values [1 to 9999999]
+    flavor data 
+  }
+
+  option CYGFUN_IO_FILEIO_SELECT {
+    display "Enable support for select()"
+    active_if [CYGPKG_KERNEL]
+    default_value [1]
+  }
+  
+  option INTEGER_OPTION {
+  	display ""
+  	legal_values [225 226 0 1]
+  	flavor data
+  }
+
+  option BOOLEAN_OPTION {
+  	flavor bool
+  }
+
+  option STRING_OPTION {
+  	display ""
+  	legal_values ["225" "226"]
+  	flavor data
+  }
+  
+  option INTEGER_TO_BOOLEAN {
+  	display "Convert Integer To Boolean"
+  	requires [INTEGER_OPTION]
+  }
+  
+  option STRING_TO_BOOLEAN {
+  	display "Convert String To Boolean"
+  	requires [STRING_OPTION]
+  }
+
+  option BOOLEAN_TO_STRING {
+  	display "Convert Boolean To String"
+  	requires [BOOLEAN_OPTION . "01234" == "112234"]
+  }
+
+  option BOOLEAN_TO_INTEGER {
+  	display "Convert Boolean To Integer"
+  	calculated [BOOLEAN_OPTION + 5]
+  	flavor data
+  } 
+  
+}
+

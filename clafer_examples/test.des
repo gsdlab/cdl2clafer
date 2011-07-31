@@ -1,0 +1,11 @@
+abstract AA : clafer {
+  CYGINT_WALLCLOCK_IMPLEMENTATIONS : clafer {
+    [this == # AA][1 == this]
+  }
+  CYGPKG_IO_WALLCLOCK_IMPLEMENTATION : clafer {
+    CYGIMP_WALLCLOCK_NONE : clafer 0 .. 1 {
+      AA : AA {
+        }
+      }
+    }
+  }
