@@ -319,8 +319,7 @@ object Converter {
      symbolTable:mutable.Map[String, mutable.Set[Type]]     
      ):GExpression = {
    
-   ca.uwaterloo.cs846.CS486Rewriting(Rewriters.rewriteGVariable(constraint))
-/* REMOVED FOR THE CLASS DEMO PURPOSES   
+//   ca.uwaterloo.cs846.CS486Rewriting(Rewriters.rewriteGVariable(constraint))
    var afterGCasts = 
 	      Rewriters.replaceGCasts(
 	         Rewriters.removeInterfaceSuffix(
@@ -338,7 +337,6 @@ object Converter {
    val afterConditionals1 = Rewriters.convertConditionals(afterConditionals)
    
    afterConditionals1
-*/   
  }
  
  /**
