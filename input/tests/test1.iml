@@ -1,0 +1,51 @@
+package CYGPKG_HAL{
+  display "eCos HAL"
+  requires [CYGPKG_INFRA ]
+  
+  interface AA {
+  	requires [AA >= 5]
+  	flavor booldata
+  }
+  
+  component CYGPKG_HAL_COMMON_INTERRUPTS{
+    display "HAL interrupt handling"
+    flavor none 
+    
+    option CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE{
+      display "Interrupt stack size"
+      implements [AA]
+      legal_values [0 to 5]
+      requires [CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE < 5]
+      flavor data 
+    }
+  }
+}
+
+package CYGPKG_LIBC_STARTUP{
+	display "ISO environment startup/termination"
+	requires [CYGPKG_ISOINFRA]
+	requires [CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE == 1]
+
+	option CYGFUN_KERNEL_API_C {
+		flavor bool
+	}
+
+	option CYGPKG_INFRA_DEBUG {
+		flavor bool
+	}
+
+	option CYGPKG_KERNEL_INSTRUMENT {
+		flavor bool
+	}
+	
+	option CYGPKG_KERNEL_SMP_SUPPORT {
+		flavor bool
+	}
+}
+
+
+    option CYGPKG_KERNEL_TESTS{
+      display "Kernel tests"
+      calculated ["thread2" . ((CYGFUN_KERNEL_API_C) ? "kalarm0" : "") . ((!CYGPKG_INFRA_DEBUG && !CYGPKG_KERNEL_INSTRUMENT && CYGFUN_KERNEL_API_C) ? " tests/dhrystone" : "") . ((CYGPKG_KERNEL_SMP_SUPPORT && CYGFUN_KERNEL_API_C) ? " tests/smp" : "") . ((!CYGINT_HAL_TESTS_NO_CACHES && CYGFUN_KERNEL_API_C) ? "tests/kcache2" : "") ]
+      flavor data 
+    }

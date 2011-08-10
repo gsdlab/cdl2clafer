@@ -17,7 +17,7 @@
  * along with cdl2clafer.  If not, see <http://www.gnu.org/licenses/>.
  */
  
-package gsd.cdl2clafer
+package gsd.cdl2clafer.model
 
 import gsd.cdl2clafer._
 import gsd.cdl.formula._

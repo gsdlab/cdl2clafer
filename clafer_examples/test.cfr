@@ -7,4 +7,16 @@
  CYGPKG_IO_WALLCLOCK_IMPLEMENTATION
    CYGIMP_WALLCLOCK_NONE  ?
    		`AA
-    
+
+
+package P {
+  interface BOOL_INTERFACE {
+    flavor bool
+  }
+  interface DATA_INTERFACE {
+    flavor data
+  }
+  interface BOOLDATA_INTERFACE {
+    flavor booldata
+  }
+}    

@@ -43,14 +43,16 @@ object ClaferPrettyPrinter extends org.kiama.util.PrettyPrinter {
      * Printing with children included (if any)
      **/
     def showClaferNode(node:ClaferNode, depth: Int): Doc = {
-//      println("printing: " + node.name)
       if (node.children.size == 0) {
-        showClaferNodeWithoutChildren(node, depth)
+        nest(
+        		showClaferNodeWithoutChildren(node, depth),
+        		depth + 1
+        )
       } else {
     	nest(
     	    showClaferNodeWithoutChildren(node, depth) 
     	    <@>
-    	    vsep(node.children.toSeq.map(a => {showClaferNode(a, depth + 1)})), 
+    	    vsep(node.children.toSeq.map(a => {showClaferNode(a, depth)})), 
     	    depth + 1
     	)
       }
@@ -64,15 +66,15 @@ object ClaferPrettyPrinter extends org.kiama.util.PrettyPrinter {
     def showClaferNodeWithoutChildren(node:ClaferNode, depth:Int):Doc = {
       
       if (node.constraints.size > 0) {
-	      nest(
+//	      nest(
 	          firstLineOfClaferAndImplements(node) <@>
 		      vsep(node.constraints.map(c => { 
 		        brackets(
 		    		  text (GExpressionPrettyPrinter.pretty(c))
 		        )
-		      })),
-		      depth + 1
-	      )
+		      }))
+//		      depth + 1
+//	      )
       } else {
         firstLineOfClaferAndImplements(node)
       }
@@ -99,10 +101,10 @@ object ClaferPrettyPrinter extends org.kiama.util.PrettyPrinter {
       doc = doc <> text(node.name)
       if (node.claferType != types.BoolType && !node.isAbstract) {
         node.claferType match {
-          case DisjunctiveType => doc = doc <+> text("--> ambigious")
-          case types.NumberType => doc = doc <+> text("--> int")
-          case types.StringType => doc = doc <+> text("--> string")
-          case UndefinedType => doc = doc <+> text("--> undefined")
+          case DisjunctiveType => doc = doc <+> text("-> ambigious")
+          case types.NumberType => doc = doc <+> text("-> int")
+          case types.StringType => doc = doc <+> text("-> string")
+          case UndefinedType => doc = doc <+> text("-> undefined")
         }
       }
       if (!node.isMandatory) {

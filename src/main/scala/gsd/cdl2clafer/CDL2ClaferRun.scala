@@ -45,6 +45,13 @@ object CDL2ClaferRun {
         TestTypes.all()    
     } else if (args(0) == "--convert-all-with-output") {
         TestTypes.writeAll()    
+    } else if (args(0) == "--convert") {
+    	if (args.size < 2) {
+    		println("Less than 2 arguments")
+    	} else {
+    		TestTypes.writeToFileOutputCurrentDir(args(1))    
+    		
+    	}
     }
    }
   }

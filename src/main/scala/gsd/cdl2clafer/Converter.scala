@@ -109,12 +109,13 @@ object Converter {
         allNodesMap, 
         newSymbolTable)
     
-    // add clafer interfaces
+    // CDL interfaces as clafer abstract features
     var claferNodes:mutable.ListBuffer[ClaferNode] = mutable.ListBuffer[ClaferNode]()
     claferNodes = claferNodes ++ allNodes.filter(n => n.cdlType == InterfaceType).map(n => {
       createAbstractNode(n)
     })
     
+    // add true and false literals
     claferNodes += trueLiteral
     claferNodes += falseLiteral
     
@@ -161,7 +162,7 @@ object Converter {
 
   val falseLiteral:ClaferNode = {
     ClaferNode("false",
-    true,
+    false,
     false,
     gsd.cdl.formula.types.BoolType,
     "Boolean literal FALSE",
@@ -257,45 +258,52 @@ object Converter {
     var constraintsMap:mutable.Map[String, mutable.ListBuffer[GExpression]]
        = mutable.Map[String, mutable.ListBuffer[GExpression]]() 
        
-    // do the rewritings
-//    var newConstraints = convertedExpressions.map(constraint => {
-//      Rewriters.replaceReferencesToDataGVariables(
-//	      Rewriters.replaceGCasts(
-//	         Rewriters.removeInterfaceSuffix(
-//	             Rewriters.rewriteGVariable(constraint)
-//	         )
-//	      ),
-//	      allNodesMap,
-//	      symbolTable
-//	      )
-//    })
-    
-    // do the casting rewritings
-    
-//    inferencedConstraints = inferencedConstraints.map(Rewriters.replaceGCasts(_))
-    
-    // do the values guardings 
-//    newConstraints.foreach(c => {
-//      if (countCastings(c) != 0) {
-//        println(ClaferPrettyPrinter.pretty(c))
-//      }
-//    })
-    // do the conditionals rewritings    
-    
     usedConstraintsIndexes.foreach(nodeIndexPair => {
-      if (!constraintsMap.contains(nodeIndexPair._1)) {
+      
+      val id = nodeIndexPair._1
+      val node = allNodesMap.apply(id)
+      
+      if (!constraintsMap.contains(id)) {
         constraintsMap += 
-          (nodeIndexPair._1 -> mutable.ListBuffer[GExpression]())
+          (id -> mutable.ListBuffer[GExpression]())
       }
       
+      if (node.cdlType == InterfaceType) {
+        /**
+         * Here we add Interface constraints.
+         * Each Node that is Interface is replaced by a Clafer with the same name,
+         * and new abstract Clafer is created.
+         * Clafer is of int type and it's value is number of abstract Clafer instances (for non-Boolean Interfaces)
+         * Also, we have a constraint saying that if this feature "is there", 
+         * number of implementations has to be > 0 (for non-Data flavoured interfaces)
+         **/
+    	  if (node.flavor != BoolFlavor) {
+    	    // we have "this" because this constraint is not inside 
+    	    // original CDL model, so it is not inside convertedExpressions
+    	    // and will not be rewrited below
+    		  constraintsMap.apply(id) += 
+    			  GEq(GVariable("this"), GNumImplementations(GVariable(AbstractVariableName(id))))
+    	  }
+    	  
+    	  if (node.flavor == BoolFlavor || node.flavor == BoolDataFlavor) {
+    		  constraintsMap.apply(id) += 
+    			  GGreaterThan(GNumImplementations(GVariable(AbstractVariableName(id))), GLongIntLiteral(0))
+    	  }      
+      }
+      
+      // Apply rewritings to the constraints
       nodeIndexPair._2.foreach(index => {
-        val newConstraint = applyRewritings(nodeIndexPair._1,
+        val newConstraint = applyRewritings(id,
             convertedExpressions.apply(index),
             allNodesMap,
             symbolTable
             )
+
+	if (countCastings(newConstraint) != 0) {
+	  println(GExpressionPrettyPrinter.pretty(newConstraint))
+	}
         
-        constraintsMap.apply(nodeIndexPair._1) += 
+        constraintsMap.apply(id) += 
           newConstraint
           
       })
@@ -310,16 +318,27 @@ object Converter {
      allNodesMap: immutable.Map[String, Node],
      symbolTable:mutable.Map[String, mutable.Set[Type]]     
      ):GExpression = {
-      Rewriters.applyGuardings(
-          id,
+   
+   ca.uwaterloo.cs846.CS486Rewriting(Rewriters.rewriteGVariable(constraint))
+/* REMOVED FOR THE CLASS DEMO PURPOSES   
+   var afterGCasts = 
 	      Rewriters.replaceGCasts(
 	         Rewriters.removeInterfaceSuffix(
 	             Rewriters.rewriteGVariable(constraint)
 	         )
-	      ),
+	      )     
+     
+   val afterGuardings = Rewriters.applyGuardings(
+          id,
+          afterGCasts,
 	      allNodesMap,
 	      symbolTable
 	      )   
+   val afterConditionals = Rewriters.convertConditionals(afterGuardings)
+   val afterConditionals1 = Rewriters.convertConditionals(afterConditionals)
+   
+   afterConditionals1
+*/   
  }
  
  /**

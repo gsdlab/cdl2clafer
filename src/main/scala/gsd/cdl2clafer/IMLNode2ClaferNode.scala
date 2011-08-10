@@ -45,7 +45,7 @@ object IMLNode2ClaferNode {
 	        getInterfaceType(n), 
 	        n.display, 
 	        n.description,
-	        getInterfaceConstraints(n, constraintsMap),
+	        getConstraints(n, allNodesMap, symbolTable, constraintsMap),
 	        List(), // implements nothing!
 	        getChildren(n, allNodesMap, symbolTable, constraintsMap)
 	  )
@@ -75,19 +75,19 @@ object IMLNode2ClaferNode {
    list.toList
  }
  
- private def getInterfaceConstraints(n:Node,
-     constraintsMap:mutable.Map[String, mutable.ListBuffer[GExpression]]):List[GExpression] = {
-   val constraints = mutable.ListBuffer[GExpression]()
-   if (n.flavor != BoolFlavor) {
-   	constraints += GEq(GVariable(n.id), GNumImplementations(GVariable(AbstractVariableName(n.id))))
-   }
-   
-   if (n.flavor == BoolFlavor || n.flavor == BoolDataFlavor) {
-     constraints += GGreaterThan(GNumImplementations(GVariable(AbstractVariableName(n.id))), GLongIntLiteral(0))
-   }
-   
-   return (constraints ++ constraintsMap.apply(n.id).toList).toList
- }
+// private def getInterfaceConstraints(n:Node,
+//     constraintsMap:mutable.Map[String, mutable.ListBuffer[GExpression]]):List[GExpression] = {
+//   val constraints = mutable.ListBuffer[GExpression]()
+//   if (n.flavor != BoolFlavor) {
+//   	constraints += GEq(GVariable("this"), GNumImplementations(GVariable(AbstractVariableName(n.id))))
+//   }
+//   
+//   if (n.flavor == BoolFlavor || n.flavor == BoolDataFlavor) {
+//     constraints += GGreaterThan(GNumImplementations(GVariable(AbstractVariableName(n.id))), GLongIntLiteral(0))
+//   }
+//   
+//   return (constraints ++ constraintsMap.apply(n.id).toList).toList
+// }
  
  private def getInterfaceType(n:Node):types.Type = {
 	 if (n.flavor == BoolFlavor) { 

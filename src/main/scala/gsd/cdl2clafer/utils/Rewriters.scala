@@ -43,21 +43,25 @@ object Rewriters {
 	    if (exp.getType().head == BoolType && 
 	             exp.getRequiredType().getOrElse(null) == NumberType) {
 	           // bool to number conversion, for example A + 1, where A is BoolFlavor
+	           println("EXAMPLE OF BOOL TO NUMBER TRANSLATION: " + exp)
 	           GConditional(GVariable(exp.asInstanceOf[GVariable].id), GLongIntLiteral(1), GLongIntLiteral(0))
 	    } else if (exp.getType().head == BoolType && 
 	             exp.getRequiredType().getOrElse(null) == StringType) {
 	         	// string to number conversion, A == "1", where A is String
 	         	// this is converted to A ? "1" : "0"
+	           println("EXAMPLE OF BOOL TO STRING TRANSLATION: " + exp)
 	    	   GConditional(GVariable(exp.asInstanceOf[GVariable].id), GStringLiteral("1"), GStringLiteral("0"))
 	    } else if (exp.getType().head == NumberType && 
 	             exp.getRequiredType().getOrElse(null) == BoolType) {
 	         	// number to boolean conversion, A ? 1: 2, where A is Number
 	         	// this is converted to A <> 0
+	           println("EXAMPLE OF NUMBER TO BOOL TRANSLATION: " + exp)
 	    	   GNot(GEq(GVariable(exp.asInstanceOf[GVariable].id), GLongIntLiteral(0)))
 	    } else if (exp.getType().head == StringType && 
 	             exp.getRequiredType().getOrElse(null) == BoolType) {
 	         	// string to boolean conversion, A ? 1: 2, where A is String
 	         	// this is converted to A <> "0"
+	           println("EXAMPLE OF STRING TO BOOL TRANSLATION: " + exp)
 	    	   GNot(GEq(GVariable(exp.asInstanceOf[GVariable].id), GStringLiteral("0")))
 	    } else {
 	      castExpression
@@ -84,15 +88,34 @@ object Rewriters {
        }
    }
    
+   private def replaceGCastsInStringLiterals(exp:GStringLiteral, castExpression:GExpression):GExpression = {
+       if (exp.getType().head == StringType && 
+	             exp.getRequiredType().getOrElse(null) == BoolType) {
+         // Literal to boolean conversion
+         if (exp.asInstanceOf[GStringLiteral].value != "0" || exp.asInstanceOf[GStringLiteral].value != "") {
+           GTrue()
+         } else {
+           GFalse()
+         }
+       } else if (exp.getType().head == StringType && 
+	     exp.getRequiredType().getOrElse(null) == types.NumberType) {
+         // conversion of string literal to int
+         throw new Exception("String to Number Conversion")
+       } else {
+         castExpression
+       }
+   }   
+   
    def replaceGCasts(exp:GExpression):GExpression = {
 	   val rule = rulef {
 		   case variable@GCast(exp) => {
 			   if ((exp.getType().size == 1) && exp.getRequiredType() != None) {
 			     if (exp.isInstanceOf[GVariable]) {
 			       replaceGCastsInGVariable(exp.asInstanceOf[GVariable], variable)
-			     } else 
-			       if (exp.isInstanceOf[GLongIntLiteral]) {
+			     } else if (exp.isInstanceOf[GLongIntLiteral]) {
 			       replaceGCastsInLongIntLiterals(exp.asInstanceOf[GLongIntLiteral], variable)
+			     } else if (exp.isInstanceOf[GStringLiteral]) {
+			       replaceGCastsInStringLiterals(exp.asInstanceOf[GStringLiteral], variable)
 			     } else
 			       variable
 			    } else {
@@ -102,8 +125,73 @@ object Rewriters {
 		   case x@_ => x
 	   }
 	   
-	   rewriteS(exp, rule)
+	   rewritebu(exp, rule)
    }
+   
+   def convertConditionals(exp:GExpression):GExpression = {
+	   val rule = rulef {
+	   case variable@GEq(left, GConditional(cond, pass, fail)) => {
+		   GConditional(cond, GEq(left, pass), GEq(left, fail))
+	   }
+	   case variable@GEq(GConditional(cond, pass, fail), right) => {
+		   GConditional(cond, GEq(pass, right), GEq(fail, right))
+	   }
+	   // >=
+	   case variable@GGreaterEqThan(left, GConditional(cond, pass, fail)) => {
+		   GConditional(cond, GGreaterEqThan(left, pass), GGreaterEqThan(left, fail))
+	   }
+	   case variable@GGreaterEqThan(GConditional(cond, pass, fail), right) => {
+		   GConditional(cond, GGreaterEqThan(pass, right), GGreaterEqThan(fail, right))
+	   }
+	   // <=
+	   case variable@GLessEqThan(left, GConditional(cond, pass, fail)) => {
+		   GConditional(cond, GLessEqThan(left, pass), GLessEqThan(left, fail))
+	   }
+	   case variable@GLessEqThan(GConditional(cond, pass, fail), right) => {
+		   GConditional(cond, GLessEqThan(pass, right), GLessEqThan(fail, right))
+	   }
+	   // >
+	   case variable@GGreaterThan(left, GConditional(cond, pass, fail)) => {
+		   GConditional(cond, GGreaterThan(left, pass), GGreaterEqThan(left, fail))
+	   }
+	   case variable@GGreaterThan(GConditional(cond, pass, fail), right) => {
+		   GConditional(cond, GGreaterThan(pass, right), GGreaterThan(fail, right))
+	   }
+	   // <
+	   case variable@GLessThan(left, GConditional(cond, pass, fail)) => {
+		   GConditional(cond, GLessThan(left, pass), GLessThan(left, fail))
+	   }
+	   case variable@GLessThan(GConditional(cond, pass, fail), right) => {
+		   GConditional(cond, GLessThan(pass, right), GLessThan(fail, right))
+	   }
+	   // - 
+	   case variable@GMinus(left, GConditional(cond, pass, fail)) => {
+		   GConditional(cond, GMinus(left, pass), GMinus(left, fail))
+	   }
+	   case variable@GMinus(GConditional(cond, pass, fail), right) => {
+		   GConditional(cond, GMinus(pass, right), GMinus(fail, right))
+	   }
+	   // +
+	   case variable@GPlus(left, GConditional(cond, pass, fail)) => {
+		   GConditional(cond, GPlus(left, pass), GPlus(left, fail))
+	   }
+	   case variable@GPlus(GConditional(cond, pass, fail), right) => {
+		   GConditional(cond, GPlus(pass, right), GPlus(fail, right))
+	   }
+	   // Contatenation
+	   case variable@GDot(left, GConditional(cond, pass, fail)) => {
+		   GConditional(cond, GDot(left, pass), GDot(left, fail))
+	   }
+	   case variable@GDot(GConditional(cond, pass, fail), right) => {
+		   GConditional(cond, GDot(pass, right), GDot(fail, right))
+	   }
+	   case x@_ => x
+	   }
+	   
+	   rewritebu(exp, rule)
+   }
+   
+   //CYGSEM_KERNEL_SYNCH_MUTEX_PRIORITY_INVERSION_PROTOCOL_DEFAULT_PRIORITY
    
    def applyGuardings(parentId:String,
 		   exp:GExpression,
@@ -112,7 +200,10 @@ object Rewriters {
    ):GExpression = {
 	   val rule = rulef {
 		   case variable@GVariable(id) => {
-		     if (parentId != id) {
+		     
+		     
+		     if (parentId != id) { // does this var. represents it's parent node
+		       // non interfaces
 			   if (allNodesMap.apply(id).cdlType != InterfaceType) {
 			     if (allNodesMap.apply(id).flavor == DataFlavor ||
 			         allNodesMap.apply(id).flavor == BoolDataFlavor) {
@@ -130,10 +221,13 @@ object Rewriters {
 			     } else variable
 			       
 			   } else {
+			    //Variables representing Interfaces
 			    if (allNodesMap.apply(id).flavor != BoolFlavor) {
 			      // variables that represent interfaces
 			      GConditional(variable, variable, GLongIntLiteral(0))
-			    } else variable
+			    } else {
+			      variable
+			      }
 			   }
 		     } else {
 		       GVariable("this")   
@@ -142,7 +236,7 @@ object Rewriters {
 		   case x@_ => x
 	   }
 	   
-	   rewriteS(exp, rule)
+	   rewritebu(exp, rule)
    }   
 
  	def rewriteGVariable(exp:GExpression):GExpression = {
@@ -153,11 +247,15 @@ object Rewriters {
 	   case x@_ => x
 	   }
 
-	   rewriteS(exp, rewriteGVariableNameRule)
+	   rewritebu(exp, rewriteGVariableNameRule)
  	} 
  	
- 	def rewriteS(exp:GExpression, s:Strategy):GExpression = {
+ 	private def rewritebu(exp:GExpression, s:Strategy):GExpression = {
  	  rewrite(GRewriter.geverywherebu(s))(exp)
+ 	}
+
+ 	private def rewritetd(exp:GExpression, s:Strategy):GExpression = {
+ 	  rewrite(GRewriter.geverywheretd(s))(exp)
  	}
  	
  	def addInterfaceSuffix(exp:GExpression,
@@ -177,7 +275,7 @@ object Rewriters {
 	    	case x@_ => x
 	    }
 	 	
-	 	rewriteS(exp, rule)
+	 	rewritebu(exp, rule)
  	}
  	
  	def removeInterfaceSuffix(exp:GExpression):GExpression = {
@@ -191,7 +289,7 @@ object Rewriters {
 	    	case x@_ => x
 	    }
 	 	
-	 	rewriteS(exp, rule)
+	 	rewritebu(exp, rule)
  	} 
  	
  	private def getGVariableWithName(old:GVariable, name:String):GVariable = {

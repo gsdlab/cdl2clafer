@@ -44,12 +44,47 @@ object TestTypes {
      for(f <- fs) {
     	 println("Processing: *" + f.getName() + "*")
     	 try {
-//       Converter.convert(f.getAbsolutePath())
-    		 Converter.printIMLAsClafer(f.getAbsolutePath())
+       Converter.convert(f.getAbsolutePath())
+//    		 Converter.printIMLAsClafer(f.getAbsolutePath())
     	 } catch {
     	   case e: Exception => println("error")
     	 }
      }
+  }
+
+   def writeToFileOutputCurrentDir(input:String) = {
+     writeToFile(input, true)
+   }
+  
+  def writeToFile(input:String, outputTheSameFolder:Boolean) = {
+    val f = new java.io.File(input)
+    if (!f.exists()) {
+      throw new Exception("File doesn't exist")
+    }
+
+    if (!f.getAbsolutePath().endsWith(".iml"))
+    	throw new Exception("Deals with .iml files only")
+    
+    var out:java.io.FileWriter = null
+    
+    if (outputTheSameFolder) {
+     out =  new java.io.FileWriter(f.getAbsolutePath.substring(0, f.getAbsolutePath.length() - 3)+ "cfr")
+    } else {
+     out = new java.io.FileWriter("output/clafer/" + f.getName.substring(0, f.getName.length() - 3) + "cfr") 
+    }
+//   
+   println("Processing: *" + f.getAbsolutePath() + "*")
+   try {
+	Converter.convert(f.getAbsolutePath()).foreach(n => {
+		out.write(ClaferPrettyPrinter.pretty(n))
+		out.write("\n")
+			out.flush
+		})
+	} catch {
+	   case e: Exception => e.printStackTrace()
+	}
+   
+   out.close
   }
 
    
@@ -65,22 +100,7 @@ object TestTypes {
      var ids = scala.collection.mutable.Set[String]()
     	
      for(f <- fs) {
-       if (!f.getAbsolutePath().endsWith(".iml"))
-         throw new Exception("Deals with .iml files only")
-
-       val out = new java.io.FileWriter("output/clafer/" + f.getName.substring(0, f.getName.length() - 3) + "cfr")
-       println("Processing: *" + f.getAbsolutePath() + "*")
-		try {
-			Converter.convert(f.getAbsolutePath()).foreach(n => {
-				out.write(ClaferPrettyPrinter.pretty(n))
-				out.write("\n")
-				out.flush
-			})
-		} catch {
-		   case e: Exception => e.printStackTrace()
-		}
-       
-       out.close
+       writeToFile(f.getAbsolutePath(), false)
      }
   }
   

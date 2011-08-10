@@ -1,0 +1,46 @@
+abstract CYGINT_HAL_SH_CPG_T1_ABSTRACT
+abstract CYGINT_HAL_SH_CPG_T2_ABSTRACT
+abstract CYGINT_HAL_SH_CPG_T3_ABSTRACT
+true
+false ?
+ [no false]
+CYGHWR_HAL_SH_CLOCK_SETTINGS
+ CYGINT_HAL_SH_CPG_T1 -> int
+  [this == #CYGINT_HAL_SH_CPG_T1_ABSTRACT]
+ CYGINT_HAL_SH_CPG_T2 -> int
+  [this == #CYGINT_HAL_SH_CPG_T2_ABSTRACT]
+ CYGINT_HAL_SH_CPG_T3 -> int
+  [this == #CYGINT_HAL_SH_CPG_T3_ABSTRACT]
+ CYGHWR_HAL_SH_TMU_PRESCALE_0 -> int
+  [(((this == 4) || (this == 16)) || (this == 64)) || (this == 256)]
+ CYGHWR_HAL_SH_RTC_PRESCALE -> int
+  [(CYGHWR_HAL_SH_TMU_PRESCALE_0 => (this == CYGHWR_HAL_SH_TMU_PRESCALE_0) else (this == 0))]
+ CYGHWR_HAL_SH_CLOCK_CKIO -> int
+  [((~(CYGINT_HAL_SH_CPG_T1 => (CYGINT_HAL_SH_CPG_T1 == 0) else (0 == 0))) => ((CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 7) else (0 == 7)) => (this == (CYGHWR_HAL_SH_OOC_XTAL => CYGHWR_HAL_SH_OOC_XTAL else 0)) else (this == (CYGHWR_HAL_SH_PLL2_OUTPUT => CYGHWR_HAL_SH_PLL2_OUTPUT else 0))) else ((~(CYGINT_HAL_SH_CPG_T2 => (CYGINT_HAL_SH_CPG_T2 == 0) else (0 == 0))) => (this == ((CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 2) else (0 == 2)) => (CYGHWR_HAL_SH_OOC_XTAL => CYGHWR_HAL_SH_OOC_XTAL else 0) else (CYGHWR_HAL_SH_PLL2_OUTPUT => CYGHWR_HAL_SH_PLL2_OUTPUT else 0))) else (this == ((~(CYGINT_HAL_SH_CPG_T3 => (CYGINT_HAL_SH_CPG_T3 == 0) else (0 == 0))) => ((CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 7) else (0 == 7)) => (CYGHWR_HAL_SH_OOC_XTAL => CYGHWR_HAL_SH_OOC_XTAL else 0) else (CYGHWR_HAL_SH_PLL2_OUTPUT => CYGHWR_HAL_SH_PLL2_OUTPUT else 0)) else 0))))]
+ CYGHWR_HAL_SH_PLL1_OUTPUT -> int
+  [this == ((CYGHWR_HAL_SH_CLOCK_CKIO => CYGHWR_HAL_SH_CLOCK_CKIO else 0) * (CYGHWR_HAL_SH_OOC_PLL_1 => CYGHWR_HAL_SH_OOC_PLL_1 else 0))]
+ CYGHWR_HAL_SH_PLL2_OUTPUT -> int
+  [((~(CYGINT_HAL_SH_CPG_T1 => (CYGINT_HAL_SH_CPG_T1 == 0) else (0 == 0))) => (this == ((CYGHWR_HAL_SH_OOC_XTAL => CYGHWR_HAL_SH_OOC_XTAL else 0) * (CYGHWR_HAL_SH_OOC_PLL_2 => CYGHWR_HAL_SH_OOC_PLL_2 else 0))) else ((~(CYGINT_HAL_SH_CPG_T2 => (CYGINT_HAL_SH_CPG_T2 == 0) else (0 == 0))) => (this == ((CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 5) else (0 == 5)) => ((CYGHWR_HAL_SH_OOC_XTAL => CYGHWR_HAL_SH_OOC_XTAL else 0) / 2) else ((CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 6) else (0 == 6)) => 14745600 else ((CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 7) else (0 == 7)) => 11075600 else ((CYGHWR_HAL_SH_OOC_XTAL => CYGHWR_HAL_SH_OOC_XTAL else 0) * (CYGHWR_HAL_SH_OOC_PLL_2 => CYGHWR_HAL_SH_OOC_PLL_2 else 0)))))) else (this == ((~(CYGINT_HAL_SH_CPG_T3 => (CYGINT_HAL_SH_CPG_T3 == 0) else (0 == 0))) => ((CYGHWR_HAL_SH_OOC_XTAL => CYGHWR_HAL_SH_OOC_XTAL else 0) * (CYGHWR_HAL_SH_OOC_PLL_2 => CYGHWR_HAL_SH_OOC_PLL_2 else 0)) else 0))))]
+ CYGHWR_HAL_SH_DIVIDER1_INPUT -> int
+  [((CYGHWR_HAL_SH_OOC_PLL_1 => (CYGHWR_HAL_SH_OOC_PLL_1 == 0) else (0 == 0)) => (CYGHWR_HAL_SH_PLL2_OUTPUT => (this == CYGHWR_HAL_SH_PLL2_OUTPUT) else (this == 0)) else (CYGHWR_HAL_SH_PLL1_OUTPUT => (this == CYGHWR_HAL_SH_PLL1_OUTPUT) else (this == 0)))]
+ CYGHWR_HAL_SH_DIVIDER2_INPUT -> int
+  [((~(CYGINT_HAL_SH_CPG_T1 => (CYGINT_HAL_SH_CPG_T1 == 0) else (0 == 0))) => (((CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 3) else (0 == 3)) || (CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 4) else (0 == 4))) => (this == (CYGHWR_HAL_SH_PLL2_OUTPUT => CYGHWR_HAL_SH_PLL2_OUTPUT else 0)) else (this == (CYGHWR_HAL_SH_PLL1_OUTPUT => CYGHWR_HAL_SH_PLL1_OUTPUT else 0))) else ((~(CYGINT_HAL_SH_CPG_T2 => (CYGINT_HAL_SH_CPG_T2 == 0) else (0 == 0))) => (this == ((CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE <= 2) else (0 <= 2)) => (CYGHWR_HAL_SH_PLL1_OUTPUT => CYGHWR_HAL_SH_PLL1_OUTPUT else 0) else (CYGHWR_HAL_SH_PLL2_OUTPUT => CYGHWR_HAL_SH_PLL2_OUTPUT else 0))) else (this == ((~(CYGINT_HAL_SH_CPG_T3 => (CYGINT_HAL_SH_CPG_T3 == 0) else (0 == 0))) => (((CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 3) else (0 == 3)) || (CYGHWR_HAL_SH_OOC_CLOCK_MODE => (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 4) else (0 == 4))) => (CYGHWR_HAL_SH_PLL2_OUTPUT => CYGHWR_HAL_SH_PLL2_OUTPUT else 0) else (CYGHWR_HAL_SH_PLL1_OUTPUT => CYGHWR_HAL_SH_PLL1_OUTPUT else 0)) else 0))))]
+ CYGHWR_HAL_SH_PROCESSOR_SPEED -> int
+  [this == ((CYGHWR_HAL_SH_DIVIDER1_INPUT => CYGHWR_HAL_SH_DIVIDER1_INPUT else 0) / (CYGHWR_HAL_SH_OOC_DIVIDER_1 => CYGHWR_HAL_SH_OOC_DIVIDER_1 else 0))]
+ CYGHWR_HAL_SH_BOARD_SPEED -> int
+  [(CYGHWR_HAL_SH_CLOCK_CKIO => (this == CYGHWR_HAL_SH_CLOCK_CKIO) else (this == 0))]
+ CYGHWR_HAL_SH_ONCHIP_PERIPHERAL_SPEED -> int
+  [this == ((CYGHWR_HAL_SH_DIVIDER2_INPUT => CYGHWR_HAL_SH_DIVIDER2_INPUT else 0) / (CYGHWR_HAL_SH_OOC_DIVIDER_2 => CYGHWR_HAL_SH_OOC_DIVIDER_2 else 0))]
+CYGHWR_HAL_SH_PLF_CLOCK_SETTINGS
+ CYGHWR_HAL_SH_OOC_XTAL -> int
+  [(this >= 8000000) && (this <= 50000000)]
+ CYGHWR_HAL_SH_OOC_PLL_1 -> int
+  [((((((this == 0) || (this == 1)) || (this == 2)) || (this == 3)) || (this == 4)) || (this == 6)) || (this == 8)]
+ CYGHWR_HAL_SH_OOC_PLL_2 -> int
+  [((this == 0) || (this == 1)) || (this == 4)]
+ CYGHWR_HAL_SH_OOC_DIVIDER_1 -> int
+  [((((this == 1) || (this == 2)) || (this == 3)) || (this == 4)) || (this == 6)]
+ CYGHWR_HAL_SH_OOC_DIVIDER_2 -> int
+  [((((this == 1) || (this == 2)) || (this == 3)) || (this == 4)) || (this == 6)]
+ CYGHWR_HAL_SH_OOC_CLOCK_MODE -> int
+  [(((((this == 0) || (this == 1)) || (this == 2)) || (this == 3)) || (this == 4)) || (this == 7)]

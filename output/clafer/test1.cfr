@@ -1,0 +1,8 @@
+true
+false
+ [no false]
+CYGPKG_HAL ?
+  [false]
+ CYGPKG_HAL_COMMON_INTERRUPTS
+   CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE --> int
+      [(this >= 128) && (this <= 1048576)]

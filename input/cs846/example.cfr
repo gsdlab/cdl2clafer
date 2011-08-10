@@ -1,0 +1,6 @@
+true
+false ?
+ [no false]
+PKG_KERNEL ?
+STACK_SIZE -> int
+ [(PKG_KERNEL => (STACK_SIZE == 128) else (STACK_SIZE == 1024))]

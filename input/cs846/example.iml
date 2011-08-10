@@ -1,0 +1,12 @@
+option PKG_KERNEL {
+	flavor bool
+}
+
+option STACK_SIZE {
+	calculated [PKG_KERNEL ? 128 : 1024]
+//	requires [512 > (PKG_KERNEL ? 128 : 1024)]
+	flavor data
+}
+
+
+ 

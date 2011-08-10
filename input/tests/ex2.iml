@@ -1,0 +1,11 @@
+package PKG {
+  interface BINT {
+    flavor bool
+  }
+  interface DINT {
+    flavor data
+  }
+  interface BDINT {
+    flavor booldata
+  }
+}

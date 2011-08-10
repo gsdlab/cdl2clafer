@@ -1,0 +1,23 @@
+abstract < 0 - * > AA_ABSTRACT : clafer 0 .. * {
+  [# c1_AA_ABSTRACT == 0 => no c4_CYGPKG_HAL . c5_AA]
+}
+< 0 - * > true : clafer 1 .. 1 {
+  }
+< 0 - * > false : clafer 0 .. 1 {
+  [no c3_false]
+}
+< 0 - * > CYGPKG_HAL : clafer 0 .. 1 {
+  [some c3_false]< 0 - * > AA -> int 0 .. 1 {
+    [this == # c4_CYGPKG_HAL . c6_CYGPKG_HAL_COMMON_INTERRUPTS . c7_CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE . c8_AA_ABSTRACT][# c4_CYGPKG_HAL . c6_CYGPKG_HAL_COMMON_INTERRUPTS . c7_CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE . c8_AA_ABSTRACT > 0][this >= 5]
+  }
+  < 0 - * > CYGPKG_HAL_COMMON_INTERRUPTS : clafer 1 .. 1 {
+    < 0 - * > CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE -> int 0 .. 1 {
+      < 0 - * > AA_ABSTRACT : c1_AA_ABSTRACT 1 .. 1 {
+        }
+      [this < 5][this >= 0 && this <= 5]
+    }
+    }
+  }
+< 0 - * > CYGPKG_LIBC_STARTUP : clafer 0 .. 1 {
+  [some c3_false][some c4_CYGPKG_HAL . c6_CYGPKG_HAL_COMMON_INTERRUPTS . c7_CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE => 1 == c4_CYGPKG_HAL . c6_CYGPKG_HAL_COMMON_INTERRUPTS . c7_CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE else 1 == 0]
+}

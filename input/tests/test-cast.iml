@@ -1,0 +1,117 @@
+      component CYGHWR_HAL_SH_CLOCK_SETTINGS{
+        display "SH on-chip generic clock controls"
+        flavor none 
+
+        interface CYGINT_HAL_SH_CPG_T1{
+          display "Clock pulse generator type 1"
+        }
+
+        interface CYGINT_HAL_SH_CPG_T2{
+          display "Clock pulse generator type 2"
+        }
+
+        interface CYGINT_HAL_SH_CPG_T3{
+          display "Clock pulse generator type 3"
+        }
+
+        option CYGHWR_HAL_SH_TMU_PRESCALE_0{
+          display "TMU counter 0 prescaling"
+          legal_values [4 16 64 256 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_RTC_PRESCALE{
+          display "eCos RTC prescaling"
+          calculated [CYGHWR_HAL_SH_TMU_PRESCALE_0 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_CLOCK_CKIO{
+          display "CKIO clock"
+          calculated [CYGINT_HAL_SH_CPG_T1 ? ( (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 7) ? (CYGHWR_HAL_SH_OOC_XTAL) : CYGHWR_HAL_SH_PLL2_OUTPUT ) : CYGINT_HAL_SH_CPG_T2 ? ( (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 2) ? (CYGHWR_HAL_SH_OOC_XTAL) : CYGHWR_HAL_SH_PLL2_OUTPUT ) : CYGINT_HAL_SH_CPG_T3 ? ( (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 7) ? (CYGHWR_HAL_SH_OOC_XTAL) : CYGHWR_HAL_SH_PLL2_OUTPUT ) : 0 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_PLL1_OUTPUT{
+          display "The clock output from PLL1"
+          calculated [CYGHWR_HAL_SH_CLOCK_CKIO * CYGHWR_HAL_SH_OOC_PLL_1 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_PLL2_OUTPUT{
+          display "The clock output from PLL2"
+          calculated [CYGINT_HAL_SH_CPG_T1 ? ( (CYGHWR_HAL_SH_OOC_XTAL * CYGHWR_HAL_SH_OOC_PLL_2) ) : CYGINT_HAL_SH_CPG_T2 ? ( (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 5) ? (CYGHWR_HAL_SH_OOC_XTAL / 2) : (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 6) ? (14745600) : (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 7) ? (11075600) : (CYGHWR_HAL_SH_OOC_XTAL * CYGHWR_HAL_SH_OOC_PLL_2) ) : CYGINT_HAL_SH_CPG_T3 ? ( (CYGHWR_HAL_SH_OOC_XTAL * CYGHWR_HAL_SH_OOC_PLL_2) ) : 0 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_DIVIDER1_INPUT{
+          display "The clock input to divider 1"
+          calculated [(CYGHWR_HAL_SH_OOC_PLL_1 == 0) ? CYGHWR_HAL_SH_PLL2_OUTPUT : CYGHWR_HAL_SH_PLL1_OUTPUT ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_DIVIDER2_INPUT{
+          display "The clock input to divider 2"
+          calculated [CYGINT_HAL_SH_CPG_T1 ? ( (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 3 || CYGHWR_HAL_SH_OOC_CLOCK_MODE == 4) ? CYGHWR_HAL_SH_PLL2_OUTPUT : CYGHWR_HAL_SH_PLL1_OUTPUT ) : CYGINT_HAL_SH_CPG_T2 ? ( (CYGHWR_HAL_SH_OOC_CLOCK_MODE <= 2) ? CYGHWR_HAL_SH_PLL1_OUTPUT : CYGHWR_HAL_SH_PLL2_OUTPUT ) : CYGINT_HAL_SH_CPG_T3 ? ( (CYGHWR_HAL_SH_OOC_CLOCK_MODE == 3 || CYGHWR_HAL_SH_OOC_CLOCK_MODE == 4) ? CYGHWR_HAL_SH_PLL2_OUTPUT : CYGHWR_HAL_SH_PLL1_OUTPUT ) : 0 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_PROCESSOR_SPEED{
+          display "Processor clock speed (MHz)"
+          calculated [CYGHWR_HAL_SH_DIVIDER1_INPUT / CYGHWR_HAL_SH_OOC_DIVIDER_1 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_BOARD_SPEED{
+          display "Platform bus clock speed (MHz)"
+          calculated [CYGHWR_HAL_SH_CLOCK_CKIO ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_ONCHIP_PERIPHERAL_SPEED{
+          display "Processor on-chip peripheral clock speed (MHz)"
+          calculated [CYGHWR_HAL_SH_DIVIDER2_INPUT / CYGHWR_HAL_SH_OOC_DIVIDER_2 ]
+          flavor data 
+        }
+      }
+
+      component CYGHWR_HAL_SH_PLF_CLOCK_SETTINGS{
+        display "SH on-chip platform clock controls"
+        flavor none 
+
+        option CYGHWR_HAL_SH_OOC_XTAL{
+          display "SH clock crystal"
+          legal_values [8000000 to 50000000 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_OOC_PLL_1{
+          display "SH clock PLL circuit 1"
+          legal_values [0 1 2 3 4 6 8 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_OOC_PLL_2{
+          display "SH clock PLL circuit 2"
+          legal_values [0 1 4 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_OOC_DIVIDER_1{
+          display "SH clock divider 1"
+          legal_values [1 2 3 4 6 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_OOC_DIVIDER_2{
+          display "SH clock divider 2"
+          legal_values [1 2 3 4 6 ]
+          flavor data 
+        }
+
+        option CYGHWR_HAL_SH_OOC_CLOCK_MODE{
+          display "SH clock mode"
+          legal_values [0 1 2 3 4 7 ]
+          flavor data 
+        }
+      }

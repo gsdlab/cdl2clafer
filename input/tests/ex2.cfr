@@ -1,0 +1,16 @@
+abstract BINT_ABSTRACT
+ [(#BINT_ABSTRACT == 0) => no BINT]
+abstract DINT_ABSTRACT
+abstract BDINT_ABSTRACT
+ [(#BDINT_ABSTRACT == 0) => no BDINT]
+true
+false ?
+ [no false]
+PKG ?
+ BINT ?
+  [#BINT_ABSTRACT > 0]
+ DINT -> int
+  [this == #DINT_ABSTRACT]
+ BDINT -> int ?
+  [this == #BDINT_ABSTRACT]
+  [#BDINT_ABSTRACT > 0]

@@ -1,0 +1,25 @@
+abstract AA_ABSTRACT
+ [(#AA_ABSTRACT == 0) => no AA]
+true
+false ?
+ [no false]
+CYGPKG_HAL ?
+ [false]
+ AA -> int ?
+  [this == #AA_ABSTRACT]
+  [#AA_ABSTRACT > 0]
+  [this >= 5]
+ CYGPKG_HAL_COMMON_INTERRUPTS
+  CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE -> int ?
+   `AA_ABSTRACT
+   [this < 5]
+   [(this >= 0) && (this <= 5)]
+CYGPKG_LIBC_STARTUP ?
+ [false]
+ [(CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE => (CYGNUM_HAL_COMMON_INTERRUPTS_STACK_SIZE == 1) else (0 == 1))]
+ CYGFUN_KERNEL_API_C ?
+ CYGPKG_INFRA_DEBUG ?
+ CYGPKG_KERNEL_INSTRUMENT ?
+ CYGPKG_KERNEL_SMP_SUPPORT ?
+CYGPKG_KERNEL_TESTS -> string
+ [(((~false) && CYGFUN_KERNEL_API_C) => ((CYGPKG_KERNEL_SMP_SUPPORT && CYGFUN_KERNEL_API_C) => (this == (((((~CYGPKG_INFRA_DEBUG) && (~CYGPKG_KERNEL_INSTRUMENT)) && CYGFUN_KERNEL_API_C) => ((CYGFUN_KERNEL_API_C => (("thread2" ++ "kalarm0") ++ " tests/dhrystone") else (("thread2" ++ "") ++ " tests/dhrystone")) ++ " tests/smp") else ((CYGFUN_KERNEL_API_C => (("thread2" ++ "kalarm0") ++ "") else (("thread2" ++ "") ++ "")) ++ " tests/smp")) ++ "tests/kcache2")) else (this == (((((~CYGPKG_INFRA_DEBUG) && (~CYGPKG_KERNEL_INSTRUMENT)) && CYGFUN_KERNEL_API_C) => ((CYGFUN_KERNEL_API_C => (("thread2" ++ "kalarm0") ++ " tests/dhrystone") else (("thread2" ++ "") ++ " tests/dhrystone")) ++ "") else ((CYGFUN_KERNEL_API_C => (("thread2" ++ "kalarm0") ++ "") else (("thread2" ++ "") ++ "")) ++ "")) ++ "tests/kcache2"))) else ((CYGPKG_KERNEL_SMP_SUPPORT && CYGFUN_KERNEL_API_C) => (this == (((((~CYGPKG_INFRA_DEBUG) && (~CYGPKG_KERNEL_INSTRUMENT)) && CYGFUN_KERNEL_API_C) => ((CYGFUN_KERNEL_API_C => (("thread2" ++ "kalarm0") ++ " tests/dhrystone") else (("thread2" ++ "") ++ " tests/dhrystone")) ++ " tests/smp") else ((CYGFUN_KERNEL_API_C => (("thread2" ++ "kalarm0") ++ "") else (("thread2" ++ "") ++ "")) ++ " tests/smp")) ++ "")) else (this == (((((~CYGPKG_INFRA_DEBUG) && (~CYGPKG_KERNEL_INSTRUMENT)) && CYGFUN_KERNEL_API_C) => ((CYGFUN_KERNEL_API_C => (("thread2" ++ "kalarm0") ++ " tests/dhrystone") else (("thread2" ++ "") ++ " tests/dhrystone")) ++ "") else ((CYGFUN_KERNEL_API_C => (("thread2" ++ "kalarm0") ++ "") else (("thread2" ++ "") ++ "")) ++ "")) ++ ""))))]
