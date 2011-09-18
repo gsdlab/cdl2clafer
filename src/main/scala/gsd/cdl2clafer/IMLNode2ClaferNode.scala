@@ -45,6 +45,7 @@ object IMLNode2ClaferNode {
 	        getInterfaceType(n), 
 	        n.display, 
 	        n.description,
+	        getOriginalCDLType(n),
 	        getConstraints(n, allNodesMap, symbolTable, constraintsMap),
 	        List(), // implements nothing!
 	        getChildren(n, allNodesMap, symbolTable, constraintsMap)
@@ -57,12 +58,25 @@ object IMLNode2ClaferNode {
 	        getClaferType(n, symbolTable), 
 	        n.display, 
 	        n.description,
+	        getOriginalCDLType(n),
 	        getConstraints(n, allNodesMap, symbolTable, constraintsMap),
 	        getImplements(n),
 	        getChildren(n, allNodesMap, symbolTable, constraintsMap)
 	  )
    }
  }
+ 
+ private def getOriginalCDLType(n:Node):gsd.cdl2clafer.model.CDLType = {
+   if (n.cdlType == gsd.cdl.model.PackageType)
+     gsd.cdl2clafer.model.CDLPackageType()
+   else if (n.cdlType == gsd.cdl.model.ComponentType)
+     gsd.cdl2clafer.model.CDLComponentType()
+   else if (n.cdlType == gsd.cdl.model.OptionType)
+     gsd.cdl2clafer.model.CDLOptionType()
+   else if (n.cdlType == gsd.cdl.model.InterfaceType)
+     gsd.cdl2clafer.model.CDLInterfaceType()
+   else throw new Exception("Wrong type")
+ } 
  
  private def getImplements(n:Node):List[GExpression] = {
    var list:mutable.ListBuffer[GVariable] = mutable.ListBuffer[GVariable]()

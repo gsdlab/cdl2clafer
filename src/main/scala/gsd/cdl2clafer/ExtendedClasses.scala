@@ -49,6 +49,7 @@ case object AbstractVariableName
 
 case class GClaferNoInstances(exp:GExpression) extends GExpression
 case class GImplies(left:GExpression, right:GExpression) extends GBinaryExpression(left, right, "=>")
+case class GEquivalent(left:GExpression, right:GExpression) extends GBinaryExpression(left, right, "<=>")
 case class GNumImplementations(exp:GVariable) extends GExpression
 
 

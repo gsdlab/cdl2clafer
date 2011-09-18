@@ -61,20 +61,26 @@ object ClaferPrettyPrinter extends org.kiama.util.PrettyPrinter {
     /**
      * We separate printing of children from printing of a node itself
      * 
-     *  This represents only node -- without it's children
+     * This represents only node -- without it's children
      **/
     def showClaferNodeWithoutChildren(node:ClaferNode, depth:Int):Doc = {
-      
       if (node.constraints.size > 0) {
-//	      nest(
-	          firstLineOfClaferAndImplements(node) <@>
+	      var realDepth = depth
+	      // abstract nodes have constraints on the same level
+	      // because the constraint should hold regardless of whether
+	      // the feature is there or not (and it is not there if there are no implementations)
+	      if (node.isAbstract) {
+	        realDepth = realDepth - 1
+	      } 
+		  nest(
+		      firstLineOfClaferAndImplements(node) <@>
 		      vsep(node.constraints.map(c => { 
 		        brackets(
 		    		  text (GExpressionPrettyPrinter.pretty(c))
 		        )
-		      }))
-//		      depth + 1
-//	      )
+		      })),
+		      realDepth
+		  )
       } else {
         firstLineOfClaferAndImplements(node)
       }
@@ -94,25 +100,55 @@ object ClaferPrettyPrinter extends org.kiama.util.PrettyPrinter {
      * Represents the first line of a Clafer node 
      **/
     private def firstLineOfClaferAndImplements(node:ClaferNode):Doc =  {
+      var firstLine:String = ""
       var doc = empty
       if (node.isAbstract) {
-        doc = doc <> text("abstract") <+> empty 
+        doc = doc <> text("abstract") <+> empty
+        firstLine += "abstract "
       }
-      doc = doc <> text(node.name)
+      doc = doc <> text(node.name) 
+      firstLine += node.name
       if (node.claferType != types.BoolType && !node.isAbstract) {
         node.claferType match {
-          case DisjunctiveType => doc = doc <+> text("-> ambigious")
-          case types.NumberType => doc = doc <+> text("-> int")
-          case types.StringType => doc = doc <+> text("-> string")
-          case UndefinedType => doc = doc <+> text("-> undefined")
+          case DisjunctiveType => firstLine += " -> ambigious" //doc = doc <+> text("-> ambigious")
+          case types.NumberType => firstLine += " -> int" //doc = doc <+> text("-> int")
+          case types.StringType => firstLine += " -> string" //doc = doc <+> text("-> string")
+          case UndefinedType => throw new Exception("Unknown type") //doc = doc <+> text("-> undefined")
         }
       }
       if (!node.isMandatory) {
-    	  doc = doc <+> text("?") 
+    	  doc = doc <+> text("?")
+    	  firstLine += " ?"
       }
       
       // TODO: HOT TO DEAL WITH IMPLEMENTATIONS?
 
-      doc <> implements(node)
+//      doc <> implements(node)
+//      text(firstLine) <> implements(node)
+      if (!node.CDLType.isInstanceOf[OtherType]) {
+        firstLine += " --" + getCDLTypeAsString(node)
+      }
+      appendCDLTypeAndDescriptionAsComment(text(firstLine), node) <> implements(node)
+    }
+    
+    private def appendCDLTypeAndDescriptionAsComment(base:Doc, node:ClaferNode):Doc = {
+      if (node.display != "") {
+        base <@> text("-- " + node.display)
+      } else {
+        base
+      }
+    }
+    
+    private def getCDLTypeAsString(node:ClaferNode):String = {
+      node.CDLType match {
+        case CDLPackageType() => "package"
+        case CDLOptionType() => "option"
+        case CDLComponentType() => "component"
+        case CDLInterfaceType() => "interface"
+        case ArtificialBooleanType() => "artificial Boolean type"
+        case ArtificialInterfaceType() => "artificial interface"
+        case OtherType() => ""
+      }
     }
 }
+

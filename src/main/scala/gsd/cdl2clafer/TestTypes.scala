@@ -42,9 +42,11 @@ object TestTypes {
     }
     	
      for(f <- fs) {
-    	 println("Processing: *" + f.getName() + "*")
+//    	 println("Processing: *" + f.getName() + "*")
     	 try {
-       Converter.convert(f.getAbsolutePath())
+//           val list = Converter.convert(f.getAbsolutePath())
+           writeToFile(f.getAbsolutePath(), false)
+           
 //    		 Converter.printIMLAsClafer(f.getAbsolutePath())
     	 } catch {
     	   case e: Exception => println("error")

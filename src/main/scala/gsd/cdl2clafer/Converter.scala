@@ -75,8 +75,6 @@ object Converter {
         case x@_ => x
       } )
       
-      println(nodes.size)
-      
     var allNodesNew = mutable.ListBuffer[Node]()
     
     allNodesNew ++= allNodes
@@ -124,18 +122,24 @@ object Converter {
  }
  
  def createAbstractNode(n:Node):ClaferNode = {
-  ClaferNode(AbstractVariableName(n.id), true,  true, types.BoolType, "Interface for node: " + n.id, None,
+  ClaferNode(AbstractVariableName(n.id), true,  true, types.BoolType, "", None, 
+		  OtherType(),
 		  getAbstractNodeConstraint(n), // no constraints
 		  List(), List()
   )
  }
  
+ /**
+  * If we have Bool of BoolData flavour-ed interfaces, the constraint
+  * ABSTRACT_I <=> I
+  * makes sure that the instance exists only if the number of implementations is > 0
+  * Actually, this is a syntactic sugar for
+  * #ABSTRACT_I > 0 <=> I
+  **/
  private def getAbstractNodeConstraint(n:Node):List[GExpression] = {
    if (n.flavor != DataFlavor) {
-	  List(GImplies(
-	          GEq(GNumImplementations(GVariable(AbstractVariableName(n.id))), GLongIntLiteral(0)),
-	          GClaferNoInstances(GVariable(n.id))
-	          )
+	  List(
+	      GEquivalent(GVariable(AbstractVariableName(n.id)), GVariable(n.id))
 	  ) // constraints
    } else {
      List()
@@ -153,8 +157,9 @@ object Converter {
     true,
     false,
     gsd.cdl.formula.types.BoolType,
-    "Boolean literal TRUE",
+    "",
     None,
+    ArtificialBooleanType(),
     List(),
     List(),
     List())
@@ -165,8 +170,9 @@ object Converter {
     false,
     false,
     gsd.cdl.formula.types.BoolType,
-    "Boolean literal FALSE",
+    "",
     None,
+    ArtificialBooleanType(),
     List(GClaferNoInstances(GVariable("false"))),
     List(),
     List())
@@ -319,7 +325,6 @@ object Converter {
      symbolTable:mutable.Map[String, mutable.Set[Type]]     
      ):GExpression = {
    
-//   ca.uwaterloo.cs846.CS486Rewriting(Rewriters.rewriteGVariable(constraint))
    var afterGCasts = 
 	      Rewriters.replaceGCasts(
 	         Rewriters.removeInterfaceSuffix(
@@ -333,10 +338,11 @@ object Converter {
 	      allNodesMap,
 	      symbolTable
 	      )   
-   val afterConditionals = Rewriters.convertConditionals(afterGuardings)
-   val afterConditionals1 = Rewriters.convertConditionals(afterConditionals)
+   afterGuardings
+//   val afterConditionals = Rewriters.convertConditionals(afterGuardings)
+//   val afterConditionals1 = Rewriters.convertConditionals(afterConditionals)
    
-   afterConditionals1
+//   afterConditionals1
  }
  
  /**

@@ -43,26 +43,32 @@ object Rewriters {
 	    if (exp.getType().head == BoolType && 
 	             exp.getRequiredType().getOrElse(null) == NumberType) {
 	           // bool to number conversion, for example A + 1, where A is BoolFlavor
-	           println("EXAMPLE OF BOOL TO NUMBER TRANSLATION: " + exp)
+//	           println("EXAMPLE OF BOOL TO NUMBER TRANSLATION: " + exp)
 	           GConditional(GVariable(exp.asInstanceOf[GVariable].id), GLongIntLiteral(1), GLongIntLiteral(0))
 	    } else if (exp.getType().head == BoolType && 
 	             exp.getRequiredType().getOrElse(null) == StringType) {
 	         	// string to number conversion, A == "1", where A is String
 	         	// this is converted to A ? "1" : "0"
-	           println("EXAMPLE OF BOOL TO STRING TRANSLATION: " + exp)
+//	           println("EXAMPLE OF BOOL TO STRING TRANSLATION: " + exp)
 	    	   GConditional(GVariable(exp.asInstanceOf[GVariable].id), GStringLiteral("1"), GStringLiteral("0"))
 	    } else if (exp.getType().head == NumberType && 
 	             exp.getRequiredType().getOrElse(null) == BoolType) {
 	         	// number to boolean conversion, A ? 1: 2, where A is Number
 	         	// this is converted to A <> 0
-	           println("EXAMPLE OF NUMBER TO BOOL TRANSLATION: " + exp)
+//	           println("EXAMPLE OF NUMBER TO BOOL TRANSLATION: " + exp)
 	    	   GNot(GEq(GVariable(exp.asInstanceOf[GVariable].id), GLongIntLiteral(0)))
 	    } else if (exp.getType().head == StringType && 
 	             exp.getRequiredType().getOrElse(null) == BoolType) {
 	         	// string to boolean conversion, A ? 1: 2, where A is String
 	         	// this is converted to A <> "0"
-	           println("EXAMPLE OF STRING TO BOOL TRANSLATION: " + exp)
+//	           println("EXAMPLE OF STRING TO BOOL TRANSLATION: " + exp)
 	    	   GNot(GEq(GVariable(exp.asInstanceOf[GVariable].id), GStringLiteral("0")))
+	    } else if (exp.getType().head == StringType && 
+	             exp.getRequiredType().getOrElse(null) == NumberType) {
+	    	throw new Exception("String to Number VARIABLE Conversion!")
+	    } else if (exp.getType().head == NumberType && 
+	             exp.getRequiredType().getOrElse(null) == StringType) {
+	    	throw new Exception("Number to String VARIABLE Conversion!")
 	    } else {
 	      castExpression
 	    }
@@ -117,8 +123,19 @@ object Rewriters {
 			     } else if (exp.isInstanceOf[GStringLiteral]) {
 			       replaceGCastsInStringLiterals(exp.asInstanceOf[GStringLiteral], variable)
 			     } else
-			       variable
+			       exp match {
+			        // TODO: Make This Work
+//			       	case GBtOr(left, right)  => GConditional(GEq(GBtOr(left, right), GLongIntLiteral(0)), GFalse(), GTrue())
+//			       	case GBtXor(left, right) => GConditional(GEq(exp, GLongIntLiteral(0)), GFalse(), GTrue())
+			       	case _ => variable
+			       } 
 			    } else {
+			      if (exp.getType().size != 1) {
+			        throw new Exception("More than one expected type!")
+			      }
+			      if (exp.getRequiredType() == None) {
+			        throw new Exception("Unknown required type")
+			      }
 			      variable
 			   }
 		   }

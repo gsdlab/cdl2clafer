@@ -33,6 +33,11 @@ case class ClaferNode(
                 claferType : types.Type, 
                 display : String,
                 description : Option[String],
+                /**
+                 * Says whether this was package, 
+                 * component or option
+                 **/
+                CDLType: CDLType,
                 constraints : List[GExpression],
                 implements : List[GExpression], // list of GVariables
                 children : List[ClaferNode])
