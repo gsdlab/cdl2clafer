@@ -1,6 +1,0 @@
-option CYGNUM_PPP_PPPD_THREAD_PRIORITY{
-  display "PPP thread priority"
-  default_value [CYGNUM_KERNEL_SCHED_PRIORITIES/2 ]
-  legal_values [0 to CYGNUM_KERNEL_SCHED_PRIORITIES ]
-  flavor data
-}

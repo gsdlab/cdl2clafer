@@ -1,8 +1,0 @@
-
-
-CYGNUM_PPP_PPPD_THREAD_PRIORITY
-    display = "PPP thread priority"
-    [#A > 10]
-    -- calculated
-    [
-    ABC]

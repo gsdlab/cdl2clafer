@@ -1,6 +1,0 @@
-
-
-CYGNUM_PPP_PPPD_THREAD_PRIORITY -> integer 
-    display = "PPP thread priority"
-    -- default_value = #CYGNUM_KERNEL_SCHED_PRIORITIES / 2
-    [0 <= this && this <= #CYGNUM_KERNEL_SCHED_PRIORITIES]
