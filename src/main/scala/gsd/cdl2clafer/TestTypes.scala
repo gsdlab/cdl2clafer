@@ -138,7 +138,7 @@ object TestTypes {
 
 		   
    	val file = "/home/marko/workspaces/gsdlab/gdansk/xcdl-analysis-dev_1.2/input/extracted_representative_model-cleaned.iml"
-    val nodes = gsd.cdl.parser.EcosIML.parseFile(file)
+    val nodes = gsd.cdl2clafer.parser.EcosIML.parseFile(file)
     
     val allNodes:List[CDLExpression] = collectl { case e:Eq => e }(nodes)
     println(allNodes.size)

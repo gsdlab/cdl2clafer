@@ -67,7 +67,7 @@ object Converter {
    **/
  def convert(file:String):List[ClaferNode] = {
  
-    val nodes = gsd.cdl.parser.EcosIML.parseFile(file)
+    val nodes = gsd.cdl2clafer.parser.EcosIML.parseFile(file)
  
     val allNodes:List[Node] = collectl { case n:Node => n }(nodes).map(_ match {
         case 	Node(id, PackageType, display, description, flavor,     defaultValues, calculated, legalValues, reqs, activeIfs, implements, children) => 

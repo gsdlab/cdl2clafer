@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with CDLTools.  If not, see <http://www.gnu.org/licenses/>.
  */
-package gsd.cdl
+package gsd.cdl2clafer
 
 trait TypeFilterList {
   class SuperList[A <: AnyRef](lst : List[A]) {

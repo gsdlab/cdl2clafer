@@ -1,6 +1,6 @@
 import sbt._
 
-class Build(info: ProjectInfo) extends DefaultProject(info) {
+class Build(info: ProjectInfo) extends DefaultProject(info) with ProguardProject  {
 
   val junit= "junit" % "junit" % "4.7"        
   val graph = "gsd" % "graph" % "1.0.1-SNAPSHOT"
@@ -19,5 +19,15 @@ class Build(info: ProjectInfo) extends DefaultProject(info) {
 
   override def mainScalaSourcePath = "src" / "main" / "scala"
 
+//  override def mainClass = Some("gsd.cdl2clafer.CDL2ClaferRun")
+
   Credentials(Path.userHome / ".ivy2" / ".credentials", log)
+
+
+  override def proguardOptions = List(
+//    "-keep class MyClass { myMethod; }",
+    proguardKeepMain("gsd.cdl2clafer.CDL2ClaferRun")
+  )
+  
+  override def proguardInJars = super.proguardInJars +++ scalaLibraryPath
 }

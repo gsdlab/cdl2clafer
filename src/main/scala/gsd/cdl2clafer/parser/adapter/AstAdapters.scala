@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package gsd.cdl.parser.adapter
+package gsd.cdl2clafer.parser.adapter
 
 import gsd.iml.ast.expression._
 import gsd.iml.ast.feature._

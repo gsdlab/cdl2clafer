@@ -17,9 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with CDLTools.  If not, see <http://www.gnu.org/licenses/>.
  */
-package gsd.cdl.parser
+package gsd.cdl2clafer.parser
 
-import gsd.cdl.parser.adapter.ImlFeatureListToImlNodeList
+import gsd.cdl2clafer.parser.adapter.ImlFeatureListToImlNodeList
 import gsd.cdl.model.Node
 import gsd.iml.parser.ImlParser 
 

@@ -39,7 +39,7 @@ object QueryAllFeaturesInDir {
     var ids = scala.collection.mutable.Set[String]()
 
      for(f <- fs) {
-	    val nodes = gsd.cdl.parser.EcosIML.parseFile(f.getAbsolutePath())
+	    val nodes = gsd.cdl2clafer.parser.EcosIML.parseFile(f.getAbsolutePath())
 	 
 	    val allNodes:List[Node] = collectl { case n:Node => n }(nodes).map(_ match {
 	        case 	Node(id, PackageType, display, description, flavor,     defaultValues, calculated, legalValues, reqs, activeIfs, implements, children) => 
