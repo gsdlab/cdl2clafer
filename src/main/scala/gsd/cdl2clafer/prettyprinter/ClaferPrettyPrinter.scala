@@ -132,7 +132,7 @@ object ClaferPrettyPrinter extends org.kiama.util.PrettyPrinter {
     }
     
     private def appendCDLTypeAndDescriptionAsComment(base:Doc, node:ClaferNode):Doc = {
-      if (node.display != "") {
+      if (node.display != "" && node.display != null) {
         base <@> text("-- " + node.display)
       } else {
         base

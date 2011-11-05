@@ -62,7 +62,7 @@ object Rewriters {
 	         	// string to boolean conversion, A ? 1: 2, where A is String
 	         	// this is converted to A <> "0"
 //	           println("EXAMPLE OF STRING TO BOOL TRANSLATION: " + exp)
-	    	   GNot(GEq(GVariable(exp.asInstanceOf[GVariable].id), GStringLiteral("0")))
+	    	   GNot(GVariable(exp.asInstanceOf[GVariable].id) === GStringLiteral("0"))
 	    } else if (exp.getType().head == StringType && 
 	             exp.getRequiredType().getOrElse(null) == NumberType) {
 	    	throw new Exception("String to Number VARIABLE Conversion!")

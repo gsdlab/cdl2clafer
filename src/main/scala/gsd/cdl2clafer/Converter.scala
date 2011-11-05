@@ -81,6 +81,7 @@ object Converter {
     // we create new iml nodes thet replace Interface variables
     // this way we 'trick' the type inference
     // that wouldn't consider interfaces otherwise
+
     allNodes.foreach(node => {
       if (node.cdlType == InterfaceType) {
         if (node.flavor != BoolFlavor) {
@@ -354,4 +355,7 @@ object Converter {
      println(ClaferPrettyPrinter.pretty(n))
    })
  }
+
+
+
 }
