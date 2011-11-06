@@ -4,7 +4,6 @@ cdl2clafer.iml
 *.iws
 *.log
 target
-lib_managed
 bin
 *~
 .classpath
